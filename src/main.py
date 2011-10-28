@@ -58,6 +58,6 @@ if __name__ == '__main__':
         ]
     }
 
-    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'attribute': json.dumps(camera_attribute), 'camera_id':"test-1"}))
+    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'attributes': json.dumps(camera_attribute), 'camera_id':"test-1"}))
     print json.loads(output.read())
     
