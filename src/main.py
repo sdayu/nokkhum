@@ -57,7 +57,30 @@ if __name__ == '__main__':
             }
         ]
     }
-
-    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'attributes': json.dumps(camera_attribute), 'camera_id':"test-1"}))
+    
+    import time
+    print "try to start camera 1"
+    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-1", 'attributes': json.dumps(camera_attribute)}))
     print json.loads(output.read())
     
+    print "sleep 60 1"
+    time.sleep(60)
+    print "try to start camera 2"
+    camera_attribute["camera"]["name"] = "camera 2"
+    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-2", 'attributes': json.dumps(camera_attribute)}))
+    print json.loads(output.read())
+    
+    
+    print "sleep 60 2"
+    time.sleep(60)
+    print "try to start again"
+    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-1", 'attributes': json.dumps(camera_attribute)}))
+    print json.loads(output.read())
+    
+    print "sleep 100"
+    time.sleep(100)
+    
+    output = urllib2.urlopen('http://localhost:9000/camera/stop', urllib.urlencode({'camera_id': "test-1"}))
+    print json.loads(output.read())
+    output = urllib2.urlopen('http://localhost:9000/camera/stop', urllib.urlencode({'camera_id': "test-2"}))
+    print json.loads(output.read())
