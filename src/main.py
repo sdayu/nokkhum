@@ -3,84 +3,22 @@ Created on Sep 7, 2011
 
 @author: boatkrap
 '''
-import json
+import sys, errno
+import ConfigParser
+
+from nokkhum import controller
+from nokkhum.controller import services
+from nokkhum import model
 
 if __name__ == '__main__':
-    import json, urllib, urllib2
-    camera_attribute = {
-        "camera":    {
-            "name":"Camera 1",
-            "model":"Logitech",
-            "fps":10,
-            "width":640,
-            "height":480,
-            "url":"rtsp://172.30.143.249/play1.sdp",
-            "username":"",
-            "password":""
-        },
-
-        "processors":[
-            {
-                "name":"Motion Detector",
-                "interval":3,
-                "resolution":98,
-                "processors":[
-                    {
-                        "name":"Video Recorder",
-                        "fps":10,
-                        "directory":"/tmp",
-                        "width":640,
-                        "height":480,
-                        "record_motion":True,
-                        "maximum_wait_motion":1
-                    },
-                    {
-                        "name":"Face Detector",
-                        "interval":5,
-                        "processors":[
-                            {
-                                "name":"Image Recorder",
-                                "directory":"/tmp",
-                                "width":640,
-                                "height":480
-                            }
-                        ]
-                     }
-                ]
-             },        
-            {
-                "name":"Video Recorder",
-                "fps":10,
-                "directory":"/tmp",
-                "width":640,
-                "height":420,
-            }
-        ]
-    }
+    if len(sys.argv) < 2:
+        sys.stderr.write( "Use: " + sys.argv[0] + " configure_file")
+        sys.exit(errno.EINVAL)
+        
+    config = ConfigParser.ConfigParser()
+    config.read(sys.argv[1])
     
-    import time
-    print "try to start camera 1"
-    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-1", 'attributes': json.dumps(camera_attribute)}))
-    print json.loads(output.read())
+    controller.config = config
     
-    print "sleep 60 1"
-    time.sleep(60)
-    print "try to start camera 2"
-    camera_attribute["camera"]["name"] = "camera 2"
-    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-2", 'attributes': json.dumps(camera_attribute)}))
-    print json.loads(output.read())
-    
-    
-    print "sleep 60 2"
-    time.sleep(60)
-    print "try to start again"
-    output = urllib2.urlopen('http://localhost:9000/camera/start', urllib.urlencode({'camera_id':"test-1", 'attributes': json.dumps(camera_attribute)}))
-    print json.loads(output.read())
-    
-    print "sleep 100"
-    time.sleep(100)
-    
-    output = urllib2.urlopen('http://localhost:9000/camera/stop', urllib.urlencode({'camera_id': "test-1"}))
-    print json.loads(output.read())
-    output = urllib2.urlopen('http://localhost:9000/camera/stop', urllib.urlencode({'camera_id': "test-2"}))
-    print json.loads(output.read())
+    model.initial(config)   
+    services.start()
