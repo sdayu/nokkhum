@@ -53,17 +53,11 @@ class Root(resource.Resource):
                 return PageNotFoundError()
             
 def start():
-    print 'Starting nokkhum controller server: %s' % str(datetime.now())
     root = Root()
 
-    directory = os.path.dirname(controller.config.get('controller', 'nokkhum.controller.log_dir'))
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    log.startLogging(DailyLogFile.fromFullPath(controller.config.get('controller', 'nokkhum.controller.log_dir')))
     log.msg('Starting nokkhum controller server: %s' % str(datetime.now()))
 
-    compute_server = server.Site(root)
+    controller_server = server.Site(root)
     port_num = int(controller.config.get('controller', 'nokkhum.controller.port'))
-    reactor.listenTCP(port_num, compute_server)
+    reactor.listenTCP(port_num, controller_server)
     reactor.run()

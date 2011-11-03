@@ -3,8 +3,12 @@ Created on Sep 7, 2011
 
 @author: boatkrap
 '''
-import sys, errno
+import sys, errno, os
+import datetime
 import ConfigParser
+
+from twisted.python import log
+from twisted.python.logfile import DailyLogFile
 
 from nokkhum import controller
 from nokkhum.controller import services
@@ -19,6 +23,15 @@ if __name__ == '__main__':
     config.read(sys.argv[1])
     
     controller.config = config
-    
     model.initial(config)   
+    
+    directory = os.path.dirname(controller.config.get('controller', 'nokkhum.controller.log_dir'))
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        
+    print 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())        
+
+    log.startLogging(DailyLogFile.fromFullPath(controller.config.get('controller', 'nokkhum.controller.log_dir')))
+    
+    
     services.start()
