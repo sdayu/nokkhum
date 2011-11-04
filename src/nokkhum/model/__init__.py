@@ -1,7 +1,7 @@
 from users import User, Group
 from cameras import Camera, CameraModel, Manufactory
 from image_processors import ImageProcessor
-from compute_node import ComputeNode
+from compute_node import CPUInfomation, MemoryInfomation, ComputeNode
 
 from mongoengine import connect
 
