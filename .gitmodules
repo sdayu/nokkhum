@@ -1,0 +1,3 @@
+[submodule "src/nokkhum/model"]
+	path = src/nokkhum/model
+	url = git@github.com:sdayu/nokkhum-model.git
