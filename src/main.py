@@ -11,7 +11,7 @@ from twisted.python import log
 from twisted.python.logfile import DailyLogFile
 
 from nokkhum import controller
-from nokkhum.controller import services
+from nokkhum.controller.services import services
 from nokkhum import model
 
 if __name__ == '__main__':
@@ -23,7 +23,11 @@ if __name__ == '__main__':
     config.read(sys.argv[1])
     
     controller.config = config
-    model.initial(config)   
+    setting = dict()
+    for k, v in config.items("controller"):
+        setting[k] = v
+        
+    model.initial(setting)   
     
     directory = os.path.dirname(controller.config.get('controller', 'nokkhum.controller.log_dir'))
     if not os.path.exists(directory):

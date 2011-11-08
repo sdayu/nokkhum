@@ -14,7 +14,7 @@ from twisted.python.logfile import DailyLogFile
 from datetime import datetime
 
 from nokkhum.util import PageNotFoundError
-from nokkhum.controller import compute_node
+from nokkhum.controller.services import compute_node
 from nokkhum import controller
 
 #main server resource
