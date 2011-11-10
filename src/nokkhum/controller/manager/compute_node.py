@@ -29,5 +29,7 @@ class ComputeNodeManager(object):
         compute_nodes = model.ComputeNode.objects(update_date__gt=now-delta).all()
         
         return compute_nodes;
+    
+    
         
         
