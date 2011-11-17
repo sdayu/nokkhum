@@ -101,6 +101,7 @@ class UpdateComputeNodeStatus(resource.Resource):
             name        = request.args['name'][0]
             cpu_str     = request.args['cpu'][0]
             memory_str  = request.args['memory'][0]
+            cameras_str = request.args['cameras'][0]
             host        = request.getRequestHostname()
             
             compute_node = model.ComputeNode.objects(name=name, host=host).first()
@@ -111,17 +112,26 @@ class UpdateComputeNodeStatus(resource.Resource):
             cpu     = json.loads(cpu_str)
             memory  = json.loads(memory_str)
             
-            compute_node.cpu.user   = cpu["user"]
-            compute_node.cpu.nice   = cpu["nice"]
-            compute_node.cpu.system = cpu["system"]
-            compute_node.cpu.idle   = cpu["idle"]
+            compute_node.cpu.usage   = cpu["usage"]
+            compute_node.cpu.usage_per_cpu = cpu["percpu"]
             
             compute_node.memory.total = memory["total"]
             compute_node.memory.used  = memory["used"]
             compute_node.memory.free  = memory["free"]
             
-            compute_node.update_date = datetime.datetime.now()
+            current_time = datetime.datetime.now()
+            compute_node.update_date = current_time
             compute_node.save()
+            
+            print "camera_str: ", cameras_str
+            cameras_id  = json.loads(cameras_str)
+            for id in cameras_id:
+                camera = model.Camera.objects().get(id=id)
+                camera.operating.status = "Running"
+                camera.operating.update_date = current_time
+                camera.operating.compute_node = compute_node
+                camera.save()
+                
         
             result["result"] = "update success"
             log.msg( 'Compute node name: "%s" update stat complete' % ( name ) )
