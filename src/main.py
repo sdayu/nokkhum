@@ -13,6 +13,7 @@ from twisted.python.logfile import DailyLogFile
 from nokkhum import controller
 from nokkhum.controller.services import services
 from nokkhum import model
+from nokkhum.controller import schedule
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -33,9 +34,12 @@ if __name__ == '__main__':
     if not os.path.exists(directory):
         os.makedirs(directory)
         
-    print 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())        
+    print 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())
 
     log.startLogging(DailyLogFile.fromFullPath(controller.config.get('controller', 'nokkhum.controller.log_dir')))
     
+    scheduling = schedule.camera.CameraScheduling()
+    scheduling.daemon = True
+    scheduling.start()
     
     services.start()

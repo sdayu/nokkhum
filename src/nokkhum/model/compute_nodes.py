@@ -3,7 +3,7 @@ import datetime
 
 class CPUInfomation(EmbeddedDocument):
     count   = IntField(required=True, default=0)
-    usage  = FloatField(default=0) # show in percent
+    usage   = FloatField(default=0) # show in percent
     usage_per_cpu  = ListField(FloatField())
     
 class MemoryInfomation(EmbeddedDocument):
@@ -12,7 +12,7 @@ class MemoryInfomation(EmbeddedDocument):
     free    = IntField(default=0)
     
 class ComputeNode(Document):
-    meta = {'collection': 'compute_node'}
+    meta = {'collection': 'compute_nodes'}
     
     name    = StringField(max_length=100, required=True)
     system  = StringField(max_length=100, required=True)
@@ -20,7 +20,7 @@ class ComputeNode(Document):
     machine = StringField(max_length=100, required=True)
     port    = IntField(required=True)
     cpu     = EmbeddedDocumentField("CPUInfomation", required=True)
-    memory     = EmbeddedDocumentField("MemoryInfomation", required=True)
+    memory  = EmbeddedDocumentField("MemoryInfomation", required=True)
     
     create_date = DateTimeField(required=True, default=datetime.datetime.now())
     update_date = DateTimeField(required=True, default=datetime.datetime.now())

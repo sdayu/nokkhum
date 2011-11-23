@@ -12,7 +12,7 @@ class CameraModel(Document):
     meta = {'collection': 'camera_models'}
     
     name        = StringField(max_length=100, required=True)
-    manufactory = ReferenceField(Manufactory)
+    manufactory = ReferenceField(Manufactory, required=True)
     create_date = DateTimeField(required=True, default=datetime.datetime.now())    
     
 class CameraOperating(EmbeddedDocument):  
@@ -31,8 +31,8 @@ class Camera(Document):
     image_size  = StringField(required=True)
     fps         = IntField(required=True)
     status      = StringField(required=True, default='Active')
-    user        = ReferenceField(User)
-    camera_model = ReferenceField('CameraModel')
+    owner       = ReferenceField(User)
+    camera_model = ReferenceField('CameraModel', required=True)
     
     processors  = ListField(DictField())
     operating   = EmbeddedDocumentField("CameraOperating", required=True)
