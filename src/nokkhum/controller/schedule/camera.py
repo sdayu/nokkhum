@@ -13,11 +13,54 @@ from nokkhum.controller import manager
 
 from twisted.python import log
 
+class CameraCommandProcessing:
+    def __init__(self):
+        self.camera_manager = manager.camera.CameraManager()
+        
+    def start(self, command, compute_node):
+    
+        command.status = "Processing"
+        command.update_date = datetime.datetime.now()
+        command.save()
+        
+        command.camera.operating.status = "Starting"
+        command.camera.operating.update_date = datetime.datetime.now()
+        command.camera.save()
+        
+        log.msg("Starting camera to %s ip %s"%(compute_node.name, compute_node.host) )
+        try:
+            self.camera_manager.startCamea(compute_node, command.camera)
+        except:
+            log.err()
+            command.camera.operating.status = "Stop"
+            command.camera.operation.update_date = datetime.datetime.now()
+            command.status = "Error"
+            command.update_date = datetime.datetime.now()
+            command.save()
+            return False
+        
+        command.camera.operating.status = "Running"
+        command.camera.operation.update_date = datetime.datetime.now()
+        command.camera.save()
+        
+        cmd_log = model.CommandLog()
+        cmd_log.id = command.id
+        cmd_log.action = command.action
+        cmd_log.attributes = ""
+        cmd_log.compute_node = command.compute_node
+        cmd_log.command_date = command.command_date
+        cmd_log.complete_date = datetime.datetime.now()
+        cmd_log.owner = command.owner
+        cmd_log.save()
+        
+        command.delete()
+        
+        
+
 class CameraScheduling(threading.Thread):
     def __init__(self):
         ''''''
         threading.Thread.__init__(self)
-        self.camera_manager = manager.camera.CameraManager()
         self.compute_node_manager = manager.compute_node.ComputeNodeManager()
         
     def run(self):
@@ -33,42 +76,9 @@ class CameraScheduling(threading.Thread):
                     break
                 
                 command = model.CameraCommandQueue.objects(status = "Waiting").order_by('-id').first()
-                command.status = "Processing"
-                command.update_date = datetime.datetime.now()
-                command.save()
-                
-                command.camera.operating.status = "Starting"
-                command.camera.operating.update_date = datetime.datetime.now()
-                command.camera.save()
-                
-                log.msg("Starting camera to %s ip %s"%(compute_node.name, compute_node.host) )
-                
-                try:
-                    self.camera_manager.startCamea(compute_node, command.camera)
-                except:
-                    log.err()
-                    command.camera.operating.status = "Stop"
-                    command.camera.operation.update_date = datetime.datetime.now()
-                    command.status = "Error"
-                    command.update_date = datetime.datetime.now()
-                    command.save()
-                    continue
-                
-                command.camera.operating.status = "Running"
-                command.camera.operation.update_date = datetime.datetime.now()
-                command.camera.save()
-                
-                cmd_log = model.CommandLog()
-                cmd_log.id = command.id
-                cmd_log.action = command.action
-                cmd_log.attributes = ""
-                cmd_log.compute_node = command.compute_node
-                cmd_log.command_date = command.command_date
-                cmd_log.complete_date = datetime.datetime.now()
-                cmd_log.owner = command.owner
-                cmd_log.save()
-                
-                command.delete()
+                if command.action == "Start":
+                    ccp = CameraCommandProcessing()
+                    ccp.start(command, compute_node)
                                           
             end_time = datetime.datetime.now()
             
