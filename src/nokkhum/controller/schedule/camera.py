@@ -23,38 +23,100 @@ class CameraCommandProcessing:
         command.update_date = datetime.datetime.now()
         command.save()
         
-        command.camera.operating.status = "Starting"
-        command.camera.operating.update_date = datetime.datetime.now()
-        command.camera.save()
+        log.msg("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host) )
         
-        log.msg("Starting camera to %s ip %s"%(compute_node.name, compute_node.host) )
+        result = None
         try:
-            self.camera_manager.startCamea(compute_node, command.camera)
+            command.camera.operating.status = "Starting"
+            command.camera.operating.update_date = datetime.datetime.now()
+            command.camera.save()
+            
+            result = self.camera_manager.start_camera(compute_node, command.camera)
         except:
             log.err()
             command.camera.operating.status = "Stop"
-            command.camera.operation.update_date = datetime.datetime.now()
+            command.camera.operating.update_date = datetime.datetime.now()
+            
             command.status = "Error"
             command.update_date = datetime.datetime.now()
             command.save()
             return False
         
         command.camera.operating.status = "Running"
-        command.camera.operation.update_date = datetime.datetime.now()
+        command.camera.operating.update_date = datetime.datetime.now()
+        command.camera.operating.compute_node = compute_node
+        command.status = "Complete"
         command.camera.save()
         
-        cmd_log = model.CommandLog()
-        cmd_log.id = command.id
-        cmd_log.action = command.action
-        cmd_log.attributes = ""
-        cmd_log.compute_node = command.compute_node
+        msg = ''
+        if command.message is not None:
+            msg = command.message
+            
+        msg += result["result"]
+        
+        cmd_log         = model.CommandLog()
+        cmd_log.action  = command.action
+        cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
+        cmd_log.compute_node = compute_node
+        cmd_log.camera = command.camera
         cmd_log.command_date = command.command_date
         cmd_log.complete_date = datetime.datetime.now()
         cmd_log.owner = command.owner
+        cmd_log.message = msg
         cmd_log.save()
         
         command.delete()
         
+    def stop(self, command):
+    
+        command.status = "Processing"
+        command.update_date = datetime.datetime.now()
+        command.save()
+        
+        compute_node = command.camera.operating.compute_node
+        
+        log.msg("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host) )
+        result = None
+        try:
+            command.camera.operating.status = "Stopping"
+            command.camera.operating.update_date = datetime.datetime.now()
+            command.camera.save()
+            
+            result = self.camera_manager.stop_camera(compute_node, command.camera)
+        except:
+            log.err()
+            command.camera.operating.status = "Stop"
+            command.camera.operating.update_date = datetime.datetime.now()
+            
+            command.status = "Error"
+            command.update_date = datetime.datetime.now()
+            command.save()
+            return False
+        
+        command.camera.operating.status = "Stop"
+        command.camera.operating.update_date = datetime.datetime.now()
+        command.camera.operating.compute_node = compute_node
+        command.status = "Complete"
+        command.camera.save()
+        
+        msg = ''
+        if command.message is not None:
+            msg = command.message
+            
+        msg += result["result"]
+        
+        cmd_log         = model.CommandLog()
+        cmd_log.action  = command.action
+        cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
+        cmd_log.compute_node = compute_node
+        cmd_log.camera = command.camera
+        cmd_log.command_date = command.command_date
+        cmd_log.complete_date = datetime.datetime.now()
+        cmd_log.owner = command.owner
+        cmd_log.message = msg
+        cmd_log.save()
+        
+        command.delete()
         
 
 class CameraScheduling(threading.Thread):
@@ -64,7 +126,7 @@ class CameraScheduling(threading.Thread):
         self.compute_node_manager = manager.compute_node.ComputeNodeManager()
         
     def run(self):
-        time_to_sleep = 30
+        time_to_sleep = 10
     
         while(True):
             start_time = datetime.datetime.now()
@@ -79,6 +141,9 @@ class CameraScheduling(threading.Thread):
                 if command.action == "Start":
                     ccp = CameraCommandProcessing()
                     ccp.start(command, compute_node)
+                elif command.action == "Stop":
+                    ccp = CameraCommandProcessing()
+                    ccp.stop(command)
                                           
             end_time = datetime.datetime.now()
             

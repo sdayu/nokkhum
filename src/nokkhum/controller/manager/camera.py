@@ -13,9 +13,10 @@ class CameraAttributesBuilder:
         
     def get_attribute(self):
         
-        size = self.camera.image_size.splite("x")
+        size = self.camera.image_size.split("x")
         
         camera_att = dict()
+        camera_att["id"]        = self.camera.id
         camera_att["name"]      = self.camera.name
         camera_att["model"]     = self.camera.camera_model.name
         camera_att["username"]  = self.camera.username
@@ -39,25 +40,25 @@ class CameraManager:
         self.list_camera_url = "/camera/list"
         self.get_attribute_camera_url = "/camera/get_attributes"
         
-    def start_camea(self, compute_node, camera):
+    def start_camera(self, compute_node, camera):
         
         url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.start_camera_url)
-
+        
         camera_attribute = CameraAttributesBuilder(camera).get_attribute()        
-        output = urllib2.urlopen(url, urllib.urlencode({'camera_id':camera.id, 'attributes': json.dumps(camera_attribute)}))
-        print json.loads(output.read())
+        output = urllib2.urlopen(url, urllib.urlencode({'camera_id':int(camera.id), 'attributes': json.dumps(camera_attribute)}))
+        return json.loads(output.read())
         
     def stop_camera(self, compute_node, camera):
         url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.stop_camera_url)
-        output = urllib2.urlopen(url, urllib.urlencode({'camera_id': camera.id}))
-        print json.loads(output.read())
+        output = urllib2.urlopen(url, urllib.urlencode({'camera_id': int(camera.id)}))
+        return json.loads(output.read())
         
     def list_camera(self, compute_node):
         url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.list_camera_url)
         output = urllib2.urlopen(url)
-        print json.loads(output.read())
+        return json.loads(output.read())
         
     def get_camera_attribute(self, compute_node, camera):
         url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.get_attribute_camera_url)
         output = urllib2.urlopen(url, urllib.urlencode({'camera_id':camera.id}))
-        print json.loads(output.read())
+        return json.loads(output.read())
