@@ -38,8 +38,7 @@ if __name__ == '__main__':
 
     log.startLogging(DailyLogFile.fromFullPath(controller.config.get('controller', 'nokkhum.controller.log_dir')))
     
-    scheduling = schedule.camera.CameraScheduling()
-    scheduling.daemon = True
-    scheduling.start()
+    timer = schedule.timer.Timer()
+    timer.start()
     
     services.start()
