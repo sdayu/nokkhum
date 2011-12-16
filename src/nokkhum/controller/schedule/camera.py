@@ -23,34 +23,33 @@ class CameraCommandProcessing:
         command.update_date = datetime.datetime.now()
         command.save()
         
-        log.msg("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host) )
+        log.msg("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host), system=self.__class__.__name__)
         
         result = None
-        try:
-            command.camera.operating.status = "Starting"
-            command.camera.operating.update_date = datetime.datetime.now()
-            command.camera.save()
+        command.camera.operating.status = "Starting"
+        command.camera.operating.update_date = datetime.datetime.now()
+        command.camera.save()
             
+        try:
             result = self.camera_manager.start_camera(compute_node, command.camera)
+            command.status = "Complete"
+            command.camera.operating.status = "Running"
+            command.camera.operating.compute_node = compute_node
         except:
             log.err()
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
-            
             command.status = "Error"
             command.update_date = datetime.datetime.now()
-            command.save()
-            return False
         
-        command.camera.operating.status = "Running"
+        
         command.camera.operating.update_date = datetime.datetime.now()
-        command.camera.operating.compute_node = compute_node
-        command.status = "Complete"
         command.camera.save()
+        command.save()
         
         msg = ''
         if command.message is not None:
-            msg = command.message
+            msg = command.message + '\n'
             
         msg += result["result"]
         
@@ -75,29 +74,27 @@ class CameraCommandProcessing:
         
         compute_node = command.camera.operating.compute_node
         
-        log.msg("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host) )
+        log.msg("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host), system=self.__class__.__name__)
         result = None
-        try:
-            command.camera.operating.status = "Stopping"
-            command.camera.operating.update_date = datetime.datetime.now()
-            command.camera.save()
+        command.camera.operating.status = "Stopping"
+        command.camera.operating.update_date = datetime.datetime.now()
+        command.camera.save()
             
+        try:
             result = self.camera_manager.stop_camera(compute_node, command.camera)
+            command.camera.operating.status = "Stop"
+            command.camera.operating.update_date = datetime.datetime.now()
+            command.camera.operating.compute_node = compute_node
+            command.status = "Complete"
         except:
             log.err()
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
-            
             command.status = "Error"
             command.update_date = datetime.datetime.now()
-            command.save()
-            return False
         
-        command.camera.operating.status = "Stop"
-        command.camera.operating.update_date = datetime.datetime.now()
-        command.camera.operating.compute_node = compute_node
-        command.status = "Complete"
         command.camera.save()
+        command.save()
         
         msg = ''
         if command.message is not None:
@@ -129,14 +126,14 @@ class CameraScheduling(threading.Thread):
         
     def run(self):
         
-        log.msg(self.name+" working")
+        log.msg("working", system=self.__class__.__name__)
         while model.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
             if compute_node is None:
-                log.err("There are no avialable resource")
+                log.err("There are no avialable resource", system=self.__class__.__name__)
                 break
             
-            command = model.CameraCommandQueue.objects(status = "Waiting").order_by('-id').first()
+            command = model.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
             if command.action == "Start":
                 ccp = CameraCommandProcessing()
                 ccp.start(command, compute_node)
@@ -144,4 +141,4 @@ class CameraScheduling(threading.Thread):
                 ccp = CameraCommandProcessing()
                 ccp.stop(command)
 
-        log.msg(self.name+" terminate")
+        log.msg("terminate", system=self.__class__.__name__)
