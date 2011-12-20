@@ -62,6 +62,7 @@ class CameraCommandProcessing:
         cmd_log.complete_date = datetime.datetime.now()
         cmd_log.owner = command.owner
         cmd_log.message = msg
+        cmd_log.status = command.status
         cmd_log.save()
         
         command.delete()
@@ -111,6 +112,7 @@ class CameraCommandProcessing:
         cmd_log.complete_date = datetime.datetime.now()
         cmd_log.owner = command.owner
         cmd_log.message = msg
+        cmd_log.status = command.status
         cmd_log.save()
         
         command.delete()

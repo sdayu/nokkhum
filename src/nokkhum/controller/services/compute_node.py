@@ -61,7 +61,7 @@ class UpdateComputeNode(resource.Resource):
             total_ram   = request.args['total_ram'][0]
             system      = request.args['system'][0]
             machine     = request.args['machine'][0]
-            host        = request.getRequestHostname()
+            host        = request.getClientIP()
             
             log.msg( 'Begin to update compute node name: ' + name)
             
@@ -102,7 +102,7 @@ class UpdateComputeNodeStatus(resource.Resource):
             cpu_str     = request.args['cpu'][0]
             memory_str  = request.args['memory'][0]
             cameras_str = request.args['cameras'][0]
-            host        = request.getRequestHostname()
+            host        = request.getClientIP()
             
             compute_node = model.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
