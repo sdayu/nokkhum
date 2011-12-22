@@ -12,7 +12,7 @@ from twisted.python import log
 import datetime
 
 from nokkhum.util import PageNotFoundError
-from nokkhum import model
+from nokkhum.common import models
 
 import json
 
@@ -65,16 +65,16 @@ class UpdateComputeNode(resource.Resource):
             
             log.msg( 'Begin to update compute node name: ' + name)
             
-            compute_node = model.ComputeNode.objects(name=name, host=host).first()
+            compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
-                compute_node = model.ComputeNode()
+                compute_node = models.ComputeNode()
                 compute_node.name = name
                 compute_node.host = host
                 
-            cpu = model.CPUInfomation()
+            cpu = models.CPUInfomation()
             cpu.count = cpu_count
             
-            memory = model.MemoryInfomation()
+            memory = models.MemoryInfomation()
             memory.total = total_ram
             
             compute_node.port    = port
@@ -104,7 +104,7 @@ class UpdateComputeNodeStatus(resource.Resource):
             cameras_str = request.args['cameras'][0]
             host        = request.getClientIP()
             
-            compute_node = model.ComputeNode.objects(name=name, host=host).first()
+            compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
                 result["result"] = "Compute node is unavailable"
                 return json.dumps(result)
@@ -126,7 +126,7 @@ class UpdateComputeNodeStatus(resource.Resource):
             print "camera_str: ", cameras_str
             cameras_id  = json.loads(cameras_str)
             for id in cameras_id:
-                camera = model.Camera.objects().get(id=id)
+                camera = models.Camera.objects().get(id=id)
                 camera.operating.status = "Running"
                 camera.operating.update_date = current_time
                 camera.operating.compute_node = compute_node

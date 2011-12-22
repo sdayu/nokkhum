@@ -8,7 +8,7 @@ import threading
 import datetime
 import time
 
-from nokkhum import model
+from nokkhum.common import models
 from nokkhum.controller import manager
 
 from twisted.python import log
@@ -53,7 +53,7 @@ class CameraCommandProcessing:
             
         msg += result["result"]
         
-        cmd_log         = model.CommandLog()
+        cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
         cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
@@ -103,7 +103,7 @@ class CameraCommandProcessing:
             
         msg += result["result"]
         
-        cmd_log         = model.CommandLog()
+        cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
         cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
@@ -129,13 +129,13 @@ class CameraScheduling(threading.Thread):
     def run(self):
         
         log.msg("working", system=self.__class__.__name__)
-        while model.CameraCommandQueue.objects(status = "Waiting").count() > 0:
+        while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
             if compute_node is None:
                 log.err("There are no avialable resource", system=self.__class__.__name__)
                 break
             
-            command = model.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
+            command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
             if command.action == "Start":
                 ccp = CameraCommandProcessing()
                 ccp.start(command, compute_node)
