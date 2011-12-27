@@ -21,10 +21,13 @@ class UpdateStatus(threading.Thread):
         def process_msg(body, message):
             print body
             message.ack()
-            
+        
+        print "yes --- > update"
         self._consumer.register(process_msg)
+
         
     def run(self):
+
         while True:
             log.msg("run message - >")
             self.connection.drain_events()
