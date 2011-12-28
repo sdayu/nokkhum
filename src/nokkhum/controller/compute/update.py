@@ -4,27 +4,25 @@ Created on Dec 23, 2011
 @author: boatkrap
 '''
 
-import threading
+import threading, datetime
 
 from nokkhum.common.messages import consumer
 import logging
 
+from nokkhum.common import models
+
 logger = logging.getLogger(__name__)
 
-class UpdateComputeNode(resource.Resource):
+class ComputeNodeResource:
 
-    def render_POST(self, request):
-        result = dict()
+    def update_system_infomation(self, args):
         try:
-            name        = request.args['name'][0]
-            port        = request.args['port'][0]
-            cpu_count   = request.args['cpu_count'][0]
-            total_ram   = request.args['total_ram'][0]
-            system      = request.args['system'][0]
-            machine     = request.args['machine'][0]
-            host        = request.getClientIP()
-            
-            logger.msg( 'Begin to update compute node name: ' + name)
+            name        = args['name']
+            cpu_count   = args['cpu_count']
+            total_ram   = args['total_ram']
+            system      = args['system']
+            machine     = args['machine']
+            host        = args['ip']
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
@@ -38,7 +36,6 @@ class UpdateComputeNode(resource.Resource):
             memory = models.MemoryInfomation()
             memory.total = total_ram
             
-            compute_node.port    = port
             compute_node.machine = machine
             compute_node.system  = system
             compute_node.cpu     = cpu
@@ -46,32 +43,23 @@ class UpdateComputeNode(resource.Resource):
             compute_node.update_date = datetime.datetime.now()
             compute_node.save()
         
-            result["result"] = "update ok"
-            logger.msg( 'Compute node name: "%s" update complete' % ( name ) )
-        except:
-            logger.err()
-            result["result"] = 'Update Compute Node Error'
-        
-        return json.dumps(result)
-    
-class UpdateComputeNodeStatus(resource.Resource):
+            logger.debug( 'Compute node name: "%s" update system info complete' % ( name ) )
+        except Exception as e:
+            logger.exception(e)
 
-    def render_POST(self, request):
-        result = dict()
+        
+
+    def update_resource(self, args):
         try:
-            name        = request.args['name'][0]
-            cpu_str     = request.args['cpu'][0]
-            memory_str  = request.args['memory'][0]
-            cameras_str = request.args['cameras'][0]
-            host        = request.getClientIP()
+            name        = args['name']
+            cpu         = args['cpu']
+            memory      = args['memory']
+            cameras     = args['cameras']
+            host        = args['ip']
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
-                result["result"] = "Compute node is unavailable"
-                return json.dumps(result)
-            
-            cpu     = json.loads(cpu_str)
-            memory  = json.loads(memory_str)
+                return 
             
             compute_node.cpu.usage   = cpu["usage"]
             compute_node.cpu.usage_per_cpu = cpu["percpu"]
@@ -83,24 +71,17 @@ class UpdateComputeNodeStatus(resource.Resource):
             current_time = datetime.datetime.now()
             compute_node.update_date = current_time
             compute_node.save()
-            
-            print "camera_str: ", cameras_str
-            cameras_id  = json.loads(cameras_str)
-            for id in cameras_id:
+
+            for id in cameras:
                 camera = models.Camera.objects().get(id=id)
                 camera.operating.status = "Running"
                 camera.operating.update_date = current_time
                 camera.operating.compute_node = compute_node
                 camera.save()
                 
-        
-            result["result"] = "update success"
-            log.msg( 'Compute node name: "%s" update stat complete' % ( name ) )
-        except:
-            log.err()
-            result["result"] = 'Update Compute Node Stat Error'
-        
-        return json.dumps(result)
+            logger.debug( 'Compute node name: "%s" update resource complete' % ( name ) )
+        except Exception as e:
+            logger.exception(e)
 
 
 class UpdateStatus(threading.Thread):
@@ -112,10 +93,15 @@ class UpdateStatus(threading.Thread):
         self.update()
         self.daemon = True
         self._running = False
+        self._cn_resource = ComputeNodeResource()
         
     def update(self):
         def process_msg(body, message):
-            print body
+            cn_resource = ComputeNodeResource()
+            if body["action"] == "update_system_infomation":
+                cn_resource.update_system_infomation(body["args"])
+            elif body["action"] == "update_resource":
+                cn_resource.update_resource(body["args"])
             message.ack()
         
         self._consumer.register(process_msg)
