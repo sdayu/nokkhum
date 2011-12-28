@@ -7,7 +7,9 @@ Created on Dec 23, 2011
 import threading
 
 from nokkhum.common.messages import consumer
-from twisted.python import log
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UpdateStatus(threading.Thread):
     
@@ -16,22 +18,22 @@ class UpdateStatus(threading.Thread):
         self._consumer = consumer.ConsumerFactory().get_consumer("nokkhum_compute.update_status")
         self.connection = consumer.ConsumerFactory().get_connection()
         self.update()
+        self._running = False
         
     def update(self):
         def process_msg(body, message):
             print body
             message.ack()
         
-        print "yes --- > update"
         self._consumer.register(process_msg)
 
         
     def run(self):
 
-        while True:
-            log.msg("run message - >")
+        self._running = True
+        while self._running:
             self.connection.drain_events()
-            log.msg("run message")
-        
+
+    
     
     

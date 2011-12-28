@@ -6,7 +6,9 @@ Created on Dec 1, 2011
 
 import threading
 import datetime
-from twisted.python import log
+
+import logging
+logger = logging.getLogger(__name__)
 
 from nokkhum.common import models
 
@@ -20,15 +22,15 @@ class CameraMonitoring(threading.Thread):
     def run(self):
         cameras = models.Camera.objects(status='Active').all()
         
-        log.msg("working", system=self.__class__.__name__)
+        logger.debug("working")
         current_time = datetime.datetime.now()
         for camera in cameras:
             if camera.operating.user_command == "Run":
                 if camera.operating.status == "Running":
                     diff_time = current_time - camera.operating.update_date
-                    log.msg( "camera id: %d diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
+                    logger.debug( "camera id: %d diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
                     if diff_time > datetime.timedelta(seconds=self.maximum_wait_time):
-                        log.msg( "camera id: %d disconnect diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
+                        logger.debug( "camera id: %d disconnect diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
                         new_command = models.CameraCommandQueue.objects(camera=camera, action="Start").first()
                         
                         if new_command is not None:
@@ -42,4 +44,4 @@ class CameraMonitoring(threading.Thread):
                         new_command.save()
                         new_command.message = "Camera-processor disconnect"
                         
-        log.msg("terminate", system=self.__class__.__name__)
+        logger.debug("terminate")

@@ -9,7 +9,8 @@ import threading
 import datetime
 import time
 
-from twisted.python import log
+import logging
+logger = logging.getLogger(__name__)
 
 from camera import CameraScheduling
 from ..monitor.camera import CameraMonitoring
@@ -56,5 +57,5 @@ class Timer(threading.Thread):
             sleep_time =  self.wakeup_every - int(delta.total_seconds())
             
             if sleep_time > 0:
-                log.msg("Timer sleep %d "%sleep_time, system=self.__class__.__name__)
+                logger.debug("Timer sleep %d "%sleep_time)
                 time.sleep(sleep_time)

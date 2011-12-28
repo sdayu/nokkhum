@@ -11,7 +11,8 @@ import time
 from nokkhum.common import models
 from nokkhum.controller import manager
 
-from twisted.python import log
+import logging
+logger = logging.getLogger(__name__)
 
 class CameraCommandProcessing:
     def __init__(self):
@@ -23,7 +24,7 @@ class CameraCommandProcessing:
         command.update_date = datetime.datetime.now()
         command.save()
         
-        log.msg("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host), system=self.__class__.__name__)
+        logger.debug("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host), system=self.__class__.__name__)
         
         result = None
         command.camera.operating.status = "Starting"
@@ -35,8 +36,7 @@ class CameraCommandProcessing:
             command.status = "Complete"
             command.camera.operating.status = "Running"
             command.camera.operating.compute_node = compute_node
-        except:
-            log.err()
+        except :
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.status = "Error"
@@ -75,7 +75,7 @@ class CameraCommandProcessing:
         
         compute_node = command.camera.operating.compute_node
         
-        log.msg("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host), system=self.__class__.__name__)
+        logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         result = None
         command.camera.operating.status = "Stopping"
         command.camera.operating.update_date = datetime.datetime.now()
@@ -88,7 +88,6 @@ class CameraCommandProcessing:
             command.camera.operating.compute_node = compute_node
             command.status = "Complete"
         except:
-            log.err()
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.status = "Error"
@@ -128,11 +127,11 @@ class CameraScheduling(threading.Thread):
         
     def run(self):
         
-        log.msg("working", system=self.__class__.__name__)
+        logger.debug("working")
         while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
             if compute_node is None:
-                log.err("There are no avialable resource", system=self.__class__.__name__)
+                logger.debug("There are no avialable resource")
                 break
             
             command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
@@ -143,4 +142,4 @@ class CameraScheduling(threading.Thread):
                 ccp = CameraCommandProcessing()
                 ccp.stop(command)
 
-        log.msg("terminate", system=self.__class__.__name__)
+        logger.debug("terminate")

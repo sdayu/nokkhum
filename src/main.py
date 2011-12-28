@@ -7,11 +7,10 @@ import sys, errno, os
 import datetime
 import ConfigParser
 
-from twisted.python import log
-from twisted.python.logfile import DailyLogFile
+import logging
+import logging.config
 
 from nokkhum import controller
-from nokkhum.controller.services import services
 from nokkhum.common import models
 from nokkhum.controller import schedule
 
@@ -30,14 +29,18 @@ if __name__ == '__main__':
         
     models.initial(setting)   
     
-    directory = os.path.dirname(controller.config.get('controller', 'nokkhum.controller.log_dir'))
+    directory = controller.config.get('controller', 'nokkhum.controller.log_dir')
     if not os.path.exists(directory):
         os.makedirs(directory)
-        
-    print 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())
-
-    log.startLogging(DailyLogFile.fromFullPath(controller.config.get('controller', 'nokkhum.controller.log_dir')))
     
+    wellcome_message = 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())
+    print wellcome_message
+    
+    logging.config.fileConfig(sys.argv[1])
+    
+    logger = logging.getLogger(__name__)
+    logger.debug(wellcome_message)
+
     from nokkhum.controller.compute import update
     update_status = update.UpdateStatus()
     update_status.start()
@@ -45,4 +48,9 @@ if __name__ == '__main__':
     timer = schedule.timer.Timer()
     timer.start()
     
-    services.start()
+    try:
+        update_status.join()
+    except KeyboardInterrupt:
+        timer.quit()
+        update_status.quit()
+    
