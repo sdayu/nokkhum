@@ -26,9 +26,12 @@ class Timer(threading.Thread):
         
         self.wakeup_every = 10
         
-    def run(self):
+        self._running = False
         
-        while(True):
+    def run(self):
+        self._running = True
+        
+        while(self._running):
             start_time = datetime.datetime.now()
             
             # check thread is alive
@@ -59,3 +62,6 @@ class Timer(threading.Thread):
             if sleep_time > 0:
                 logger.debug("Timer sleep %d "%sleep_time)
                 time.sleep(sleep_time)
+                
+    def stop(self):
+        self._running = False

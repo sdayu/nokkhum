@@ -50,7 +50,8 @@ if __name__ == '__main__':
     
     try:
         update_status.join()
+        timer.join()
     except KeyboardInterrupt:
-        timer.quit()
-        update_status.quit()
+        timer.stop()
+        update_status.stop()
     
