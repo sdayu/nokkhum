@@ -28,9 +28,9 @@ class CameraMonitoring(threading.Thread):
             if camera.operating.user_command == "Run":
                 if camera.operating.status == "Running":
                     diff_time = current_time - camera.operating.update_date
-                    logger.debug( "camera id: %d diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
+                    logger.debug( "camera id: %d diff: %d s" % (camera.id, diff_time.total_seconds()))
                     if diff_time > datetime.timedelta(seconds=self.maximum_wait_time):
-                        logger.debug( "camera id: %d disconnect diff: %d s" % (camera.id, diff_time.total_seconds()), system=self.__class__.__name__)
+                        logger.debug( "camera id: %d disconnect diff: %d s" % (camera.id, diff_time.total_seconds()))
                         new_command = models.CameraCommandQueue.objects(camera=camera, action="Start").first()
                         
                         if new_command is not None:
