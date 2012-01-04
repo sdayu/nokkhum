@@ -59,6 +59,7 @@ class ComputeNodeResource:
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
+                logger.debug("compute node: %s unavailable" % name)
                 return 
             
             compute_node.cpu.usage   = cpu["usage"]
