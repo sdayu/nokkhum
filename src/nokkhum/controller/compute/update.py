@@ -99,9 +99,9 @@ class UpdateStatus(threading.Thread):
     def update(self):
         def process_msg(body, message):
             cn_resource = ComputeNodeResource()
-            if body["action"] == "update_system_infomation":
+            if body["method"] == "update_system_infomation":
                 cn_resource.update_system_infomation(body["args"])
-            elif body["action"] == "update_resource":
+            elif body["method"] == "update_resource":
                 cn_resource.update_resource(body["args"])
             message.ack()
         
