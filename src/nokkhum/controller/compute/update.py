@@ -98,6 +98,10 @@ class UpdateStatus(threading.Thread):
         
     def update(self):
         def process_msg(body, message):
+            if "method" not in body:
+                logger.debug("ignore message", body)
+                message.ack()
+                return
             cn_resource = ComputeNodeResource()
             if body["method"] == "update_system_infomation":
                 cn_resource.update_system_infomation(body["args"])
