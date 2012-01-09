@@ -62,9 +62,8 @@ class ComputeNodeResource:
                 logger.debug("compute node: %s unavailable" % name)
                 from nokkhum.common import messages
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".command"
-                logger.debug("routing_key: %s"% routing_key)
                 publisher = messages.publisher.PublisherFactory().get_publisher(routing_key)
-                message={"method":"system_infomation"}
+                message={"method":"get_system_infomation"}
                 publisher.send(message, routing_key)
                 return 
             
