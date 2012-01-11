@@ -6,7 +6,7 @@ Created on Dec 23, 2011
 
 import threading, datetime
 
-from nokkhum.common.messages import consumer
+from nokkhum.common.messages import consumer, connection
 import logging
 
 from nokkhum.common import models
@@ -61,9 +61,11 @@ class ComputeNodeResource:
             if compute_node is None:
                 logger.debug("compute node: %s unavailable" % name)
                 from nokkhum.common import messages
-                routing_key = "nokkhum_compute."+host.replace('.', ':')+".command"
+                routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
+                logger.debug("push message routing key: %s" % routing_key)
                 publisher = messages.publisher.PublisherFactory().get_publisher(routing_key)
                 message={"method":"get_system_infomation"}
+                logger.debug("push message: %s" % message)
                 publisher.send(message, routing_key)
                 return 
             
@@ -95,7 +97,6 @@ class UpdateStatus(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self._consumer = consumer.ConsumerFactory().get_consumer("nokkhum_compute.update_status")
-        self.connection = consumer.ConsumerFactory().get_connection()
         self.update()
         self.daemon = True
         self._running = False
@@ -121,7 +122,8 @@ class UpdateStatus(threading.Thread):
 
         self._running = True
         while self._running:
-            self.connection.drain_events()
+            connection.default_connection.drain_events()
+
             
     def stop(self):
         self._running = False

@@ -41,17 +41,16 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     logger.debug(wellcome_message)
 
-    from nokkhum.controller.compute import update
-    update_status = update.UpdateStatus()
-    update_status.start()
+    from nokkhum import api
+    
+    controller_api = api.ControllerApi()
+    controller_api.start()
     
     timer = schedule.timer.Timer()
     timer.start()
     
     try:
-        update_status.join()
         timer.join()
     except KeyboardInterrupt:
         timer.stop()
-        update_status.stop()
     
