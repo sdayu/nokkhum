@@ -59,16 +59,13 @@ class ComputeNodeResource:
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
-                logger.debug("compute node: %s unavailable" % name)
                 from nokkhum.common import messages
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
-                logger.debug("push message routing key: %s" % routing_key)
-                #publisher = messages.publisher.PublisherFactory().get_publisher(routing_key)
                 message={"method":"get_system_infomation"}
-                from nokkhum.common.messages.rpc import default_rpc_client
-                default_rpc_client.send(message, routing_key)
-                logger.debug("push message: %s" % message)
-                #publisher.send(message, routing_key)
+                
+                rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+                rpc_client.send(message, routing_key)
+                logger.debug('compute node: "%s" unavailable. push %s by routing key: %s' % (name, message, routing_key))
                 return 
             
             compute_node.cpu.usage   = cpu["usage"]

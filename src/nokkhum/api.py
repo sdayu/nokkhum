@@ -17,7 +17,7 @@ class ControllerApi(threading.Thread):
         threading.Thread.__init__(self)
         self._running = False
         self.update_status = update.UpdateStatus()
-        from nokkhum.common.messages.rpc import default_rpc_client
+        self.rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
         
         
     def run(self):
