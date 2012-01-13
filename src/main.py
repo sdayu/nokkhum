@@ -41,7 +41,7 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     logger.debug(wellcome_message)
 
-    from nokkhum import api
+    from nokkhum.controller import api
     
     controller_api = api.ControllerApi()
     controller_api.start()

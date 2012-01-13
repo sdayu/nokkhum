@@ -96,26 +96,23 @@ class UpdateStatus(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self._consumer = consumer.ConsumerFactory().get_consumer("nokkhum_compute.update_status")
-        self.update()
+        #self.update()
+        self._consumer.register_callback(self.process_msg)
         self.daemon = True
         self._running = False
         self._cn_resource = ComputeNodeResource()
         
-    def update(self):
-        def process_msg(body, message):
-            if "method" not in body:
-                logger.debug("ignore message", body)
-                message.ack()
-                return
-            cn_resource = ComputeNodeResource()
-            if body["method"] == "update_system_infomation":
-                cn_resource.update_system_infomation(body["args"])
-            elif body["method"] == "update_resource":
-                cn_resource.update_resource(body["args"])
+    def process_msg(self, body, message):
+        if "method" not in body:
+            logger.debug("ignore message", body)
             message.ack()
-        
-        self._consumer.register(process_msg)
-
+            return
+        cn_resource = ComputeNodeResource()
+        if body["method"] == "update_system_infomation":
+            cn_resource.update_system_infomation(body["args"])
+        elif body["method"] == "update_resource":
+            cn_resource.update_resource(body["args"])
+        message.ack()
         
     def run(self):
 
