@@ -22,11 +22,8 @@ class ControllerApi(threading.Thread):
         
     def run(self):
         self._running = True
-        logger.debug("api drain0")
         self.update_status.start()
-        logger.debug("api drain")
         connection.default_connection.drain_events()
-        logger.debug("end api drain")
 
         
     def stop(self):

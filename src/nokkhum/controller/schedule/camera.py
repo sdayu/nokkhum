@@ -32,10 +32,13 @@ class CameraCommandProcessing:
         command.camera.save()
             
         try:
-            result = self.camera_manager.start_camera(compute_node, command.camera)
-            command.status = "Complete"
-            command.camera.operating.status = "Running"
-            command.camera.operating.compute_node = compute_node
+            response = self.camera_manager.start_camera(compute_node, command.camera)
+            if response['success']:
+                command.status = "Complete"
+                command.camera.operating.status = "Running"
+                command.camera.operating.compute_node = compute_node
+            else:
+                raise Exception('start camera fail')
         except :
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
@@ -51,7 +54,7 @@ class CameraCommandProcessing:
         if command.message is not None:
             msg = command.message + '\n'
             
-        msg += result["result"]
+        msg += response["comment"]
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
@@ -75,14 +78,15 @@ class CameraCommandProcessing:
         
         compute_node = command.camera.operating.compute_node
         
+        
         logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
-        result = None
+        response = None
         command.camera.operating.status = "Stopping"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
             
         try:
-            result = self.camera_manager.stop_camera(compute_node, command.camera)
+            response = self.camera_manager.stop_camera(compute_node, command.camera)
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.camera.operating.compute_node = compute_node
@@ -100,7 +104,7 @@ class CameraCommandProcessing:
         if command.message is not None:
             msg = command.message
             
-        msg += result["result"]
+        msg += response["comment"]
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action

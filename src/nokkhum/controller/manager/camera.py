@@ -32,33 +32,48 @@ class CameraAttributesBuilder:
         attributes["processors"] = self.camera.processors
         return attributes
 
+from nokkhum.common.messages import connection
 class CameraManager:
     def __init__(self):
-        self.http = "http"
-        self.start_camera_url = "/camera/start"
-        self.stop_camera_url = "/camera/stop"
-        self.list_camera_url = "/camera/list"
-        self.get_attribute_camera_url = "/camera/get_attributes"
+        self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client()
         
+    def __get_routing_key(self, ip):
+        return "nokkhum_compute."+ip.replace('.', ':')+".rpc_request"
+    
     def start_camera(self, compute_node, camera):
-        
-        url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.start_camera_url)
-        
+
         camera_attribute = CameraAttributesBuilder(camera).get_attribute()        
-        output = urllib2.urlopen(url, urllib.urlencode({'camera_id':int(camera.id), 'attributes': json.dumps(camera_attribute)}))
-        return json.loads(output.read())
+        
+        args = {
+                'camera_id': camera.id,
+                'attributes': camera_attribute,
+                }
+        request = {
+                   'method': 'start_camera',
+                   'args': args,
+                   }
+        
+        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
         
     def stop_camera(self, compute_node, camera):
-        url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.stop_camera_url)
-        output = urllib2.urlopen(url, urllib.urlencode({'camera_id': int(camera.id)}))
-        return json.loads(output.read())
+        request = {
+                   'method': 'stop_camera',
+                   'args': {'camera_id': camera.id}
+                   }
+        
+        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
         
     def list_camera(self, compute_node):
-        url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.list_camera_url)
-        output = urllib2.urlopen(url)
-        return json.loads(output.read())
+        request = {
+                   'method': 'list_camera',
+                   }
+        
+        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
         
     def get_camera_attribute(self, compute_node, camera):
-        url =  "%s://%s:%d%s" % (self.http, compute_node.host, compute_node.port, self.get_attribute_camera_url)
-        output = urllib2.urlopen(url, urllib.urlencode({'camera_id':camera.id}))
-        return json.loads(output.read())
+        request = {
+                   'method': 'get_cameras_attributes',
+                   'args': {'camera_id': camera.id}
+                   }
+        
+        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
