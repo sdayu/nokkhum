@@ -32,7 +32,7 @@ class CameraAttributesBuilder:
         attributes["processors"] = self.camera.processors
         return attributes
 
-from nokkhum.common.messages import connection
+from nokkhum.common.messaging import connection
 class CameraManager:
     def __init__(self):
         self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client()

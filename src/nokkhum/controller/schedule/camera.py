@@ -26,7 +26,7 @@ class CameraCommandProcessing:
         
         logger.debug("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
-        result = None
+        response = None
         command.camera.operating.status = "Starting"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()

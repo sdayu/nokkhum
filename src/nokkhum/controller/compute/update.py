@@ -6,7 +6,7 @@ Created on Dec 23, 2011
 
 import threading, datetime
 
-from nokkhum.common.messages import consumer, connection
+from nokkhum.common.messaging import consumer, connection
 import logging
 
 from nokkhum.common import models

@@ -38,9 +38,12 @@ if __name__ == '__main__':
     
     logging.config.fileConfig(sys.argv[1])
     
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
     logger.debug(wellcome_message)
 
+    from nokkhum.common.messaging import connection
+    connection.initial(config.get('controller', 'amq.url'))
+    
     from nokkhum.controller import api
     
     controller_api = api.ControllerApi()
