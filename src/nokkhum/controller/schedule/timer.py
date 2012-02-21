@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 from camera import CameraScheduling
 from ..monitor.camera import CameraMonitoring
+from ..manager.storage import Storage
 
 class Timer(threading.Thread):
     def __init__(self):
@@ -23,6 +24,7 @@ class Timer(threading.Thread):
         
         self.camera_sheduling = None
         self.camera_monitoring = None
+        self.clear_storage = None
         
         self.wakeup_every = 10
         
@@ -45,6 +47,11 @@ class Timer(threading.Thread):
                     self.camera_monitoring.join()
                     self.camera_monitoring = None
                     
+            if self.clear_storage is not None:
+                if not self.clear_storage.is_alive():
+                    self.clear_storage.join()
+                    self.clear_storage = None
+                    
             if self.camera_sheduling is None:
                 self.camera_sheduling = CameraScheduling()
                 self.camera_sheduling.start()
@@ -53,7 +60,12 @@ class Timer(threading.Thread):
                 self.camera_monitoring = CameraMonitoring()
                 self.camera_monitoring.start()
                 
-                                          
+            
+            if start_time.hour == 1 and start_time.hour == 30\
+                and self.clear_storage is None:
+                self.clear_storage = Storage()
+                self.clear_storage.start()
+                                 
             end_time = datetime.datetime.now()
             
             delta = start_time - end_time
