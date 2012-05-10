@@ -61,7 +61,7 @@ class Timer(threading.Thread):
                 self.camera_monitoring.start()
                 
             
-            if start_time.hour == 1 and start_time.hour == 30\
+            if start_time.hour == 1 and start_time.minute == 30\
                 and self.clear_storage is None:
                 self.clear_storage = Storage()
                 self.clear_storage.start()
