@@ -132,8 +132,10 @@ class CameraScheduling(threading.Thread):
     def run(self):
         
         logger.debug("working")
-        while models.CameraCommandQueue.objects(status = "Processing", update_date__lt = ).count() > 0:
+        td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
+        while models.CameraCommandQueue.objects(status = "Processing", update_date__lt = td).count() > 0:
             command = models.CameraCommandQueue.objects(status = "Processing").order_by('+id').first()
+            command.delete()
         
         while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
