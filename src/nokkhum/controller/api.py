@@ -5,7 +5,7 @@ Created on Jan 11, 2012
 '''
 
 import threading
-from ..common.messaging import connection
+from ..messaging import connection
 
 from nokkhum.controller.compute import update
 

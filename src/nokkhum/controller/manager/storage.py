@@ -5,8 +5,8 @@ Created on Feb 20, 2012
 '''
 
 import threading
-from nokkhum.common.storage import s3
-from nokkhum.common import models
+from nokkhum.cloud.storage import s3
+from nokkhum import models
 from nokkhum import controller
 import datetime
 

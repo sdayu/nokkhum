@@ -11,7 +11,7 @@ import logging
 import logging.config
 
 from nokkhum import controller
-from nokkhum.common import models
+from nokkhum import models
 from nokkhum.controller import schedule
 
 if __name__ == '__main__':
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.debug(wellcome_message)
 
-    from nokkhum.common.messaging import connection
+    from nokkhum.messaging import connection
     connection.initial(config.get('controller', 'amq.url'))
     
     from nokkhum.controller import api

@@ -6,10 +6,10 @@ Created on Dec 23, 2011
 
 import threading, datetime
 
-from nokkhum.common.messaging import consumer, connection
+from nokkhum.messaging import consumer, connection
 import logging
 
-from nokkhum.common import models
+from nokkhum import models
 
 logger = logging.getLogger(__name__)
 

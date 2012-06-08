@@ -1,3 +1,9 @@
-[submodule "src/nokkhum/common"]
-	path = src/nokkhum/common
-	url = git://github.com/sdayu/nokkhum-common.git
+[submodule "src/nokkhum/cloud"]
+	path = src/nokkhum/cloud
+	url = git://github.com/sdayu/nokkhum-cloud.git
+[submodule "src/nokkhum/messaging"]
+	path = src/nokkhum/messaging
+	url = git://github.com/sdayu/nokkhum-messaging.git
+[submodule "src/nokkhum/models"]
+	path = src/nokkhum/models
+	url = git://github.com/sdayu/nokkhum-models.git

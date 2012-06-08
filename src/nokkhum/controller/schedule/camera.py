@@ -8,7 +8,7 @@ import threading
 import datetime
 import time
 
-from nokkhum.common import models
+from nokkhum import models
 from nokkhum.controller import manager
 
 import logging

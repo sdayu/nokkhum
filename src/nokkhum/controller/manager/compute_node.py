@@ -5,7 +5,7 @@ Created on Nov 7, 2011
 '''
 import datetime
 
-from nokkhum.common import models
+from nokkhum import models
 
 class ComputeNodeManager(object):
     '''

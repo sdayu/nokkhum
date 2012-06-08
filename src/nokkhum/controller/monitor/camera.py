@@ -10,7 +10,7 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-from nokkhum.common import models
+from nokkhum import models
 
 class CameraMonitoring(threading.Thread):
     def __init__(self):
