@@ -19,7 +19,7 @@ from ..manager.storage import Storage
 class Timer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.name = "Timer"
+        self.name = self.__class__.__name__
         self.daemon = True
         
         self.camera_sheduling = None

@@ -12,7 +12,6 @@ import logging.config
 
 from nokkhum import controller
 from nokkhum import models
-from nokkhum.controller import schedule
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -45,15 +44,15 @@ if __name__ == '__main__':
     connection.initial(config.get('controller', 'amq.url'))
     
     from nokkhum.controller import api
-    
     controller_api = api.ControllerApi()
-    controller_api.start()
-
-    timer = schedule.timer.Timer()
-    timer.start()
+    
 
     try:
-        timer.join()
+        controller_api.start()
     except KeyboardInterrupt:
-        timer.stop()
+        controller_api.stop()
+        logger.debug("KeyboardInterrupt")
+        
+    logger.debug("Program Terminate")
+    print "\nProgram Terminate"
     

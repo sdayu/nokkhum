@@ -39,7 +39,8 @@ class CameraCommandProcessing:
                 command.camera.operating.compute_node = compute_node
             else:
                 raise Exception('start camera fail')
-        except :
+        except Exception as e:
+            logger.exception(e)
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.status = "Error"
@@ -131,11 +132,18 @@ class CameraScheduling(threading.Thread):
         
     def run(self):
         
-        logger.debug("working")
+        logger.debug(self.name+": working")
         td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
-        while models.CameraCommandQueue.objects(status = "Processing", update_date__lt = td).count() > 0:
-            command = models.CameraCommandQueue.objects(status = "Processing").order_by('+id').first()
-            command.delete()
+        
+        # check processing status expired
+                
+        while models.CameraCommandQueue.objects(status="Processing", update_date__lt=td).count() > 0:
+            try:
+                command = models.CameraCommandQueue.objects(status="Processing").order_by('+id').first()
+                command.delete()
+                
+            except Exception as e:
+                logger.exception(e)
         
         while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
@@ -151,4 +159,4 @@ class CameraScheduling(threading.Thread):
                 ccp = CameraCommandProcessing()
                 ccp.stop(command)
 
-        logger.debug("terminate")
+        logger.debug(self.name+": terminate")

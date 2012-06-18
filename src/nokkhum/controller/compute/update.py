@@ -4,7 +4,7 @@ Created on Dec 23, 2011
 @author: boatkrap
 '''
 
-import threading, datetime
+import threading, datetime, time
 
 from nokkhum.messaging import consumer, connection
 import logging
@@ -95,8 +95,8 @@ class UpdateStatus(threading.Thread):
     
     def __init__(self):
         threading.Thread.__init__(self)
-        self._consumer = consumer.ConsumerFactory().get_consumer("nokkhum_compute.update_status")
-        #self.update()
+        self.name = self.__class__.__name__
+        self._consumer = connection.default_connection.consumer_factory.get_consumer("nokkhum_compute.update_status")
         self._consumer.register_callback(self.process_msg)
         self.daemon = True
         self._running = False
@@ -118,7 +118,7 @@ class UpdateStatus(threading.Thread):
 
         self._running = True
         while self._running:
-            connection.default_connection.drain_events()
+            time.sleep(10)
 
             
     def stop(self):
