@@ -50,8 +50,11 @@ if __name__ == '__main__':
     try:
         controller_api.start()
     except KeyboardInterrupt:
-        controller_api.stop()
         logger.debug("KeyboardInterrupt")
+    except Exception as e:
+        logger.exception(e)
+    finally:
+        controller_api.stop()
         
     logger.debug("Program Terminate")
     print "\nProgram Terminate"
