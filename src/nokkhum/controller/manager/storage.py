@@ -23,7 +23,7 @@ class Storage(threading.Thread):
         host = setting.get('controller', 'nokkhum.s3.host') 
         port = setting.getint('controller', 'nokkhum.s3.port')
         secure = setting.getboolean('controller', 'nokkhum.s3.secure_connection')
-        self.s3_storage = s3.S3Storage(access_key_id, secret_access_key, host, port, secure)
+        self.s3_storage = s3.S3Client(access_key_id, secret_access_key, host, port, secure)
         
         self.daemon = True
         self.name = "S3_clear_storage_thread"

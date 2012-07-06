@@ -46,7 +46,6 @@ class CameraManager:
         
         args = {
                 'camera_id': camera.id,
-                'user_id': camera.owner.id,
                 'attributes': camera_attribute,
                 }
         request = {
