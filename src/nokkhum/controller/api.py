@@ -36,9 +36,11 @@ class ControllerApi():
         self.update_status.stop()
         self.timer.stop()
         
-        connection.default_connection.release()
-        
         self.update_status.join()
         self.timer.join()
+        
+        connection.default_connection.release()
+        
+        
         
         

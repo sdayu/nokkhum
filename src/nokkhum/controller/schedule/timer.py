@@ -37,6 +37,7 @@ class Timer(threading.Thread):
             start_time = datetime.datetime.now()
             
             # check thread is alive
+            logger.debug("Timer Thread Weakup")
             if self.camera_sheduling is not None:
                 if not self.camera_sheduling.is_alive():
                     self.camera_sheduling.join()
@@ -61,7 +62,8 @@ class Timer(threading.Thread):
                 self.camera_monitoring.start()
                 
             
-            if start_time.hour == 1 and start_time.minute == 30\
+            if start_time.hour == 1 \
+                and (start_time.minute >= 30 or start_time.minute < 40)\
                 and self.clear_storage is None:
                 self.clear_storage = Storage()
                 self.clear_storage.start()
@@ -77,3 +79,4 @@ class Timer(threading.Thread):
                 
     def stop(self):
         self._running = False
+        logger.debug("Timer Thread Stop")
