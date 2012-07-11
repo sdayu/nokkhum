@@ -37,17 +37,17 @@ class CameraCommandProcessing:
                 command.status = "Complete"
                 command.camera.operating.status = "Running"
                 command.camera.operating.compute_node = compute_node
+                command.camera.operating.update_date = datetime.datetime.now()
             else:
                 raise Exception('start camera fail')
         except Exception as e:
             logger.exception(e)
-            command.camera.operating.status = "Stop"
-            command.camera.operating.update_date = datetime.datetime.now()
+#            command.camera.operating.status = "Stop"
+#            command.camera.operating.update_date = datetime.datetime.now()
+            command.message = str(e)
             command.status = "Error"
             command.update_date = datetime.datetime.now()
         
-        
-        command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
         command.save()
         
@@ -55,7 +55,8 @@ class CameraCommandProcessing:
         if command.message is not None:
             msg = command.message + '\n'
             
-        msg += response["comment"]
+        if response:
+            msg += response["comment"]
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
@@ -104,8 +105,9 @@ class CameraCommandProcessing:
         msg = ''
         if command.message is not None:
             msg = command.message
-            
-        msg += response["comment"]
+        
+        if response:    
+            msg += response["comment"]
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
