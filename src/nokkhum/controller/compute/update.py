@@ -88,7 +88,7 @@ class ComputeNodeResource:
         except Exception as e:
             logger.exception(e)
 
-    def dead_process_report(self, args):
+    def camera_running_fail_report(self, args):
         try:
             name        = args['name']
             host        = args['ip']
@@ -104,7 +104,7 @@ class ComputeNodeResource:
             if not camera:
                 return
             
-            camera_status = models.CameraFailStatus()
+            camera_status = models.CameraRunningFail()
             camera_status.camera = camera
             camera_status.compute_node = compute_node
             camera_status.message = message
@@ -113,7 +113,7 @@ class ComputeNodeResource:
             
             camera.operating.status = "Fail"
             camera.operating.update_date = datetime.datetime.now()
-            camera.operating.save()
+            camera.save()
             
             logger.debug( 'Compute node name: "%s" ip: %s got camera error id: %s msg:\n %s' % ( name, host, camera_id, message) )
         
@@ -139,8 +139,8 @@ class UpdateStatus(threading.Thread):
             cn_resource.update_system_infomation(body["args"])
         elif body["method"] == "update_resource":
             cn_resource.update_resource(body["args"])
-        elif body["method"] == "dead_process_report":
-            cn_resource.dead_process_report(body["args"])
+        elif body["method"] == "camera_running_fail_report":
+            cn_resource.camera_running_fail_report(body["args"])
         message.ack()
         
     def run(self):
