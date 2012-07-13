@@ -54,7 +54,7 @@ class Storage(threading.Thread):
 #                logger.debug( "diff date: %d"% diff_time.days)
                 
                 if camera.storage_periods > 0 \
-                    and diff_time.days > 1:
+                    and diff_time.days > camera.storage_periods:
 #                        print "diff: ", diff_time.days
 #                        print "key name: ", key_name
                     
