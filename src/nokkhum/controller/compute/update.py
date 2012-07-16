@@ -27,6 +27,7 @@ class ComputeNodeResource:
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
                 compute_node = models.ComputeNode()
+                compute_node.create_date = datetime.datetime.now()
                 compute_node.name = name
                 compute_node.host = host
                 
@@ -109,6 +110,7 @@ class ComputeNodeResource:
             camera_status.compute_node = compute_node
             camera_status.message = message
             camera_status.report_time = report_time
+            camera_status.process_time = datetime.datetime.now()
             camera_status.save()
             
             camera.operating.status = "Fail"

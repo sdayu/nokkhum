@@ -41,6 +41,8 @@ class CameraMonitoring(threading.Thread):
         new_command.camera = camera
         new_command.message = message
         new_command.owner = camera.owner
+        new_command.command_date = datetime.datetime.now()
+        new_command.update_date = datetime.datetime.now()
         new_command.save()
         
     def __monitor_camera_active(self):
