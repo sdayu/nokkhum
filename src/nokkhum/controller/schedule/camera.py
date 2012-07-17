@@ -157,13 +157,14 @@ class CameraScheduling(threading.Thread):
                 break
             
             command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
-
-            if command.action == "Start":
-                ccp = CameraCommandProcessing()
-                ccp.start(command, compute_node)
-            elif command.action == "Stop":
-                ccp = CameraCommandProcessing()
-                ccp.stop(command)
-
+            try:
+                if command.action == "Start":
+                    ccp = CameraCommandProcessing()
+                    ccp.start(command, compute_node)
+                elif command.action == "Stop":
+                    ccp = CameraCommandProcessing()
+                    ccp.stop(command)
+            except Exception as e:
+                logger.exception(e)
 
         logger.debug(self.name+": terminate")

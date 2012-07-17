@@ -4,8 +4,8 @@ Created on Nov 7, 2011
 @author: boatkrap
 '''
 
-import urllib, urllib2
-import json
+import logging
+logger = logging.getLogger(__name__)
 
 class CameraAttributesBuilder:
     def __init__(self, camera):
@@ -32,6 +32,8 @@ class CameraAttributesBuilder:
         attributes["processors"] = self.camera.processors
         return attributes
 
+
+
 from nokkhum.messaging import connection
 class CameraManager:
     def __init__(self):
@@ -39,6 +41,10 @@ class CameraManager:
         
     def __get_routing_key(self, ip):
         return "nokkhum_compute."+ip.replace('.', ':')+".rpc_request"
+    
+    def __call_rpc(self, request, routing_key):
+        logger.debug("send request routing key: %s \nmessage: %s"%(routing_key, request))
+        return self.rpc.call(request, routing_key)
     
     def start_camera(self, compute_node, camera):
 
@@ -53,7 +59,7 @@ class CameraManager:
                    'args': args,
                    }
         
-        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
+        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
         
     def stop_camera(self, compute_node, camera):
         request = {
@@ -61,14 +67,14 @@ class CameraManager:
                    'args': {'camera_id': camera.id}
                    }
         
-        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
+        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
         
     def list_camera(self, compute_node):
         request = {
                    'method': 'list_camera',
                    }
         
-        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
+        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
         
     def get_camera_attribute(self, compute_node, camera):
         request = {
@@ -76,4 +82,4 @@ class CameraManager:
                    'args': {'camera_id': camera.id}
                    }
         
-        return self.rpc.call(request, self.__get_routing_key(compute_node.host))
+        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
