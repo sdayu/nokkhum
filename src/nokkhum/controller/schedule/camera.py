@@ -80,14 +80,17 @@ class CameraCommandProcessing:
         
         compute_node = command.camera.operating.compute_node
         
+        if compute_node:
+            logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
-        logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         response = None
         command.camera.operating.status = "Stopping"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
             
         try:
+            if not compute_node:
+                raise Exception('No available compute node')
             response = self.camera_manager.stop_camera(compute_node, command.camera)
             command.camera.operating.status = "Stop"
             command.camera.operating.update_date = datetime.datetime.now()
@@ -154,11 +157,13 @@ class CameraScheduling(threading.Thread):
                 break
             
             command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
+
             if command.action == "Start":
                 ccp = CameraCommandProcessing()
                 ccp.start(command, compute_node)
             elif command.action == "Stop":
                 ccp = CameraCommandProcessing()
                 ccp.stop(command)
+
 
         logger.debug(self.name+": terminate")

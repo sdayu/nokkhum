@@ -58,7 +58,6 @@ class ComputeNodeResource:
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
-                from nokkhum.common import messages
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_infomation"}
                 
