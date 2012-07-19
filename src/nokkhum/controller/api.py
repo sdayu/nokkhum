@@ -27,7 +27,9 @@ class ControllerApi():
         self._running = True
         self.update_status.start()
         self.timer.start()
-        connection.default_connection.drain_events()
+        while self._running:
+            logger.debug("drain_event")
+            connection.default_connection.drain_events()
 
         
     def stop(self):
