@@ -32,11 +32,10 @@ if __name__ == '__main__':
     if not os.path.exists(directory):
         os.makedirs(directory)
     
-    wellcome_message = 'Starting nokkhum controller server: %s' % str(datetime.datetime.now())
+    wellcome_message = 'Starting nokkhum controller server: %s\n' % str(datetime.datetime.now())
     print wellcome_message
     
     logging.config.fileConfig(sys.argv[1])
-    
     logger = logging.getLogger()
     logger.debug(wellcome_message)
 
