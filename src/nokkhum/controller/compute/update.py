@@ -55,6 +55,7 @@ class ComputeNodeResource:
             memory      = args['memory']
             cameras     = args['cameras']
             host        = args['ip']
+            report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
             compute_node = models.ComputeNode.objects(name=name, host=host).first()
             if compute_node is None:
@@ -77,12 +78,28 @@ class ComputeNodeResource:
             compute_node.update_date = current_time
             compute_node.save()
 
-            for id in cameras:
-                camera = models.Camera.objects().get(id=id)
+            report              = models.ComputeNodeReport()
+            report.compute_node = compute_node
+            report.report_date  = report_date
+            report.cpu          = compute_node.cpu
+            report.memory       = compute_node.memory
+            
+            for camera_process in cameras:
+                camera = models.Camera.objects().get(id=camera_process['camera_id'])
                 camera.operating.status = "Running"
                 camera.operating.update_date = current_time
                 camera.operating.compute_node = compute_node
                 camera.save()
+                
+                cps = models.CameraProcessStatus()
+                cps.camera  = camera
+                cps.cpu     = camera_process['cpu']
+                cps.memory  = camera_process['memory']
+                cps.threads = camera_process['num_threads']
+                
+                report.camera_process_status.append(cps)
+                
+            report.save()
                 
             logger.debug( 'Compute node name: "%s" ip: %s update resource complete' % ( name, host ) )
         except Exception as e:
