@@ -1,2 +1,2 @@
-config = None
 
+setting = None

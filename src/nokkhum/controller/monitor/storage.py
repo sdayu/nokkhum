@@ -13,19 +13,19 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 
-class Storage(threading.Thread):
+class StorageMonitoring(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.name = self.__class__.__name__
         self.daemon = True
         
-        setting = controller.config
+        setting = controller.setting
 
-        access_key_id = setting.get('controller', 'nokkhum.s3.access_key_id')
-        secret_access_key = setting.get('controller', 'nokkhum.s3.secret_access_key')
-        host = setting.get('controller', 'nokkhum.s3.host') 
-        port = setting.getint('controller', 'nokkhum.s3.port')
-        secure = setting.getboolean('controller', 'nokkhum.s3.secure_connection')
+        access_key_id = setting.get('nokkhum.s3.access_key_id')
+        secret_access_key = setting.get('nokkhum.s3.secret_access_key')
+        host = setting.get('nokkhum.s3.host') 
+        port = setting.get( 'nokkhum.s3.port')
+        secure = setting.get('nokkhum.s3.secure_connection')
         self.s3_storage = s3.S3Client(access_key_id, secret_access_key, host, port, secure)
         
         logger.debug("start " + self.name)

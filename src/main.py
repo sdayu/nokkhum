@@ -5,30 +5,24 @@ Created on Sep 7, 2011
 '''
 import sys, errno, os
 import datetime
-import ConfigParser
 
 import logging
 import logging.config
 
 from nokkhum import controller
 from nokkhum import models
+from nokkhum.controller import config
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.stderr.write( "Use: " + sys.argv[0] + " configure_file")
         sys.exit(errno.EINVAL)
         
-    config = ConfigParser.ConfigParser()
-    config.read(sys.argv[1])
-    
-    controller.config = config
-    setting = dict()
-    for k, v in config.items("controller"):
-        setting[k] = v
+    controller.setting = config.Configurator(sys.argv[1])
         
-    models.initial(setting)   
+    models.initial(controller.setting)   
     
-    directory = controller.config.get('controller', 'nokkhum.controller.log_dir')
+    directory = controller.setting.get('nokkhum.controller.log_dir')
     if not os.path.exists(directory):
         os.makedirs(directory)
     
@@ -40,7 +34,7 @@ if __name__ == '__main__':
     logger.debug(wellcome_message)
 
     from nokkhum.messaging import connection
-    connection.initial(config.get('controller', 'amq.url'))
+    connection.initial(controller.setting.get('amq.url'))
     
     from nokkhum.controller import api
     controller_api = api.ControllerApi()
