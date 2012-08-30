@@ -29,6 +29,10 @@ class VMMonitoring(threading.Thread):
         if self.compute_node_manager.get_compute_node_avialable_resource() is not None:
             return
         
+        
+        
         self.vm_manager = VMManager()
+        compute_nodes = self.vm_manager.list_vm_compute_node()
+        
         logger.debug("VM --> get vm")
         self.vm_manager.acquire()

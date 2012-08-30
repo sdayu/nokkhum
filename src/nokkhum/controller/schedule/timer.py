@@ -17,7 +17,7 @@ from ..monitor.camera import CameraMonitoring
 from ..monitor.storage import StorageMonitoring
 from ..monitor.vm import VMMonitoring
 
-from nokkhum import controller
+from nokkhum import config
 
 class Timer(threading.Thread):
     def __init__(self):
@@ -83,10 +83,11 @@ class Timer(threading.Thread):
         self.__camera_scheduling()
         self.__camera_monitoring()
         
-        if controller.setting.get('nokkhum.vm.enable'):
+        if config.settings.get('nokkhum.vm.enable'):
             self.__vm_monitoring()
         
-        self.__storage_monitoring()
+        if config.settings.get('nokkhum.storage.enable '):
+            self.__storage_monitoring()
     
     def run(self):
         self._running = True

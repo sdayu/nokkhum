@@ -11,18 +11,18 @@ import logging.config
 
 from nokkhum import controller
 from nokkhum import models
-from nokkhum.controller import config
+from nokkhum import config
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.stderr.write( "Use: " + sys.argv[0] + " configure_file")
         sys.exit(errno.EINVAL)
         
-    controller.setting = config.Configurator(sys.argv[1])
+    config.settings = config.Configurator(sys.argv[1])
         
-    models.initial(controller.setting)   
+    models.initial(config.settings)   
     
-    directory = controller.setting.get('nokkhum.controller.log_dir')
+    directory = config.settings.get('nokkhum.log_dir')
     if not os.path.exists(directory):
         os.makedirs(directory)
     
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     logger.debug(wellcome_message)
 
     from nokkhum.messaging import connection
-    connection.initial(controller.setting.get('amq.url'))
+    connection.initial(config.settings.get('amq.url'))
     
     from nokkhum.controller import api
     controller_api = api.ControllerApi()

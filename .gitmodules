@@ -7,3 +7,6 @@
 [submodule "src/nokkhum/models"]
 	path = src/nokkhum/models
 	url = git://github.com/sdayu/nokkhum-models.git
+[submodule "src/nokkhum/config"]
+	path = src/nokkhum/config
+	url = git://github.com/sdayu/nokkhum-config.git
