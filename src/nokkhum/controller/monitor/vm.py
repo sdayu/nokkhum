@@ -8,6 +8,7 @@ from ..manager.vm import VMManager
 
 import threading
 import logging
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -30,9 +31,12 @@ class VMMonitoring(threading.Thread):
             return
         
         
-        
         self.vm_manager = VMManager()
         compute_nodes = self.vm_manager.list_vm_compute_node()
+        
+        for compute_node in compute_nodes:
+            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=20):
+                return 
         
         logger.debug("VM --> get vm")
         self.vm_manager.acquire()

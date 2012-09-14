@@ -21,11 +21,11 @@ class StorageMonitoring(threading.Thread):
         
         setting = controller.setting
 
-        access_key_id = setting.get('nokkhum.s3.access_key_id')
-        secret_access_key = setting.get('nokkhum.s3.secret_access_key')
-        host = setting.get('nokkhum.s3.host') 
-        port = setting.get( 'nokkhum.s3.port')
-        secure = setting.get('nokkhum.s3.secure_connection')
+        access_key_id = setting.get('nokkhum.storage.s3.access_key_id')
+        secret_access_key = setting.get('nokkhum.storage.s3.secret_access_key')
+        host = setting.get('nokkhum.storage.s3.host') 
+        port = setting.get( 'nokkhum.storage.s3.port')
+        secure = setting.get('nokkhum.storage.s3.secure_connection')
         self.s3_storage = s3.S3Client(access_key_id, secret_access_key, host, port, secure)
         
         logger.debug("start " + self.name)
