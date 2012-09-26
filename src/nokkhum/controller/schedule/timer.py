@@ -12,7 +12,7 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from camera import CameraScheduling
+from .camera import CameraScheduling
 from ..monitor.camera import CameraMonitoring
 from ..monitor.storage import StorageMonitoring
 from ..monitor.vm import VMMonitoring

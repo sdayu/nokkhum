@@ -1,1 +1,1 @@
-import camera
+from . import camera

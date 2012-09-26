@@ -27,7 +27,7 @@ if __name__ == '__main__':
         os.makedirs(directory)
     
     wellcome_message = 'Starting nokkhum controller server: %s\n' % str(datetime.datetime.now())
-    print wellcome_message
+    print (wellcome_message)
     
     logging.config.fileConfig(sys.argv[1])
     logger = logging.getLogger()
@@ -50,5 +50,5 @@ if __name__ == '__main__':
         controller_api.stop()
         
     logger.debug("Program Terminate")
-    print "\nProgram Terminate"
+    print ("\nProgram Terminate")
     
