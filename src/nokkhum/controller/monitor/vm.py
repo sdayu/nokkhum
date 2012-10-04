@@ -22,7 +22,7 @@ class VMMonitoring(threading.Thread):
     def run(self):
         logger.debug("VM Monitoring working")
         self.__monitor_VM()
-        logger.debug("VM Monitoring working")
+        logger.debug("VM Monitoring finish")
 
             
     def __monitor_VM(self):
@@ -35,7 +35,8 @@ class VMMonitoring(threading.Thread):
         compute_nodes = self.vm_manager.list_vm_compute_node()
         
         for compute_node in compute_nodes:
-            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=20):
+            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=5):
+                logger.debug("VM --> in wait list")
                 return 
         
         logger.debug("VM --> get vm")

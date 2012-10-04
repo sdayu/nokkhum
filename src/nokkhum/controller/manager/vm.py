@@ -35,13 +35,16 @@ class VMManager(object):
     
     def acquire(self):
         current_time = datetime.datetime.now()
-        period_running_vm = current_time + datetime.timedelta(minutes=20)
-        compute_nodes = models.ComputeNode.objects(vm != None, vm__start_instance_date__lt=period_running_vm).all();
+        period_running_vm = current_time - datetime.timedelta(minutes=5)
+        compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__start_instance_date__gt=period_running_vm).all();
         
         if compute_nodes:
             for compute_node in compute_nodes:
-                logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.ip))
+                logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.vm.ip_address))
+                time.sleep(10)
             return
+        else:
+            logger.debug("There are no VM in wait time")
         
         ## if vm expired
         instance = self.start(self.instance_type[0])
@@ -50,8 +53,16 @@ class VMManager(object):
             logger.debug("Can not start VM")
             return
         
+        status = instance.update()
+        while status == 'pending':
+            logger.debug("instance pending")
+            time.sleep(10)
+            status = instance.update()
+            
+        
         # need appropriate time to wait
-        time.sleep(60)
+#        time.sleep(60)
+        logger.debug("instance running")
 
         
         
