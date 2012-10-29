@@ -10,3 +10,15 @@
 [submodule "src/nokkhum/config"]
 	path = src/nokkhum/config
 	url = git://github.com/sdayu/nokkhum-config.git
+[submodule "nokkhum/config"]
+	path = nokkhum/config
+	url = https://github.com/sdayu/nokkhum-config.git
+[submodule "nokkhum/messaging"]
+	path = nokkhum/messaging
+	url = https://github.com/sdayu/nokkhum-messaging.git
+[submodule "nokkhum/cloud"]
+	path = nokkhum/cloud
+	url = https://github.com/sdayu/nokkhum-cloud.git
+[submodule "nokkhum/models"]
+	path = nokkhum/models
+	url = https://github.com/sdayu/nokkhum-models.git
