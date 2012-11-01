@@ -151,12 +151,20 @@ class CameraScheduling(threading.Thread):
                 logger.exception(e)
         
         while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
-            compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
-            if compute_node is None:
-                logger.debug("There are no avialable resource")
-                break
             
             command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
+            
+            compute_node = None
+            if command.action == "Start":    
+                compute_node = self.compute_node_manager.get_compute_node_avialable_resource()
+                if compute_node is None:
+                    logger.debug("There are no avialable resource")
+                    
+                    command = models.CameraCommandQueue.objects(status = "Waiting", action__ne="Start").order_by('+id').first()
+                    
+                    if command is None:
+                        break
+                
             try:
                 if command.action == "Start":
                     ccp = CameraCommandProcessing()

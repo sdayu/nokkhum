@@ -31,10 +31,13 @@ class ComputeNodeManager(object):
         return compute_nodes;
     
     def get_compute_node_avialable_resource(self):
+        '''
+        need appropriate scheduling about CPU and RAM
+        '''
         compute_nodes = self.get_avialable_compute_node()
         
         for compute_node in compute_nodes:
-            if compute_node.cpu.usage < 90\
+            if compute_node.cpu.usage < 97\
             and compute_node.memory.free%1000000 > 1:
                 return compute_node
             
