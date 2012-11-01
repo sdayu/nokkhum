@@ -23,7 +23,7 @@ class NodeManagerTest(unittest.TestCase):
         compute_nodes = nm.getAvialableComputeNode()
         
         for node in compute_nodes:
-            print "name: ", node.name, " update_date: ", node.update_date
+            print ("name: ", node.name, " update_date: ", node.update_date)
 
 
 if __name__ == "__main__":
