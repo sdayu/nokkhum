@@ -152,6 +152,9 @@ class CameraScheduling(threading.Thread):
         
         while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
             
+            if len(self.compute_node_manager.get_avialable_compute_node()) == 0:
+                break
+            
             command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
             
             compute_node = None
