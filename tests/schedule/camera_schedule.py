@@ -4,15 +4,15 @@ Created on Nov 23, 2011
 @author: boatkrap
 '''
 import unittest
-from nokkhum import controller, model
+from nokkhum import controller, models
 from nokkhum.controller import schedule
-import ConfigParser
+import configparser
 
 class Test(unittest.TestCase):
 
 
     def testCameraScheduling(self):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.read("../../configuration.ini")
         
         controller.config = config
@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
         for k, v in config.items("controller"):
             setting[k] = v
         
-        model.initial(setting)   
+        models.initial(setting)   
     
         scheding = schedule.camera.CameraScheduling()
         scheding.run()
