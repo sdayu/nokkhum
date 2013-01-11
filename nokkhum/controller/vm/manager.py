@@ -55,7 +55,7 @@ class VMManager(object):
             return
         
         status = instance.update()
-        compute_node = models.ComputeNode.objects(host=instance.private_ip_address).first();
+        compute_node = models.ComputeNode.objects(vm__instance_id=instance.id).first();
         while status == 'pending':
             logger.debug("instance pending")
             time.sleep(10)
