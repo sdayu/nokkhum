@@ -9,14 +9,15 @@ import datetime
 import time
 
 from nokkhum import models
-from nokkhum.controller import manager
+from nokkhum.controller.camera import manager
+from .. import compute_node
 
 import logging
 logger = logging.getLogger(__name__)
 
 class CameraCommandProcessing:
     def __init__(self):
-        self.camera_manager = manager.camera.CameraManager()
+        self.camera_manager = manager.CameraManager()
         
     def start(self, command, compute_node):
     
@@ -60,7 +61,7 @@ class CameraCommandProcessing:
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
-        cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
+        cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
         cmd_log.camera = command.camera
         cmd_log.command_date = command.command_date
@@ -114,7 +115,7 @@ class CameraCommandProcessing:
         
         cmd_log         = models.CommandLog()
         cmd_log.action  = command.action
-        cmd_log.attributes = manager.camera.CameraAttributesBuilder(command.camera).get_attribute()
+        cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
         cmd_log.camera = command.camera
         cmd_log.command_date = command.command_date
@@ -131,7 +132,7 @@ class CameraScheduling(threading.Thread):
     def __init__(self):
         ''''''
         threading.Thread.__init__(self)
-        self.compute_node_manager = manager.compute_node.ComputeNodeManager()
+        self.compute_node_manager = compute_node.manager.ComputeNodeManager()
         self.name = "Camera Scheduling"
         self.daemon = True
         

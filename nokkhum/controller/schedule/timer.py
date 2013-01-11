@@ -13,9 +13,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from .camera import CameraScheduling
-from ..monitor.camera import CameraMonitoring
-from ..monitor.storage import StorageMonitoring
-from ..monitor.vm import VMMonitoring
+from ..camera.monitor import CameraMonitoring
+from ..storage.monitor import StorageMonitoring
+from ..vm.monitor import VMMonitoring
 
 from nokkhum import config
 

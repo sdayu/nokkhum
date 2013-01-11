@@ -4,10 +4,9 @@ Created on Jan 11, 2012
 @author: boatkrap
 '''
 
-import threading
 from ..messaging import connection
 
-from nokkhum.controller.compute import update
+from nokkhum.controller.compute_node import update
 from nokkhum.controller import schedule
 
 import logging
