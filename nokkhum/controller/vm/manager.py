@@ -60,13 +60,16 @@ class VMManager(object):
             logger.debug("instance pending")
             time.sleep(10)
             status = instance.update()
-            compute_node.vm.status = status
-            if len(compute_node.vm.private_ip_address) == 0:
-                instance = self.api.get_all_instances(instance.id)
-                compute_node.vm.private_ip_address = instance.private_ip_address
-                compute_node.host = instance.private_ip_address
-            compute_node.save()
             
+        compute_node.vm.status = status
+        compute_node.save()
+        logger.debug("instance status: "+status)
+                
+        if status == 'running':
+            instance = self.api.get_all_instances(instance.id)
+            compute_node.vm.private_ip_address = instance.private_ip_address
+            compute_node.host = instance.private_ip_address
+            compute_node.save()
         
         # need appropriate time to wait
 #        time.sleep(60)
