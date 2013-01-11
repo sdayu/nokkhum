@@ -40,7 +40,7 @@ class VMManager(object):
         
         if compute_nodes:
             for compute_node in compute_nodes:
-                if compute_node.status == 'pending':
+                if compute_node.vm.status == 'pending':
                     logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.vm.ip_address))
                     time.sleep(10)
             return
@@ -61,6 +61,10 @@ class VMManager(object):
             time.sleep(10)
             status = instance.update()
             compute_node.vm.status = status
+            if len(compute_node.vm.private_ip_address) == 0:
+                instance = self.api.get_all_instances(instance.id)
+                compute_node.vm.private_ip_address = instance.private_ip_address
+                compute_node.host = instance.private_ip_address
             compute_node.save()
             
         
