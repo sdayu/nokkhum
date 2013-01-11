@@ -35,13 +35,14 @@ class VMManager(object):
     
     def acquire(self):
         current_time = datetime.datetime.now()
-        period_running_vm = current_time - datetime.timedelta(minutes=5)
+        period_running_vm = current_time - datetime.timedelta(minutes=30)
         compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__start_instance_date__gt=period_running_vm).all();
         
         if compute_nodes:
             for compute_node in compute_nodes:
-                logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.vm.ip_address))
-                time.sleep(10)
+                if compute_node.status == 'pending':
+                    logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.vm.ip_address))
+                    time.sleep(10)
             return
         else:
             logger.debug("There are no VM in wait time")
@@ -54,10 +55,13 @@ class VMManager(object):
             return
         
         status = instance.update()
+        compute_node = models.ComputeNode.objects(host=instance.private_ip_address).first();
         while status == 'pending':
             logger.debug("instance pending")
             time.sleep(10)
             status = instance.update()
+            compute_node.vm.status = status
+            compute_node.save()
             
         
         # need appropriate time to wait
@@ -88,6 +92,8 @@ class VMManager(object):
         vm_info.ramdisk     = instance.ramdisk
         vm_info.private_ip_address = instance.private_ip_address
         vm_info.start_instance_date = datetime.datetime.now() #instance.launch_time
+        
+        vm_info.status      = instance.update()
     
         compute_node.name = vm_info.name
         compute_node.host = vm_info.private_ip_address
