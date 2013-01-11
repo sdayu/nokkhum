@@ -24,7 +24,7 @@ class ComputeNodeResource:
             machine     = args['machine']
             host        = args['ip']
             
-            compute_node = models.ComputeNode.objects(name=name, host=host).first()
+            compute_node = models.ComputeNode.objects(host=host).first()
             if compute_node is None:
                 compute_node = models.ComputeNode()
                 compute_node.create_date = datetime.datetime.now()
@@ -57,7 +57,7 @@ class ComputeNodeResource:
             host        = args['ip']
             report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
-            compute_node = models.ComputeNode.objects(name=name, host=host).first()
+            compute_node = models.ComputeNode.objects(host=host).first()
             if compute_node is None:
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_infomation"}
