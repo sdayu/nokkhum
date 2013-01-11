@@ -66,9 +66,11 @@ class VMManager(object):
         logger.debug("instance status: "+status)
                 
         if status == 'running':
-            instance = self.api.get_all_instances(instance.id)
-            compute_node.vm.private_ip_address = instance.private_ip_address
-            compute_node.host = instance.private_ip_address
+            instance = self.api.find_instance(instance.id)
+            compute_node.vm.private_ip_address  = instance.private_ip_address
+            compute_node.vm.ip_address          = instance.public_dns_name
+            
+            compute_node.host   = instance.private_ip_address
             compute_node.save()
         
         # need appropriate time to wait

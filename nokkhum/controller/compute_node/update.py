@@ -28,7 +28,6 @@ class ComputeNodeResource:
             if compute_node is None:
                 compute_node = models.ComputeNode()
                 compute_node.create_date = datetime.datetime.now()
-                compute_node.name = name
                 compute_node.host = host
                 
             cpu = models.CPUInfomation()
@@ -37,6 +36,7 @@ class ComputeNodeResource:
             memory = models.MemoryInfomation()
             memory.total = total_ram
             
+            compute_node.name    = name
             compute_node.machine = machine
             compute_node.system  = system
             compute_node.cpu     = cpu
