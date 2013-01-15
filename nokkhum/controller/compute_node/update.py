@@ -10,10 +10,34 @@ from nokkhum.messaging import consumer, connection
 import logging
 
 from nokkhum import models
+from nokkhum import config
 
 logger = logging.getLogger(__name__)
 
 class ComputeNodeResource:
+    
+    def initial_central_configuration(self, host):
+        storage_settings={}
+        
+        import sys
+        sys.stderr.write("123: %s"% config.settings.keys())
+        
+        for setting in config.settings.keys():
+            if 'nokkhum.storage' in setting:
+                storage_settings[setting] = config.settings.get(setting)
+                
+        routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
+        message={"method":"update_system_configuration"}
+        
+        message['args'] = dict(settings=storage_settings)
+        
+        logger.debug('update storage to : "%s" message: %s routing_key: %s' % (host, message, routing_key))
+        rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+        rpc_client.send(message, routing_key)
+        
+        
+        
+            
 
     def update_system_infomation(self, args):
         try:
@@ -25,6 +49,7 @@ class ComputeNodeResource:
             host        = args['ip']
             
             compute_node = models.ComputeNode.objects(host=host).first()
+            logger.debug("compute node: %s"% compute_node)
             if compute_node is None:
                 compute_node = models.ComputeNode()
                 compute_node.create_date = datetime.datetime.now()
@@ -60,7 +85,7 @@ class ComputeNodeResource:
             compute_node = models.ComputeNode.objects(host=host).first()
             if compute_node is None:
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
-                message={"method":"get_system_infomation"}
+                message={"method":"get_system_information"}
                 
                 rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
                 rpc_client.send(message, routing_key)
@@ -152,9 +177,11 @@ class UpdateStatus(threading.Thread):
             logger.debug("ignore message", body)
             message.ack()
             return
+        #logger.debug("controller get message: %s" % body)
         cn_resource = ComputeNodeResource()
-        if body["method"] == "update_system_infomation":
+        if body["method"] == "update_system_information":
             cn_resource.update_system_infomation(body["args"])
+            cn_resource.initial_central_configuration(body["args"]['ip'])
         elif body["method"] == "update_resource":
             cn_resource.update_resource(body["args"])
         elif body["method"] == "camera_running_fail_report":
