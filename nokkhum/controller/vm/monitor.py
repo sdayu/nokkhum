@@ -5,6 +5,7 @@ Created on Aug 23, 2012
 '''
 from ..compute_node.manager import ComputeNodeManager
 from .manager import VMManager
+from nokkhum import models
 
 import threading
 import logging
@@ -30,12 +31,14 @@ class VMMonitoring(threading.Thread):
         if self.compute_node_manager.get_compute_node_avialable_resource() is not None:
             return
         
+        if not models.CameraCommandQueue.objects(action__iexact="start").first():
+            return
         
         self.vm_manager = VMManager()
         compute_nodes = self.vm_manager.list_vm_compute_node()
         
         for compute_node in compute_nodes:
-            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=10):
+            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=20):
                 logger.debug("VM --> in wait list")
                 return 
         

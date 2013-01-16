@@ -35,7 +35,7 @@ class VMManager(object):
     
     def acquire(self):
         current_time = datetime.datetime.now()
-        period_running_vm = current_time - datetime.timedelta(minutes=30)
+        period_running_vm = current_time - datetime.timedelta(minutes=60)
         compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__start_instance_date__gt=period_running_vm).all();
         
         if compute_nodes:
