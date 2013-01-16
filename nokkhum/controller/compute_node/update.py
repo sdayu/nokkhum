@@ -80,7 +80,7 @@ class ComputeNodeResource:
             compute_node = models.ComputeNode.objects(host=host).first()
             
             if compute_node is None \
-                or datetime.datetime.now() - comput_node.update_date > datetime.timedelta(seconds=30):
+                or datetime.datetime.now() - compute_node.update_date > datetime.timedelta(seconds=30):
                 
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_information"}
