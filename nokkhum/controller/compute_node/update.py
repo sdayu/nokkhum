@@ -19,9 +19,6 @@ class ComputeNodeResource:
     def initial_central_configuration(self, host):
         storage_settings={}
         
-        import sys
-        sys.stderr.write("123: %s"% config.settings.keys())
-        
         for setting in config.settings.keys():
             if 'nokkhum.storage' in setting:
                 storage_settings[setting] = config.settings.get(setting)
@@ -34,8 +31,6 @@ class ComputeNodeResource:
         logger.debug('update storage to : "%s" message: %s routing_key: %s' % (host, message, routing_key))
         rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
         rpc_client.send(message, routing_key)
-        
-        
         
             
 
@@ -83,7 +78,10 @@ class ComputeNodeResource:
             report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
             compute_node = models.ComputeNode.objects(host=host).first()
-            if compute_node is None:
+            
+            if compute_node is None \
+                or datetime.datetime.now() - comput_node.update_date > datetime.timedelta(seconds=30):
+                
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_information"}
                 
@@ -178,18 +176,17 @@ class UpdateStatus(threading.Thread):
             message.ack()
             return
         #logger.debug("controller get message: %s" % body)
-        cn_resource = ComputeNodeResource()
+        #self._cn_resource = ComputeNodeResource()
         if body["method"] == "update_system_information":
-            cn_resource.update_system_information(body["args"])
-            cn_resource.initial_central_configuration(body["args"]['ip'])
+            self._cn_resource.update_system_information(body["args"])
+            self._cn_resource.initial_central_configuration(body["args"]['ip'])
         elif body["method"] == "update_resource":
-            cn_resource.update_resource(body["args"])
+            self._cn_resource.update_resource(body["args"])
         elif body["method"] == "camera_running_fail_report":
-            cn_resource.camera_running_fail_report(body["args"])
+            self._cn_resource.camera_running_fail_report(body["args"])
         message.ack()
-        
+                
     def run(self):
-
         self._running = True
         while self._running:
             time.sleep(10)
