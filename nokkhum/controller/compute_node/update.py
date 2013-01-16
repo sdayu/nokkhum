@@ -176,7 +176,6 @@ class UpdateStatus(threading.Thread):
             message.ack()
             return
         #logger.debug("controller get message: %s" % body)
-        #self._cn_resource = ComputeNodeResource()
         if body["method"] == "update_system_information":
             self._cn_resource.update_system_information(body["args"])
             self._cn_resource.initial_central_configuration(body["args"]['ip'])
@@ -185,7 +184,7 @@ class UpdateStatus(threading.Thread):
         elif body["method"] == "camera_running_fail_report":
             self._cn_resource.camera_running_fail_report(body["args"])
         message.ack()
-                
+
     def run(self):
         self._running = True
         while self._running:
