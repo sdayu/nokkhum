@@ -39,7 +39,7 @@ class ComputeNodeResource:
         
             
 
-    def update_system_infomation(self, args):
+    def update_system_information(self, args):
         try:
             name        = args['name']
             cpu_count   = args['cpu_count']
@@ -180,7 +180,7 @@ class UpdateStatus(threading.Thread):
         #logger.debug("controller get message: %s" % body)
         cn_resource = ComputeNodeResource()
         if body["method"] == "update_system_information":
-            cn_resource.update_system_infomation(body["args"])
+            cn_resource.update_system_infomartion(body["args"])
             cn_resource.initial_central_configuration(body["args"]['ip'])
         elif body["method"] == "update_resource":
             cn_resource.update_resource(body["args"])
