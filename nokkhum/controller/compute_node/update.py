@@ -178,19 +178,24 @@ class UpdateStatus(threading.Thread):
             message.ack()
             return
         #logger.debug("controller get message: %s" % body)
-        cn_resource = ComputeNodeResource()
+        self._cn_resource = ComputeNodeResource()
         if body["method"] == "update_system_information":
-            cn_resource.update_system_information(body["args"])
-            cn_resource.initial_central_configuration(body["args"]['ip'])
+            self._cn_resource.update_system_information(body["args"])
+            self._cn_resource.initial_central_configuration(body["args"]['ip'])
         elif body["method"] == "update_resource":
-            cn_resource.update_resource(body["args"])
+            self._cn_resource.update_resource(body["args"])
         elif body["method"] == "camera_running_fail_report":
-            cn_resource.camera_running_fail_report(body["args"])
+            self._cn_resource.camera_running_fail_report(body["args"])
         message.ack()
         
+    def initial_central_configuration(self):
+        
+        for compute_node in models.ComputeNode.objects().all():
+            self._cn_resource.initial_central_configuration(compute_node.host)
+        
     def run(self):
-
         self._running = True
+        self.initial_central_configuration()
         while self._running:
             time.sleep(10)
 
