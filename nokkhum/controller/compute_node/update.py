@@ -88,7 +88,9 @@ class ComputeNodeResource:
                 rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
                 rpc_client.send(message, routing_key)
                 logger.debug('compute node: "%s" unavailable. push %s by routing key: %s' % (name, message, routing_key))
-                return 
+                
+                if compute_node is None:
+                    return 
             
             compute_node.cpu.usage   = cpu["usage"]
             compute_node.cpu.usage_per_cpu = cpu["percpu"]
