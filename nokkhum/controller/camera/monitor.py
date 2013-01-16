@@ -21,7 +21,6 @@ class CameraMonitoring(threading.Thread):
         
     def run(self):
         
-        
         logger.debug("Camera Monitoring working")
         self.__monitor_camera_active()
         logger.debug("Camera Monitoring terminate")

@@ -8,6 +8,7 @@ from ..messaging import connection
 
 from nokkhum.controller.compute_node import update
 from nokkhum.controller import schedule
+import time
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ class ControllerApi():
     def start(self):
         self._running = True
         self.update_status.start()
+        
+        time.sleep(10)
         self.timer.start()
         while self._running:
             logger.debug("drain_event")
