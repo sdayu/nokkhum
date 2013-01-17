@@ -80,11 +80,11 @@ class Timer(threading.Thread):
             
     def __start_scheduling(self):
         
-        self.__camera_scheduling()
-        self.__camera_monitoring()
-        
         if config.settings.get('nokkhum.vm.enable'):
             self.__vm_monitoring()
+        
+        self.__camera_scheduling()
+        self.__camera_monitoring()
         
         if config.settings.get('nokkhum.storage.enable '):
             self.__storage_monitoring()

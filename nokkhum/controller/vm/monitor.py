@@ -28,12 +28,14 @@ class VMMonitoring(threading.Thread):
             
     def __monitor_VM(self):
         ''''''
-        if self.compute_node_manager.get_compute_node_avialable_resource() is not None:
+        
+        if models.CameraCommandQueue.objects(action__iexact="start").first() is None:
             return
         
-        if not models.CameraCommandQueue.objects(action__iexact="start").first():
+        if self.compute_node_manager.get_compute_node_available_resource() is not None:
             return
         
+        logger.debug("VM There are no available resource")
         self.vm_manager = VMManager()
         compute_nodes = self.vm_manager.list_vm_compute_node()
         

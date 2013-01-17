@@ -30,7 +30,7 @@ class ComputeNodeManager(object):
         
         return compute_nodes;
     
-    def get_compute_node_avialable_resource(self):
+    def get_compute_node_available_resource(self):
         '''
         need appropriate scheduling about CPU and RAM
         '''
