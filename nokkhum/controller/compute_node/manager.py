@@ -18,11 +18,11 @@ class ComputeNodeManager(object):
         Constructor
         '''
         
-    def describe_avialable_compute_node(self):
+    def describe_available_compute_node(self):
         compute_nodes = models.ComputeNode.objects().all()
         return compute_nodes;
     
-    def get_avialable_compute_node(self):
+    def get_available_compute_node(self):
         delta = datetime.timedelta(minutes=1)
         now = datetime.datetime.now()
                 
@@ -34,7 +34,7 @@ class ComputeNodeManager(object):
         '''
         need appropriate scheduling about CPU and RAM
         '''
-        compute_nodes = self.get_avialable_compute_node()
+        compute_nodes = self.get_available_compute_node()
         
         for compute_node in compute_nodes:
             if compute_node.cpu.usage < 95\
