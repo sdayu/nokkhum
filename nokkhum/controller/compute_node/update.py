@@ -136,8 +136,7 @@ class ComputeNodeResource:
             host        = args['ip']
             dead_process= args['dead_process'] 
             report_time = datetime.datetime.strptime(args['report_time'], '%Y-%m-%dT%H:%M:%S.%f')
-            compute_node = models.ComputeNode.objects(ration(body["args"]['ip'])
-        elif body["method"] == "update_resource":name=name, host=host).first()
+            compute_node = models.ComputeNode.objects(name=name, host=host).first()
         except Exception as e:
             logger.exception(e)  
             return
@@ -196,6 +195,7 @@ class UpdateStatus(threading.Thread):
                 compute_nodes = models.ComputeNode.objects(update_date__gt=now-datetime.timedelta(minutes=10)).all()
                 for compute_node in compute_nodes:
                     self._cn_resource.initial_central_configuration(compute_node.host)
+                    
             time.sleep(10)
 
             
