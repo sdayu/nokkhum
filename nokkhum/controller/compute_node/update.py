@@ -190,11 +190,11 @@ class UpdateStatus(threading.Thread):
     def run(self):
         self._running = True
         while self._running:
-            now = datetime.datetime.now()
-            if now.minute == 0 and (now.second >= 0 and now.second <= 13):
-                compute_nodes = models.ComputeNode.objects(update_date__gt=now-datetime.timedelta(minutes=10)).all()
-                for compute_node in compute_nodes:
-                    self._cn_resource.initial_central_configuration(compute_node.host)
+#            now = datetime.datetime.now()
+#            if now.minute == 0 and (now.second >= 0 and now.second <= 13):
+#                compute_nodes = models.ComputeNode.objects(update_date__gt=now-datetime.timedelta(minutes=10)).all()
+#                for compute_node in compute_nodes:
+#                    self._cn_resource.initial_central_configuration(compute_node.host)
                     
             time.sleep(10)
 
