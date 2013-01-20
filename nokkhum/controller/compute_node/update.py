@@ -111,7 +111,7 @@ class ComputeNodeResource:
             
             for camera_process in cameras:
                 camera = models.Camera.objects().get(id=camera_process['camera_id'])
-                camera.operating.status = "Running"
+                camera.operating.status = "running"
                 camera.operating.update_date = current_time
                 camera.operating.compute_node = compute_node
                 camera.save()
@@ -154,7 +154,7 @@ class ComputeNodeResource:
             camera_status.process_time = datetime.datetime.now()
             camera_status.save()
             
-            camera.operating.status = "Fail"
+            camera.operating.status = "fail"
             camera.operating.update_date = datetime.datetime.now()
             camera.save()
             

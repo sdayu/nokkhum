@@ -21,22 +21,22 @@ class CameraCommandProcessing:
         
     def start(self, command, compute_node):
     
-        command.status = "Processing"
+        command.status = "processing"
         command.update_date = datetime.datetime.now()
         command.save()
         
         logger.debug("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
-        command.camera.operating.status = "Starting"
+        command.camera.operating.status = "starting"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
             
         try:
             response = self.camera_manager.start_camera(compute_node, command.camera)
             if response['success']:
-                command.status = "Complete"
-                command.camera.operating.status = "Running"
+                command.status = "complete"
+                command.camera.operating.status = "running"
                 command.camera.operating.compute_node = compute_node
                 command.camera.operating.update_date = datetime.datetime.now()
             else:
@@ -46,7 +46,7 @@ class CameraCommandProcessing:
 #            command.camera.operating.status = "Stop"
 #            command.camera.operating.update_date = datetime.datetime.now()
             command.message = str(e)
-            command.status = "Error"
+            command.status = "error"
             command.update_date = datetime.datetime.now()
         
         command.camera.save()
@@ -75,7 +75,7 @@ class CameraCommandProcessing:
         
     def stop(self, command):
     
-        command.status = "Processing"
+        command.status = "processing"
         command.update_date = datetime.datetime.now()
         command.save()
         
@@ -85,7 +85,7 @@ class CameraCommandProcessing:
             logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
-        command.camera.operating.status = "Stopping"
+        command.camera.operating.status = "stopping"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
             
@@ -93,14 +93,14 @@ class CameraCommandProcessing:
             if not compute_node:
                 raise Exception('No available compute node')
             response = self.camera_manager.stop_camera(compute_node, command.camera)
-            command.camera.operating.status = "Stop"
+            command.camera.operating.status = "stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.camera.operating.compute_node = compute_node
-            command.status = "Complete"
+            command.status = "complete"
         except:
-            command.camera.operating.status = "Stop"
+            command.camera.operating.status = "stop"
             command.camera.operating.update_date = datetime.datetime.now()
-            command.status = "Error"
+            command.status = "error"
             command.update_date = datetime.datetime.now()
         
         command.camera.save()
@@ -143,37 +143,37 @@ class CameraScheduling(threading.Thread):
         
         # check processing status expired
                 
-        while models.CameraCommandQueue.objects(status="Processing", update_date__lt=td).count() > 0:
+        while models.CameraCommandQueue.objects(status="processing", update_date__lt=td).count() > 0:
             try:
-                command = models.CameraCommandQueue.objects(status="Processing").order_by('+id').first()
+                command = models.CameraCommandQueue.objects(status="processing").order_by('+id').first()
                 command.delete()
                 
             except Exception as e:
                 logger.exception(e)
         
-        while models.CameraCommandQueue.objects(status = "Waiting").count() > 0:
+        while models.CameraCommandQueue.objects(status = "waiting").count() > 0:
             
             if len(self.compute_node_manager.get_available_compute_node()) == 0:
                 break
             
-            command = models.CameraCommandQueue.objects(status = "Waiting").order_by('+id').first()
+            command = models.CameraCommandQueue.objects(status = "waiting").order_by('+id').first()
             
             compute_node = None
-            if command.action == "Start":    
+            if command.action == "start":    
                 compute_node = self.compute_node_manager.get_compute_node_available_resource()
                 if compute_node is None:
                     logger.debug("There are no available resource")
                     
-                    command = models.CameraCommandQueue.objects(status = "Waiting", action__ne="Start").order_by('+id').first()
+                    command = models.CameraCommandQueue.objects(status = "waiting", action__ne="start").order_by('+id').first()
                     
                     if command is None:
                         break
                 
             try:
-                if command.action == "Start":
+                if command.action == "start":
                     ccp = CameraCommandProcessing()
                     ccp.start(command, compute_node)
-                elif command.action == "Stop":
+                elif command.action == "stop":
                     ccp = CameraCommandProcessing()
                     ccp.stop(command)
             except Exception as e:
