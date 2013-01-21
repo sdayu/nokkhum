@@ -7,7 +7,7 @@ Created on Feb 20, 2012
 import threading
 from nokkhum.cloud.storage import s3
 from nokkhum import models
-from nokkhum import controller
+from nokkhum import config
 import datetime
 
 import logging
@@ -19,13 +19,13 @@ class StorageMonitoring(threading.Thread):
         self.name = self.__class__.__name__
         self.daemon = True
         
-        setting = controller.setting
+        settings = config.settings
 
-        access_key_id = setting.get('nokkhum.storage.s3.access_key_id')
-        secret_access_key = setting.get('nokkhum.storage.s3.secret_access_key')
-        host = setting.get('nokkhum.storage.s3.host') 
-        port = setting.get( 'nokkhum.storage.s3.port')
-        secure = setting.get('nokkhum.storage.s3.secure_connection')
+        access_key_id = settings.get('nokkhum.storage.s3.access_key_id')
+        secret_access_key = settings.get('nokkhum.storage.s3.secret_access_key')
+        host = settings.get('nokkhum.storage.s3.host') 
+        port = settings.get( 'nokkhum.storage.s3.port')
+        secure = settings.get('nokkhum.storage.s3.secure_connection')
         self.s3_storage = s3.S3Client(access_key_id, secret_access_key, host, port, secure)
         
         logger.debug("start " + self.name)
@@ -56,10 +56,13 @@ class StorageMonitoring(threading.Thread):
                 if camera.storage_periods > 0 \
                     and diff_time.days > camera.storage_periods:
 #                        print "diff: ", diff_time.days
-#                        print "key name: ", key_name
+                    logger.debug("delete key name: %s" % key_name)
                     
-                    self.s3_storage.delete(key_name)
-#                    logger.debug("delete bucket: %s key: %s " % (bucket.name, key_name) )  
+                    try:
+                        self.s3_storage.delete(key_name)
+                        logger.debug("delete bucket: %s key: %s " % (bucket.name, key_name) )  
+                    except Exception as e:
+                        logger.exception(e)
                         
                         
     def __del__(self):

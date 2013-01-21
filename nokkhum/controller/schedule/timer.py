@@ -74,7 +74,7 @@ class Timer(threading.Thread):
         if current_time.hour == 1 \
                 and (current_time.minute >= 30 or current_time.minute < 40)\
                 and self.clear_storage is None:
-            
+
             self.clear_storage = StorageMonitoring()
             self.clear_storage.start()
             
@@ -86,7 +86,7 @@ class Timer(threading.Thread):
         self.__camera_scheduling()
         self.__camera_monitoring()
         
-        if config.settings.get('nokkhum.storage.enable '):
+        if config.settings.get('nokkhum.storage.enable'):
             self.__storage_monitoring()
     
     def run(self):
