@@ -4,7 +4,7 @@ Created on Dec 23, 2011
 @author: boatkrap
 '''
 
-import threading, datetime, time
+import threading, datetime, time, json
 
 from nokkhum.messaging import consumer, connection
 import logging
@@ -124,6 +124,24 @@ class ComputeNodeResource:
                 
                 report.camera_process_status.append(cps)
                 
+                for message in camera_process['messages']:
+                    try:
+                        camera_message = json.loads(message)
+                        if 'method' in camera_message:
+                            if camera_message["method"] == "notify":
+
+                                logger.debug("get notification")
+                                from nokkhum.controller import notification
+                                try:
+                                    email = notification.EmailNotification()
+                                    email.send_mail(camera.id)
+                                except Exception as e:
+                                    logger.exception(e)
+                                
+                                break
+                    except:
+                        logger.exception("fail load json: %s"% message)
+                    
             report.save()
                 
             logger.debug( 'Compute node name: "%s" ip: %s update resource complete' % ( name, host ) )
