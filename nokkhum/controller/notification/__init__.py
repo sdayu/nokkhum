@@ -21,23 +21,22 @@ class EmailNotification:
         self.sender = settings.get('nokkhum.smtp.username')
     
     def send_mail(self, camera_id):
-        print("send mail success: ", self.sender)
-        camera = models.Camera.objects(id=camera_id).fist()
+
+        camera = models.Camera.objects(id=camera_id).first()
         
         subject = "Some thing wrong in system"
         body = "FYI camera id: %d name: %s \n"%(camera.id, camera.name)
                 
         message = MIMEMultipart()
         message['From'] = self.sender
-        #message['To'] = camera.owner.email
-        message['To'] = 'boatkrap@gmail.com'
+        message['To'] = camera.owner.email
         message['Subject'] = subject
         
         message.attach(MIMEText(body))
         
-        self.mailer.sendmail(self.sender, self.sender, message.as_string())
-        print("send mail success: ", self.sender)
+        self.mailer.sendmail(self.sender, camera.owner.email, message.as_string())
+
         
-    def __del__(self):
+    def __del__(self): 
         pass
         #self.mailer.close()
