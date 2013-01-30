@@ -19,9 +19,9 @@ class ComputeNodeResource:
     def initial_central_configuration(self, host):
         storage_settings={}
         
-        for setting in config.settings.keys():
+        for setting in config.Configurator.settings.keys():
             if 'nokkhum.storage' in setting:
-                storage_settings[setting] = config.settings.get(setting)
+                storage_settings[setting] = config.Configurator.settings.get(setting)
                 
         routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
         message={"method":"update_system_configuration"}
