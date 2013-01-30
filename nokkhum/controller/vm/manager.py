@@ -20,7 +20,7 @@ class VMManager(object):
     '''
 
     def __init__(self):
-        settings = config.settings
+        settings = config.Configurator.settings
         
         access_key_id       = settings.get('nokkhum.vm.ec2.access_key_id')
         secret_access_key   = settings.get('nokkhum.vm.ec2.secret_access_key')
