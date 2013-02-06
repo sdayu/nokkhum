@@ -121,6 +121,7 @@ class ComputeNodeResource:
                 cps.cpu     = camera_process['cpu']
                 cps.memory  = camera_process['memory']
                 cps.threads = camera_process['num_threads']
+                cps.messages = camera_process['messages']
                 
                 report.camera_process_status.append(cps)
                 
