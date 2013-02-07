@@ -24,9 +24,9 @@ class CameraAttributesBuilder:
         camera_att["fps"]       = self.camera.fps
         camera_att["width"]     = int(size[0])
         camera_att["height"]    = int(size[1])
-        camera_att["video-url"]       = self.camera.video_url
-        camera_att["audio-url"]       = self.camera.audio_url
-        camera_att["image-url"]       = self.camera.image_url
+        camera_att["video_url"]       = self.camera.video_url
+        camera_att["audio_url"]       = self.camera.audio_url
+        camera_att["image_url"]       = self.camera.image_url
 
         
         attributes = dict()
