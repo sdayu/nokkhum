@@ -92,6 +92,10 @@ class CameraCommandProcessing:
         try:
             if not compute_node:
                 raise Exception('No available compute node')
+            
+            if not compute_node.is_online():
+                raise Exception('Compute node offline')
+                
             response = self.camera_manager.stop_camera(compute_node, command.camera)
             command.camera.operating.status = "stop"
             command.camera.operating.update_date = datetime.datetime.now()
@@ -159,7 +163,7 @@ class CameraScheduling(threading.Thread):
             command = models.CameraCommandQueue.objects(status = "waiting").order_by('+id').first()
             
             compute_node = None
-            if command.action == "start":    
+            if command.action == "start":
                 compute_node = self.compute_node_manager.get_compute_node_available_resource()
                 if compute_node is None:
                     logger.debug("There are no available resource")
@@ -176,6 +180,10 @@ class CameraScheduling(threading.Thread):
                 elif command.action == "stop":
                     ccp = CameraCommandProcessing()
                     ccp.stop(command)
+                elif command.action == "restart":
+                    ccp = CameraCommandProcessing()
+                    ccp.stop(command)
+                    ccp.start(command, compute_node)
             except Exception as e:
                 logger.exception(e)
 

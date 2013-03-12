@@ -6,9 +6,11 @@ Created on Jan 11, 2012
 
 from ..messaging import connection
 
+from nokkhum import config
 from nokkhum.controller.compute_node import update
 from nokkhum.controller import schedule
 import time
+import netifaces
 
 import logging
 logger = logging.getLogger(__name__)
@@ -20,8 +22,16 @@ class ControllerApi():
         
         self.update_status = update.UpdateStatus()
         self.timer = schedule.timer.Timer()
+        
+        
+        ip = "127.0.0.1"
+        try:
+            ip = netifaces.ifaddresses(config.Configurator.settings.get('nokkhum.controller.interface')).setdefault(netifaces.AF_INET)[0]['addr']
+        except Exception as e:
+            logger.exception(e)
+            ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
     
-        self.rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+        self.rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client(ip)
         
         
     def start(self):

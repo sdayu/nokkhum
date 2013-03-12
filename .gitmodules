@@ -1,21 +1,3 @@
-[submodule "src/nokkhum/cloud"]
-	path = src/nokkhum/cloud
-	url = git://github.com/sdayu/nokkhum-cloud.git
-[submodule "src/nokkhum/messaging"]
-	path = src/nokkhum/messaging
-	url = git://github.com/sdayu/nokkhum-messaging.git
-[submodule "src/nokkhum/models"]
-	path = src/nokkhum/models
-	url = git://github.com/sdayu/nokkhum-models.git
-[submodule "src/nokkhum/config"]
-	path = src/nokkhum/config
-	url = git://github.com/sdayu/nokkhum-config.git
-[submodule "nokkhum/config"]
-	path = nokkhum/config
-	url = https://github.com/sdayu/nokkhum-config.git
-[submodule "nokkhum/messaging"]
-	path = nokkhum/messaging
-	url = https://github.com/sdayu/nokkhum-messaging.git
 [submodule "nokkhum/cloud"]
 	path = nokkhum/cloud
 	url = https://github.com/sdayu/nokkhum-cloud.git

@@ -17,7 +17,10 @@ class ComputeNodeManager(object):
         '''
         Constructor
         '''
-        
+    def describe_compute_node(self):
+        compute_nodes = models.ComputeNode.objects().all()
+        return compute_nodes;
+    
     def describe_available_compute_node(self):
         compute_nodes = models.ComputeNode.objects().all()
         return compute_nodes;
@@ -37,12 +40,10 @@ class ComputeNodeManager(object):
         compute_nodes = self.get_available_compute_node()
         
         for compute_node in compute_nodes:
-            if compute_node.cpu.usage < 95\
-            and compute_node.memory.free%1000000 > 1:
+            if compute_node.is_available_resource:
                 return compute_node
             
         return None
-    
     
         
         

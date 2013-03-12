@@ -37,9 +37,21 @@ class CameraAttributesBuilder:
 
 
 from nokkhum.messaging import connection
+import netifaces
+from nokkhum import config
+
 class CameraManager:
     def __init__(self):
-        self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+        #self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+        
+        ip = "127.0.0.1"
+        try:
+            ip = netifaces.ifaddresses(config.Configurator.settings.get('nokkhum.controller.interface')).setdefault(netifaces.AF_INET)[0]['addr']
+        except Exception as e:
+            logger.exception(e)
+            ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
+    
+        self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client(ip)
         
     def __get_routing_key(self, ip):
         return "nokkhum_compute."+ip.replace('.', ':')+".rpc_request"
