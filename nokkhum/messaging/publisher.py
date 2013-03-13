@@ -20,11 +20,10 @@ class Publisher:
         
         self.exchange = None
         self.channel = channel
-        self.routing_key_list = []
         self.routing_key = routing_key
+        self.routing_key_list = []
         
         self.reconnect(channel)
-        self.queue_declare(routing_key)
         
         
     def reconnect(self, channel):
@@ -34,7 +33,9 @@ class Publisher:
         self._producer = kombu.Producer(exchange=self.exchange,
             channel=channel, serializer="json", 
             routing_key=self.routing_key)
-    
+        
+        self.queue_declare(self.routing_key)
+            
     def queue_declare(self, routing_key):
         if routing_key is None:
             return
@@ -67,11 +68,11 @@ class PublisherFactory:
     def __init__(self, channel):
         self.channel = channel
     
-    def get_publisher(self, key):
+    def get_publisher(self, exchange_name):
         
         publisher = None
-        logger.debug("routing_key: %s"% key)
-        if key == "nokkhum_compute.update_status":
+        logger.debug("exchange_name: %s"% exchange_name)
+        if exchange_name == "nokkhum_compute.update_status":
             routing_key = "nokkhum_compute.update_status"
 
             publisher = Publisher("nokkunm_compute.update_status", self.channel, routing_key)
@@ -79,18 +80,9 @@ class PublisherFactory:
             return publisher
         
         else:
-            import fnmatch, re
-            regex = fnmatch.translate('nokkhum_compute.*.rpc_*')
-            reobj = re.compile(regex)
-            if reobj.match(key):
-                routing_key = key
-                
-                if "nokkhum_compute.*" in routing_key:
-                    publisher = TopicPublisher("nokkunm_compute.rpc", self.channel)
-                else:
-                    publisher = TopicPublisher("nokkunm_compute.compute_rpc", self.channel, routing_key)
-                # logger.debug("get pub: %s"%publisher)
-                return publisher
+            publisher = TopicPublisher(exchange_name, self.channel)
+            logger.debug("get pub: %s"%exchange_name)
+            return publisher
             
         return publisher
             

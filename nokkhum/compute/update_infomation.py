@@ -38,7 +38,7 @@ class UpdateInfomation:
     
     def send_message(self, messages):
         try:
-            self.publisher.send(messages)
+            self.publisher.send(messages, "nokkhum_compute.update_status")
 
         except Exception as e:
             logger.exception(e)

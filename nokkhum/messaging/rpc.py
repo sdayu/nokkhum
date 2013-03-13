@@ -77,12 +77,12 @@ class RPC:
         
 class RpcClient(RPC):
     def __init__(self, channel, ip):
-        self._publisher_rounting_key    = "nokkhum_compute.*.rpc_request"
+        #self._publisher_rounting_key    = "nokkhum_compute.*.rpc_request"
         self._consumer_rounting_key     = "nokkhum_compute.%s.rpc_response"%ip.replace('.', ":")
         super().__init__(channel)
         
     def initial(self):
-        self._publisher = publisher.PublisherFactory(self.channel).get_publisher(self._publisher_rounting_key)
+        self._publisher = publisher.PublisherFactory(self.channel).get_publisher("nokkunm_compute.rpc")
         self._consumer = consumer.ConsumerFactory(self.channel).get_consumer(self._consumer_rounting_key)
         self.regist_default_consumer_callback()
         logger.debug("initial RPC Client")
@@ -91,13 +91,13 @@ class RpcClient(RPC):
     
 class RpcServer(RPC):
     def __init__(self, channel, ip):
-        self._publisher_rounting_key    = "nokkhum_compute.%s.rpc_response"%ip.replace('.', ":")
+        #self._publisher_rounting_key    = "nokkhum_compute.%s.rpc_response"%ip.replace('.', ":")
         self._consumer_rounting_key     = "nokkhum_compute.%s.rpc_request"%ip.replace('.', ":")
         
         super().__init__(channel)
         
     def initial(self):
-        self._publisher = publisher.PublisherFactory(self.channel).get_publisher(self._publisher_rounting_key)
+        self._publisher = publisher.PublisherFactory(self.channel).get_publisher("nokkunm_compute.compute_rpc")
         self._consumer = consumer.ConsumerFactory(self.channel).get_consumer(self._consumer_rounting_key)
         
         logger.debug("initial RPC Server")

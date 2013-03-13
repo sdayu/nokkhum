@@ -66,9 +66,9 @@ class ConsumerFactory:
             if reobj.match(key):
                 routing_key = key
 
-                if "nokkhum_compute.*" in routing_key:
-                    consumer = TopicConsumer("nokkunm_compute.rpc", self.channel, routing_key)
-                else:
+                if "rpc_request" in routing_key:
                     consumer = TopicConsumer("nokkunm_compute.compute_rpc", self.channel, routing_key)
+                else:
+                    consumer = TopicConsumer("nokkunm_compute.rpc", self.channel, routing_key)
 #                logger.debug("get pub: %s"%publisher)
                 return consumer
