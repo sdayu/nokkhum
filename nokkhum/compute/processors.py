@@ -68,8 +68,9 @@ class ProcessorManager:
         
         if int(camera_id) in self.pool.keys():
             while len(self.output[camera_id]) > 0 :
-                logger.debug("camera id: %d" % camera_id)
-                results.append(self.output[camera_id].pop())
+                message = self.output[camera_id].pop()
+                logger.debug("camera id=%d :%s" % (camera_id, message))
+                results.append(message)
         
         return results
 
