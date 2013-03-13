@@ -44,10 +44,6 @@ class ComputeNodeManager(object):
         
         for compute_node in compute_nodes:
             if compute_node.is_available_resource:
-                logger.debug("Compute node ip: %s cpu %s ram %s"
-                             % (compute_node.host, compute_node.cpu.usage, compute_node.memory.free)
-                             )
-                logger.debug("Compute node 85 ===> %s"%(compute_node.cpu.usage<85))
                 return compute_node
             
         return None
