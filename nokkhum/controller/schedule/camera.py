@@ -101,7 +101,8 @@ class CameraCommandProcessing:
             command.camera.operating.update_date = datetime.datetime.now()
             command.camera.operating.compute_node = compute_node
             command.status = "complete"
-        except:
+        except Exception as e:
+            logger.exception(e)
             command.camera.operating.status = "stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.status = "error"
@@ -173,7 +174,7 @@ class CameraScheduling(threading.Thread):
                     if command is None:
                         break
                 else:
-                    logger.debug("Compute node ip: %s cpu %s ram %s avialablr"
+                    logger.debug("Compute node ip: %s cpu %s ram %s avialable %s"
                              % (compute_node.host, 
                                 compute_node.cpu.usage, 
                                 compute_node.memory.free,
