@@ -19,7 +19,7 @@ class Consumer:
         self.reconnect(channel)
 
     def reconnect(self, channel):
-        exchange = kombu.Exchange(self.exchange_name, type="direct", durable=True, auto_delete=True)
+        exchange = kombu.Exchange(self.exchange_name, type="direct", durable=True)
         queue = queues.QueueFactory().get_queue(exchange, self.routing_key)
         queue(channel).declare()
         self._consumer = kombu.Consumer(channel, queue, callbacks=self.callback)
@@ -40,7 +40,7 @@ class TopicConsumer(Consumer):
         Consumer.__init__(self, exchange_name, channel, routing_key)
         
     def reconnect(self, channel):
-        exchange = kombu.Exchange(self.exchange_name, type="topic", durable=True, auto_delete=True)
+        exchange = kombu.Exchange(self.exchange_name, type="topic", durable=True)
         queue = queues.QueueFactory().get_queue(exchange, self.routing_key)
         queue(channel).declare()
         self._consumer = kombu.Consumer(channel, queue, callbacks=self.callback)
@@ -57,7 +57,7 @@ class ConsumerFactory:
         if key == "nokkhum_compute.update_status":
             routing_key = "nokkhum_compute.update_status"
 
-            consumer = Consumer("nokkunm_compute", self.channel, routing_key)
+            consumer = Consumer("nokkunm_compute.compute_update", self.channel, routing_key)
             return consumer
         else:
             import fnmatch, re
