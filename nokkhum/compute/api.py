@@ -64,6 +64,7 @@ class ComputeApi():
                 
                 respons['message_id'] = body['message_id']
                 self.rpc.reply(respons, body['reply_to'])
+                logger.debug("reply_to %s "%body['reply_to'])
                 logger.debug("response command: %s"%respons)
         logger.debug("success process command")
         message.ack()

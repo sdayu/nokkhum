@@ -15,6 +15,8 @@ class QueueFactory:
 
         if routing_key == "nokkhum_compute.update_status":
             return Queue("nokkhum_compute.update_status", exchange, routing_key=routing_key)
+        if "nokkhum_compute.*.rpc_" in routing_key:
+            return
         elif reobj_rpc_request.match(routing_key):
             return Queue(routing_key, exchange, routing_key=routing_key, auto_delete=True)
         elif reobj_rpc_response.match(routing_key):

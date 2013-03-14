@@ -63,6 +63,8 @@ class RPC:
         return response
         
     def send(self, message, routing_key):
+        import sys
+
         if routing_key not in self._publisher.routing_key_list:
             self._publisher.queue_declare(routing_key)
             
@@ -106,7 +108,8 @@ class RpcServer(RPC):
         self._consumer.register_callback(callback)
         
     def reply(self, message, route_key):
-        self._publisher.send(message, route_key)
+#        logger.debug("reply to message: %s %s"%(message, route_key))
+        self.send(message, route_key)
 
 class RpcFactory:
     def __init__(self, channel):

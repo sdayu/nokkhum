@@ -25,6 +25,9 @@ class Publisher:
         
         self.reconnect(channel)
         
+        if self.routing_key:
+            self.queue_declare(self.routing_key)
+        
         
     def reconnect(self, channel):
         self.exchange = kombu.Exchange(self.exchange_name, type="direct", durable=True)
@@ -33,9 +36,6 @@ class Publisher:
         self._producer = kombu.Producer(exchange=self.exchange,
             channel=channel, serializer="json", 
             routing_key=self.routing_key)
-        
-        if self.routing_key:
-            self.queue_declare(self.routing_key)
     
     def queue_declare(self, routing_key):
         if routing_key is None:
@@ -47,7 +47,8 @@ class Publisher:
         self.routing_key_list.append(routing_key)
         
         queue = queues.QueueFactory().get_queue(self.exchange, routing_key)
-        queue(self.channel).declare()
+        if queue:
+            queue(self.channel).declare()
             
     def send(self, message, routing_key=None):
         self._producer.publish(message, routing_key=routing_key)
@@ -59,7 +60,6 @@ class TopicPublisher(Publisher):
     def reconnect(self, channel):
         self.exchange = kombu.Exchange(self.exchange_name, type="topic", durable=True)
         self.channel = channel
-        
         self._producer = kombu.Producer(exchange=self.exchange,
             channel=channel, serializer="json", 
             routing_key=self.routing_key)
