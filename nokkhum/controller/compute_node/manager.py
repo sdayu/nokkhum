@@ -43,7 +43,7 @@ class ComputeNodeManager(object):
         compute_nodes = self.get_available_compute_node()
         
         for compute_node in compute_nodes:
-            if compute_node.is_available_resource:
+            if compute_node.is_available_resource():
                 return compute_node
             
         return None
