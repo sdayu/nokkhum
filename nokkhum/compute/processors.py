@@ -99,6 +99,10 @@ class ProcessorManager:
                 except Exception as e:
                     logger.exception(e)
                     
+                if key in self.output:
+                    while len(self.output) > 0:
+                        result += (self.output.pop() + "\n")
+                    
                 if len(result)==0:
                     result = "Process exist with Unknown Message"
                 dead_process[key] = result
