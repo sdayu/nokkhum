@@ -172,10 +172,16 @@ class CameraScheduling(threading.Thread):
                     
                     if command is None:
                         break
-                logger.debug("Compute node ip: %s cpu %s ram %s"
-                             % (compute_node.host, compute_node.cpu.usage, compute_node.memory.free)
+                else:
+                    logger.debug("Compute node ip: %s cpu %s ram %s avialablr"
+                             % (compute_node.host, 
+                                compute_node.cpu.usage, 
+                                compute_node.memory.free,
+                                compute_node.is_available_resource())
                              )
-                logger.debug("Compute node 85 ===> %s"%(compute_node.cpu.usage<85))
+                    logger.debug("Compute node 85 ===> %s"%(compute_node.cpu.usage<85))
+                
+                
                 
             try:
                 if command.action == "start":
