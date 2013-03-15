@@ -28,14 +28,17 @@ class CameraCommandProcessing:
         logger.debug("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
-        command.camera.operating.status = "starting"
-        command.camera.operating.update_date = datetime.datetime.now()
-        command.camera.save()
-            
+        
         try:
             camera = command.camera
             if camera.operating.status == "running":
                 raise Exception('camera id %s already running'%str(camera.id))
+            
+            command.camera.operating.user_command = "run"
+            command.camera.operating.status = "starting"
+            command.camera.operating.update_date = datetime.datetime.now()
+            command.camera.save()
+            
             response = self.camera_manager.start_camera(compute_node, command.camera)
             if response['success']:
                 command.status = "complete"
@@ -88,6 +91,7 @@ class CameraCommandProcessing:
             logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
+        command.camera.operating.user_command = "stop"
         command.camera.operating.status = "stopping"
         command.camera.operating.update_date = datetime.datetime.now()
         command.camera.save()
