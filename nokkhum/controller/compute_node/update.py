@@ -11,6 +11,8 @@ import logging
 
 from nokkhum import models
 from nokkhum import config
+from nokkhum import messaging
+
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,11 @@ class ComputeNodeResource:
             compute_node.save()
         
             logger.debug( 'Compute node name: "%s" update system info complete' % ( name ) )
+            
+            rpc_client = messaging.connection.default_connection.get_rpc_factory().default_rpc_client
+            if rpc_client is not None:
+                routing_key = "nokkhum_compute.%s.rpc_request"%compute_node.host.replace(".", ":")
+                rpc_client._publisher.drop_routing_key(routing_key)
         except Exception as e:
             logger.exception(e)        
 

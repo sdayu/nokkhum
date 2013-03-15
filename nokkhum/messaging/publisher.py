@@ -53,6 +53,11 @@ class Publisher:
     def send(self, message, routing_key=None):
         self._producer.publish(message, routing_key=routing_key)
         
+    def drop_routing_key(self, routing_key):
+        logger.debug("drop_routing_key: %s"% routing_key)
+        if routing_key in self.routing_key_list:
+            self.routing_key_list.remove(routing_key)
+        
 class TopicPublisher(Publisher):
     def __init__(self, exchange_name, channel, routing_key=None):
         super().__init__(exchange_name, channel, routing_key) 
