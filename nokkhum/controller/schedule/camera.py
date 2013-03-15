@@ -34,7 +34,7 @@ class CameraCommandProcessing:
             
         try:
             camera = command.camera
-            if camera.operating.status == "running" or camera.operating.status == "starting":
+            if camera.operating.status == "running":
                 raise Exception('camera id %s already running'%str(camera.id))
             response = self.camera_manager.start_camera(compute_node, command.camera)
             if response['success']:
