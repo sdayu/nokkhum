@@ -35,6 +35,8 @@ class CameraMonitoring(threading.Thread):
         if camera.operating.status == "running" or camera.operating.status == "starting" \
                 or camera.operating.status == "fail":
             new_command.action = "start"
+            camera.operating.status = "start"
+            camera.save()
         elif camera.operating.status == "stopping":
             new_command.action = "stop"
         new_command.camera = camera

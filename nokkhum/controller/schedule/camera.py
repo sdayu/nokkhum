@@ -98,8 +98,11 @@ class CameraCommandProcessing:
             
             if not compute_node.is_online():
                 raise Exception('Compute node offline')
+            
+            camera = command.camera
+            if datetime.datetime.now() - camera.operating.update_date < datetime.timedelta(seconds=30):
+                response = self.camera_manager.stop_camera(compute_node, command.camera)
                 
-            response = self.camera_manager.stop_camera(compute_node, command.camera)
             command.camera.operating.status = "stop"
             command.camera.operating.update_date = datetime.datetime.now()
             command.camera.operating.compute_node = compute_node
