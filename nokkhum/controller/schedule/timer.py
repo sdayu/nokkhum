@@ -74,9 +74,12 @@ class Timer(threading.Thread):
         if current_time.hour == 1 \
                 and (current_time.minute >= 30 or current_time.minute < 40)\
                 and self.clear_storage is None:
-
-            self.clear_storage = StorageMonitoring()
-            self.clear_storage.start()
+            
+            try:
+                self.clear_storage = StorageMonitoring()
+                self.clear_storage.start()
+            except Exception as e:
+                logger.exception("storage error: %s"% e)
             
     def __start_scheduling(self):
         

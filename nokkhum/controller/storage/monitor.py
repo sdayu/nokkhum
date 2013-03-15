@@ -19,7 +19,7 @@ class StorageMonitoring(threading.Thread):
         self.name = self.__class__.__name__
         self.daemon = True
         
-        settings = config.settings
+        settings = config.Configurator.settings
 
         access_key_id = settings.get('nokkhum.storage.s3.access_key_id')
         secret_access_key = settings.get('nokkhum.storage.s3.secret_access_key')

@@ -17,8 +17,14 @@ class ProcessPolling(threading.Thread):
     def run(self):
         time.sleep(5)
         while self.running:
-            data = self.processor.process.stderr.readline().decode('utf-8')
-            self.output_list.append(data)
+            if self.processor.is_running(): 
+                data = self.processor.process.stderr.readline().decode('utf-8')
+                if len(data.strip()) == 0:
+                    continue
+                self.output_list.append(data)
+            else:
+                logger.debug("ProcessPolling camera id: %d terminate" % (self.processor.id))
+                break
             
 
 class ProcessorManager:
@@ -39,6 +45,7 @@ class ProcessorManager:
             del self.pool[camera_id]
             
             self.thread_pool[camera_id].running = False
+            self.thread_pool[camera_id].join()
             del self.thread_pool[camera_id]
             
             del self.output[camera_id]
@@ -98,10 +105,13 @@ class ProcessorManager:
                         result += line.decode('utf-8')
                 except Exception as e:
                     logger.exception(e)
-                    
+                
                 if key in self.output:
-                    while len(self.output) > 0:
-                        result += (self.output.pop() + "\n")
+                    if key in self.thread_pool:
+                        self.thread_pool[key].running = False
+                        
+                    while len(self.output[key]) > 0:
+                        result += (self.output[key].pop() + "\n")
                     
                 if len(result)==0:
                     result = "Process exist with Unknown Message"
