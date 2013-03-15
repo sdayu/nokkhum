@@ -72,11 +72,11 @@ class ProcessorManager:
                 logger.debug("camera id=%d :%s" % (camera_id, message))
                 results.append(message)
                 
-                if len(self.output) > 10:
+                if len(self.output[camera_id]) > 10:
                     logger.debug("slice output to 10")
                 
-                while len(self.output) > 10:
-                    self.output.pop()
+                    while len(self.output[camera_id]) > 10:
+                        self.output[camera_id].pop()
                     
         
         return results
