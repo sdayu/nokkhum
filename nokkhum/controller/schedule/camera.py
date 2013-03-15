@@ -33,6 +33,9 @@ class CameraCommandProcessing:
         command.camera.save()
             
         try:
+            camera = command.camera
+            if camera.operating.user_command == 'run':
+                raise Exception('camera id %s already running'%str(camera.id))
             response = self.camera_manager.start_camera(compute_node, command.camera)
             if response['success']:
                 command.status = "complete"
