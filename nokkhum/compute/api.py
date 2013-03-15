@@ -46,6 +46,9 @@ class ComputeApi():
             logger.debug("ignore message: %s"%body)
         elif body['method'] == 'get_system_information':
             self.update_status.get_system_information()
+            logger.debug(" self.rpc._publisher.routing_key_list %s"% self.rpc._publisher.routing_key_list)
+            self.rpc._publisher.routing_key_list.clear()
+            
         elif body['method'] == 'update_system_configuration':
             settings=body['args']['settings']
             UpdateConfiguration().update(settings)
