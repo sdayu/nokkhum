@@ -25,7 +25,7 @@ class CameraCommandProcessing:
         command.update_date = datetime.datetime.now()
         command.save()
         
-        logger.debug("Starting camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
+        logger.debug("Starting camera id %s to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
         
@@ -66,6 +66,7 @@ class CameraCommandProcessing:
             msg += response["comment"]
         
         cmd_log         = models.CommandLog()
+        cmd_log.command_id = command.id
         cmd_log.action  = command.action
         cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
@@ -88,7 +89,7 @@ class CameraCommandProcessing:
         compute_node = command.camera.operating.compute_node
         
         if compute_node:
-            logger.debug("Stopping camera id %d to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
+            logger.debug("Stopping camera id %s to %s ip %s"%(command.camera.id, compute_node.name, compute_node.host))
         
         response = None
         command.camera.operating.user_command = "stop"
@@ -129,6 +130,7 @@ class CameraCommandProcessing:
             msg += response["comment"]
         
         cmd_log         = models.CommandLog()
+        cmd_log.command_id = command.id
         cmd_log.action  = command.action
         cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
         cmd_log.compute_node = compute_node
@@ -168,7 +170,7 @@ class CameraScheduling(threading.Thread):
         
         while models.CameraCommandQueue.objects(status = "waiting").count() > 0:
             
-            if len(self.compute_node_manager.get_available_compute_node()) == 0:
+            if self.compute_node_manager.get_available_compute_node().count() == 0:
                 break
             
             command = models.CameraCommandQueue.objects(status = "waiting").order_by('+id').first()
@@ -184,11 +186,10 @@ class CameraScheduling(threading.Thread):
                     if command is None:
                         break
                 else:
-                    logger.debug("Compute node ip: %s cpu %s ram %s avialable %s"
+                    logger.debug("Compute node ip: %s cpu %s ram %s "
                              % (compute_node.host, 
                                 compute_node.cpu.usage, 
-                                compute_node.memory.free,
-                                compute_node.is_available_resource())
+                                compute_node.memory.free)
                              )                
                 
             try:

@@ -10,11 +10,12 @@ from nokkhum import models
 import logging
 logger = logging.getLogger(__name__)
 
+from .resource_predictor import KalmanPredictor
+
 class ComputeNodeManager(object):
     '''
     classdocs
     '''
-
 
     def __init__(self):
         '''
@@ -43,10 +44,37 @@ class ComputeNodeManager(object):
         compute_nodes = self.get_available_compute_node()
         
         for compute_node in compute_nodes:
-            if compute_node.is_available_resource():
+            if self.is_compute_node_available(compute_node):
                 return compute_node
             
         return None
     
+    def is_compute_node_available(self, compute_node):
+    
+        records = models.ComputeNodeReport.objects(compute_node=compute_node, 
+                                                       report_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=1))\
+                                                        .order_by("-report_date").limit(20)
+
+        cpu = [record.cpu.usage for record in records]
+        ram = [record.memory.free for record in records]
+        if len(cpu) <= 0:
+            return False
         
+        cpu.reverse()
+        ram.reverse()
         
+        kp = KalmanPredictor()
+        cpu_predict = kp.predict(cpu)
+        ram_predict = kp.predict(ram)
+        
+        logger.debug("compute node id: %s cpu: %s/%s ram: %s/%s"%(compute_node.id, 
+                                                                  cpu[-1], cpu_predict,
+                                                                  ram[-1], ram_predict))
+        
+        if cpu_predict < 80\
+            and ram_predict%1000000 > 200:
+            return True
+        
+        # if compute node is not available
+        return False
+    

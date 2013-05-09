@@ -30,8 +30,9 @@ class Camera:
         args = json.dumps(arguments)
         command = args+"\n"
         self.process.stdin.write(command.encode('utf-8'))
+        self.process.stdin.flush()
 
-        if self.process.poll() == None:
+        if self.process.poll() is None:
             return self.process.stdout.readline().decode('utf-8')
         else:
             msg = self.process.stderr.readline().decode('utf-8')
@@ -43,6 +44,7 @@ class Camera:
         args = json.dumps(arguments)
         command = args+"\n"
         self.process.stdin.write(command.encode('utf-8'))
+        self.process.stdin.flush()
         self.process.stdin.close()
         result = self.process.stdout.readline().decode('utf-8')
         self.process.wait()
@@ -55,6 +57,7 @@ class Camera:
 
         command = args+"\n"
         self.process.stdin.write(command.encode('utf-8'))
+        self.process.stdin.flush()
 
         result = self.process.stdout.readline().decode('utf-8')
             

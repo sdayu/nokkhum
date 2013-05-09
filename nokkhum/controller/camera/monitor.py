@@ -55,11 +55,11 @@ class CameraMonitoring(threading.Thread):
                     diff_time = current_time - camera.operating.update_date
                     # logger.debug( "camera id: %d diff: %d s" % (camera.id, diff_time.total_seconds()))
                     if diff_time > datetime.timedelta(seconds=self.maximum_wait_time):
-                        logger.debug( "camera id: %d disconnect diff: %d s" % (camera.id, diff_time.total_seconds()))
+                        logger.debug( "camera id: %s disconnect diff: %d s" % (camera.id, diff_time.total_seconds()))
                         message = "Camera-processor disconnect.\n Restart camera by CameraMonotoring: %s" % datetime.datetime.now()
                         self.__request_new_camera_commend(camera, "start", message)
                 elif camera.operating.status == "fail":
-                    logger.debug( "camera id: %d status fail"%camera.id)
+                    logger.debug( "camera id: %s status fail"%camera.id)
                     message = "Camera-processor fail.\n Restart camera by CameraMonotoring: %s" % datetime.datetime.now()
                     self.__request_new_camera_commend(camera, "start", message)
                     

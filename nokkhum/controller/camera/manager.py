@@ -16,7 +16,7 @@ class CameraAttributesBuilder:
         size = self.camera.image_size.split("x")
         
         camera_att = dict()
-        camera_att["id"]        = self.camera.id
+        camera_att["id"]        = str(self.camera.id)
         camera_att["name"]      = self.camera.name
         camera_att["model"]     = self.camera.camera_model.name
         camera_att["username"]  = self.camera.username
@@ -65,7 +65,7 @@ class CameraManager:
         camera_attribute = CameraAttributesBuilder(camera).get_attribute()        
         
         args = {
-                'camera_id': camera.id,
+                'camera_id': str(camera.id),
                 'attributes': camera_attribute,
                 }
         request = {
@@ -78,7 +78,7 @@ class CameraManager:
     def stop_camera(self, compute_node, camera):
         request = {
                    'method': 'stop_camera',
-                   'args': {'camera_id': camera.id}
+                   'args': {'camera_id': str(camera.id)}
                    }
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
@@ -93,7 +93,7 @@ class CameraManager:
     def get_camera_attribute(self, compute_node, camera):
         request = {
                    'method': 'get_cameras_attributes',
-                   'args': {'camera_id': camera.id}
+                   'args': {'camera_id': str(camera.id)}
                    }
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))

@@ -23,7 +23,7 @@ class ProcessPolling(threading.Thread):
                     continue
                 self.output_list.append(data)
             else:
-                logger.debug("ProcessPolling camera id: %d terminate" % (self.processor.id))
+                logger.debug("ProcessPolling camera id: %s terminate" % (self.processor.id))
                 break
             
 
@@ -73,10 +73,10 @@ class ProcessorManager:
     def read_process_output(self, camera_id):
         results=[]
         
-        if int(camera_id) in self.pool.keys():
+        if camera_id in self.pool.keys():
             while len(self.output[camera_id]) > 0 :
                 message = self.output[camera_id].pop()
-                logger.debug("camera id=%d :%s" % (camera_id, message))
+                logger.debug("camera id=%s :%s" % (camera_id, message))
                 results.append(message)
                 
                 if len(self.output[camera_id]) > 10:

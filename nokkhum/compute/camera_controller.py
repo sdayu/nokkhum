@@ -61,14 +61,14 @@ class CameraController():
             is_available = processor_manager.get(camera_id)
             
             if is_available != None:
-                respons["comment"] = "camera id: %d cannot start because is available" % camera_id
+                respons["comment"] = "camera id: %s cannot start because is available" % camera_id
                 logger.debug( 'camera id: %s can not start, it is available ' % ( camera_id ) )
                 return respons
             
             logger.debug( 'Begin to start camera')
-            logger.debug( "camera_id: %d"%camera_id)
+            logger.debug( "camera_id: %s"%camera_id)
             
-            default_path = "%s/%d" % (config.Configurator.settings.get('nokkhum.processor.record_path'), camera_id)
+            default_path = "%s/%s" % (config.Configurator.settings.get('nokkhum.processor.record_path'), camera_id)
         
             def change_default_record(processors):
                 for processor in processors:
@@ -86,11 +86,11 @@ class CameraController():
             logger.debug( "start VS for camera id: %s", camera_id);
             respons["comment"] = camera_process.start(surveillance_attibutes)
             logger.debug( "add process camera id: %s to process manager", camera_id);
-            processor_manager.add( int(camera_id), camera_process )
+            processor_manager.add( camera_id, camera_process )
              
             respons["success"] = True
 
-            logger.debug( 'Camera name: %s started' % ( camera_id ) )
+            logger.debug( 'Camera id: %s started' % ( camera_id ) )
         except Exception as e:
             logger.exception(e)
             respons["comment"] = 'Add Camera Error'

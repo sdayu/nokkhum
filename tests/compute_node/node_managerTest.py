@@ -6,7 +6,6 @@ Created on Nov 7, 2011
 import unittest
 from nokkhum import controller, model
 from nokkhum.controller.manager import compute_node
-import ConfigParser
 
 class NodeManagerTest(unittest.TestCase):
 

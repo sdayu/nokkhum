@@ -168,7 +168,7 @@ class ComputeNodeResource:
             return
         
         for camera_id, message in dead_process.items():
-            camera = models.Camera.objects(id=int(camera_id)).first()
+            camera = models.Camera.objects(id=camera_id).first()
             if not camera:
                 return
             
