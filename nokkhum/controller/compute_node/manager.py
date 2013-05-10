@@ -67,7 +67,7 @@ class ComputeNodeManager(object):
         cpu_predict = kp.predict(cpu)
         ram_predict = kp.predict(ram)
         
-        logger.debug("compute node id: %s cpu: %s/%s ram: %s/%s"%(compute_node.id, 
+        logger.debug("compute node id: %s current/predict cpu: %s/%s ram: %s/%s"%(compute_node.id, 
                                                                   cpu[-1], cpu_predict,
                                                                   ram[-1], ram_predict))
         
