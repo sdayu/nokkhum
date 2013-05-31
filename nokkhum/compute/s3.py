@@ -88,8 +88,12 @@ class S3Storage:
                         break
     
     def __empty_local_directory(self, prefix_dir):
+        
         file_list = os.listdir(prefix_dir)
         if len(file_list) == 0:
+            if prefix_dir == config.Configurator.settings.get('nokkhum.processor.record_path'):
+                return
+            
             os.rmdir(prefix_dir)
             return
     
@@ -99,6 +103,8 @@ class S3Storage:
                 
         file_list = os.listdir(prefix_dir)
         if len(file_list) == 0:
+            if prefix_dir == config.Configurator.settings.get('nokkhum.processor.record_path'):
+                return
             os.rmdir(prefix_dir)
 
     

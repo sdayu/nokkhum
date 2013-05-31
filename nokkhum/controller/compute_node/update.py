@@ -99,8 +99,8 @@ class ComputeNodeResource:
                 if compute_node is None:
                     return 
             
-            compute_node.cpu.usage   = cpu["usage"]
-            compute_node.cpu.usage_per_cpu = cpu["percpu"]
+            compute_node.cpu.used   = cpu["used"]
+            compute_node.cpu.used_per_cpu = cpu["percpu"]
             
             compute_node.memory.total = memory["total"]
             compute_node.memory.used  = memory["used"]

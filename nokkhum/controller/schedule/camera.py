@@ -188,7 +188,7 @@ class CameraScheduling(threading.Thread):
                 else:
                     logger.debug("Compute node ip: %s cpu %s ram %s "
                              % (compute_node.host, 
-                                compute_node.cpu.usage, 
+                                compute_node.cpu.used, 
                                 compute_node.memory.free)
                              )                
                 

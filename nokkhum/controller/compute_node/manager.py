@@ -55,7 +55,7 @@ class ComputeNodeManager(object):
                                                        report_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=1))\
                                                         .order_by("-report_date").limit(20)
 
-        cpu = [record.cpu.usage for record in records]
+        cpu = [record.cpu.used for record in records]
         ram = [record.memory.free for record in records]
         if len(cpu) <= 0:
             return False

@@ -20,6 +20,10 @@ if __name__ == '__main__':
     if not os.path.exists(directory):
         os.makedirs(directory)
         
+    record_directory = configurator.settings.get('nokkhum.processor.record_path')
+    if not os.path.exists(record_directory):
+        os.makedirs(record_directory)
+        
     from nokkhum.messaging import connection
     connection.initial(configurator.settings.get('amq.url'))
 

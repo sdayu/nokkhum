@@ -55,10 +55,10 @@ class UpdateInfomation:
         logging.debug("send message: %s" % messages)
         return True
     
-    def update_system_information(self):
+    def get_system_information(self):
         
         mem = psutil.phymem_usage()
-        arguments = {
+        system_information = {
                      'name'     : platform.node(),
                      'system'   : platform.system(),
                      'machine'  : platform.machine(),
@@ -66,14 +66,18 @@ class UpdateInfomation:
                      'total_ram': mem.total,
                      'ip'       : self.ip,
                      }
+
+        return system_information
+    
+    def update_system_information(self):
         
+        arguments = self.get_system_information()
         messages = {"method": "update_system_information", "args": arguments}
-        
         logging.debug("update information: %s" % messages)
-            
+        
         return self.send_message(messages)
         
-    def update_resource(self):
+    def get_resource(self):
         
         cpus = psutil.cpu_percent(interval=.5, percpu=True)
         
@@ -82,15 +86,24 @@ class UpdateInfomation:
             sum += usage
             
         cpu_prop = {
-                    "usage"     : round(sum/len(cpus)),
+                    "used"     : round(sum/len(cpus)),
                     "percpu"    : cpus,
                     }
+        
         mem = psutil.phymem_usage()
         mem_prop = {
                     "total" : mem.total,
                     "used"  : mem.used,
                     "free"  : mem.free
                     }
+        
+        disk = psutil.disk_usage(config.Configurator.settings["nokkhum.processor.record_path"])
+        disk_prop = {
+                     "total" : disk.total,
+                     "used"  : disk.used,
+                     "free"  : disk.free,
+                     "percent": disk.percent,
+                     }
         
         processor_manager = compute.processor_manager
         camera_list = []
@@ -108,34 +121,47 @@ class UpdateInfomation:
             
             camera_list.append(process_status)
 
-        arguments = {
+        resource = {
                      'name'     : platform.node(),
                      'cpu'      : cpu_prop,
                      'memory'   : mem_prop,
                      'cameras'  : camera_list,
+                     'disk'     : disk_prop,
                      'ip'       : self.ip,
                      'date'     : datetime.datetime.now().isoformat()
                      }
         
-        messages = {"method": "update_resource", "args": arguments}
+        
         # logging.debug("update resource: %s" % messages)
         
+        return resource
+        
+    def update_resource(self):
+        arguments = self.get_resource()
+        messages = {"method": "update_resource", "args": arguments}
         return self.send_message(messages)
     
-    def camera_running_fail_report(self):
+    def get_camera_running_fail(self):
         processor_manager = compute.processor_manager
         dead_process = processor_manager.remove_dead_process()
         if len(dead_process) == 0:
             return 
         
-        arguments = {
+        fail_cameras = {
                      'name'         : platform.node(),
                      'ip'           : self.ip,
                      'dead_process' :dead_process,
                      'report_time'     :datetime.datetime.now().isoformat()
                      }
-        messages = {"method": "camera_running_fail_report", "args":arguments}
+        
 #        logging.debug("camera_running_fail_report: %s" % messages)
+        return fail_cameras
+    
+    def camera_running_fail_report(self):
+        arguments = self.get_camera_running_fail()
+        if arguments == None:
+            return
+        messages = {"method": "camera_running_fail_report", "args":arguments}
         return self.send_message(messages)
         
 class UpdateStatus(threading.Thread):

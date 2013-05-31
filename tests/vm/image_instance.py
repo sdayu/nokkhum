@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
 
 
     def setUp(self):
-        config_file = "../../configuration.ini"
+        config_file = "../../controller-config.ini"
         config = configparser.ConfigParser()
         config.read(config_file)
         
