@@ -80,6 +80,7 @@ class ComputeNodeResource:
             name        = args['name']
             cpu         = args['cpu']
             memory      = args['memory']
+            disk        = args['disk']
             cameras     = args['cameras']
             host        = args['ip']
             report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
@@ -106,6 +107,11 @@ class ComputeNodeResource:
             compute_node.memory.used  = memory["used"]
             compute_node.memory.free  = memory["free"]
             
+            compute_node.disk.total = disk['total']
+            compute_node.disk.used = disk['used']
+            compute_node.disk.free = disk['free']
+            compute_node.disk.percent = disk['percent']
+            
             current_time = datetime.datetime.now()
             compute_node.update_date = current_time
             compute_node.save()
@@ -115,6 +121,7 @@ class ComputeNodeResource:
             report.report_date  = report_date
             report.cpu          = compute_node.cpu
             report.memory       = compute_node.memory
+            report.disk         = compute_node.disk
             
             for camera_process in cameras:
                 camera = models.Camera.objects().get(id=camera_process['camera_id'])

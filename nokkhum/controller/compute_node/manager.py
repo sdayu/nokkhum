@@ -57,22 +57,28 @@ class ComputeNodeManager(object):
 
         cpu = [record.cpu.used for record in records]
         ram = [record.memory.free for record in records]
+        disk = [record.disk.free for record in records]
+        
         if len(cpu) <= 0:
             return False
         
         cpu.reverse()
         ram.reverse()
+        disk.reverse()
         
         kp = KalmanPredictor()
         cpu_predict = kp.predict(cpu)
         ram_predict = kp.predict(ram)
+        disk_predict = kp.predict(disk)
         
-        logger.debug("compute node id: %s current/predict cpu: %s/%s ram: %s/%s"%(compute_node.id, 
+        logger.debug("compute node id: %s current/predict cpu: %s/%s ram: %s/%s disk: %s/%s"%(compute_node.id, 
                                                                   cpu[-1], cpu_predict,
-                                                                  ram[-1], ram_predict))
+                                                                  ram[-1], ram_predict,
+                                                                  disk[-1], disk_predict))
         
         if cpu_predict < 80\
-            and ram_predict%1000000 > 200:
+            and ram_predict%1000000 > 200\
+            and disk_predict%1000000 > 1000:
             return True
         
         # if compute node is not available

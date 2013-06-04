@@ -125,8 +125,8 @@ class UpdateInfomation:
                      'name'     : platform.node(),
                      'cpu'      : cpu_prop,
                      'memory'   : mem_prop,
-                     'cameras'  : camera_list,
                      'disk'     : disk_prop,
+                     'cameras'  : camera_list,
                      'ip'       : self.ip,
                      'date'     : datetime.datetime.now().isoformat()
                      }
