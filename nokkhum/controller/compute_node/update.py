@@ -52,10 +52,10 @@ class ComputeNodeResource:
                 compute_node.create_date = datetime.datetime.now()
                 compute_node.host = host
                 
-            cpu = models.CPUInfomation()
+            cpu = models.CPUInformation()
             cpu.count = cpu_count
             
-            memory = models.MemoryInfomation()
+            memory = models.MemoryInformation()
             memory.total = total_ram
             
             compute_node.name    = name
