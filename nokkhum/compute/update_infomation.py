@@ -13,6 +13,7 @@ import datetime
 import time
 import psutil
 import netifaces
+import fileinput
 
 from . import s3
 
@@ -58,14 +59,28 @@ class UpdateInfomation:
     def get_system_information(self):
         
         mem = psutil.phymem_usage()
+        cpu_frequency = 0
+        for line in fileinput.input(files='/proc/cpuinfo'):
+            if 'cpu MHz' in line:
+                str_token = line.split(':')
+                try:
+                    cpu_frequency = float(str_token[1].strip())
+                except Exception as e:
+                    logger.exception(e)
+                    
+                break
+            
         system_information = {
                      'name'     : platform.node(),
                      'system'   : platform.system(),
                      'machine'  : platform.machine(),
                      'cpu_count': multiprocessing.cpu_count(),
+                     'cpu_frequency': cpu_frequency,
                      'total_ram': mem.total,
                      'ip'       : self.ip,
                      }
+        
+        
 
         return system_information
     

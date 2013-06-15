@@ -40,6 +40,7 @@ class ComputeNodeResource:
         try:
             name        = args['name']
             cpu_count   = args['cpu_count']
+            cpu_frequency = args['cpu_frequency']
             total_ram   = args['total_ram']
             system      = args['system']
             machine     = args['machine']
@@ -54,6 +55,7 @@ class ComputeNodeResource:
                 
             cpu = models.CPUInformation()
             cpu.count = cpu_count
+            cpu.frequency = cpu_frequency
             
             memory = models.MemoryInformation()
             memory.total = total_ram
@@ -122,6 +124,7 @@ class ComputeNodeResource:
             report.cpu          = compute_node.cpu
             report.memory       = compute_node.memory
             report.disk         = compute_node.disk
+            report.save()
             
             for camera_process in cameras:
                 camera = models.Camera.objects().get(id=camera_process['camera_id'])
@@ -132,10 +135,13 @@ class ComputeNodeResource:
                 
                 cps = models.CameraProcessStatus()
                 cps.camera  = camera
+                cps.report_date = report_date
                 cps.cpu     = camera_process['cpu']
                 cps.memory  = camera_process['memory']
                 cps.threads = camera_process['num_threads']
                 cps.messages = camera_process['messages']
+                cps.compute_node_report = report
+                cps.save()
                 
                 report.camera_process_status.append(cps)
                 
