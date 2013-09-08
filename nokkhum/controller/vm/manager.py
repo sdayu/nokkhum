@@ -66,6 +66,7 @@ class VMManager(object):
         logger.debug("instance status: "+status)
                 
         if status == 'running':
+            compute_node.vm.extra['first_running_date'] = datetime.datetime.now()
             instance = self.api.find_instance(instance.id)
             compute_node.vm.private_ip_address  = instance.private_ip_address
             compute_node.vm.ip_address          = instance.public_dns_name

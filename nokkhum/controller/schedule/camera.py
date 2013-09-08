@@ -10,7 +10,6 @@ import time
 
 from nokkhum import models
 from nokkhum.controller.camera import manager
-from .. import compute_node
 
 import logging
 logger = logging.getLogger(__name__)
@@ -65,21 +64,10 @@ class CameraCommandProcessing:
         if response:
             msg += response["comment"]
         
-        cmd_log         = models.CommandLog()
-        cmd_log.command_id = command.id
-        cmd_log.action  = command.action
-        cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
-        cmd_log.compute_node = compute_node
-        cmd_log.camera = command.camera
-        cmd_log.command_date = command.command_date
-        cmd_log.complete_date = datetime.datetime.now()
-        cmd_log.owner = command.owner
-        cmd_log.message = msg
-        cmd_log.status = command.status
-        cmd_log.save()
-        
-        command.delete()
-        
+        command.message = msg
+
+        self.end_process(command)
+
     def stop(self, command):
     
         command.status = "processing"
@@ -129,17 +117,24 @@ class CameraCommandProcessing:
         if response:    
             msg += response["comment"]
         
+        command.message = msg
+
+        self.end_process(command)
+    
+    def end_process(self, command):
+        
         cmd_log         = models.CommandLog()
         cmd_log.command_id = command.id
         cmd_log.action  = command.action
         cmd_log.attributes = manager.CameraAttributesBuilder(command.camera).get_attribute()
-        cmd_log.compute_node = compute_node
+        cmd_log.compute_node = command.camera.operating.compute_node
         cmd_log.camera = command.camera
         cmd_log.command_date = command.command_date
         cmd_log.complete_date = datetime.datetime.now()
         cmd_log.owner = command.owner
-        cmd_log.message = msg
+        cmd_log.message = command.message
         cmd_log.status = command.status
+        cmd_log.extra = command.extra
         cmd_log.save()
         
         command.delete()
@@ -148,6 +143,8 @@ class CameraCommandProcessing:
 class CameraScheduling(threading.Thread):
     def __init__(self):
         ''''''
+        from .. import compute_node
+        
         threading.Thread.__init__(self)
         self.compute_node_manager = compute_node.manager.ComputeNodeManager()
         self.name = "Camera Scheduling"
@@ -174,6 +171,13 @@ class CameraScheduling(threading.Thread):
                 break
             
             command = models.CameraCommandQueue.objects(status = "waiting").order_by('+id').first()
+            
+            command.process_date = datetime.datetime.now()
+            if 'process_count' not in command.extra:
+                command.extra['process_count'] = 0
+
+            command.extra['process_count'] += 1
+            command.save()
             
             compute_node = None
             if command.action == "start":

@@ -37,8 +37,6 @@ class ControllerApi():
     def start(self):
         self._running = True
         self.update_status.start()
-        
-        time.sleep(30)
         self.timer.start()
         while self._running:
             logger.debug("drain_event")

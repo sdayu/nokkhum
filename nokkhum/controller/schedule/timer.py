@@ -94,6 +94,7 @@ class Timer(threading.Thread):
     
     def run(self):
         self._running = True
+        time.sleep(10)
         
         while(self._running):
             start_time = datetime.datetime.now()

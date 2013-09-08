@@ -66,6 +66,10 @@ class ComputeNodeResource:
             compute_node.cpu     = cpu
             compute_node.memory  = memory
             compute_node.update_date = datetime.datetime.now()
+            if 'response_date' not in compute_node.extra:
+                compute_node.extra['response_date'] = list()
+
+            compute_node.extra['response_date'].append(datetime.datetime.now())
             compute_node.save()
         
             logger.debug( 'Compute node name: "%s" update system info complete' % ( name ) )
