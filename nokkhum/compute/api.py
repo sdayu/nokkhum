@@ -36,8 +36,8 @@ class ComputeApi():
         self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_server(ip)
         self.rpc.register_callback(self.process_msg)
         
-        from . import camera_controller
-        self.camera_controller = camera_controller.CameraController()
+        from .processors import processor_controller
+        self.processor_controller = processor_controller.ProcessorController()
         
     def process_msg(self, body, message):
         logger.debug("get command: %s"%body)
@@ -56,14 +56,14 @@ class ComputeApi():
             if 'message_id' in body:
                 
                 respons = None
-                if body['method'] == 'list_camera':
-                    respons = self.camera_controller.list_camera()
-                elif body['method'] == 'get_cameras_attributes':
-                    respons = self.camera_controller.get_cameras_attributes(body['args']['camera_id'])
-                elif body['method'] == 'start_camera':
-                    respons = self.camera_controller.start_camera(body['args']['camera_id'], body['args']['attributes'])
-                elif body['method'] == 'stop_camera':
-                    respons = self.camera_controller.stop_camera(body['args']['camera_id'])
+                if body['method'] == 'list_processors':
+                    respons = self.processor_controller.list_camera()
+                elif body['method'] == 'get_processor_attributes':
+                    respons = self.processor_controller.get_cameras_attributes(body['args']['camera_id'])
+                elif body['method'] == 'start_processor':
+                    respons = self.processor_controller.start_camera(body['args']['camera_id'], body['args']['attributes'])
+                elif body['method'] == 'stop_processor':
+                    respons = self.processor_controller.stop_camera(body['args']['camera_id'])
                 
                 respons['message_id'] = body['message_id']
                 self.rpc.reply(respons, body['reply_to'])
@@ -90,5 +90,5 @@ class ComputeApi():
         self.update_status.stop()
         connection.default_connection.release()
         logger.debug("start to stop all cameras")
-        self.camera_controller.stop_all()
+        self.processor_controller.stop_all()
         logger.debug("end to stop all cameras")

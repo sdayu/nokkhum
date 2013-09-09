@@ -12,11 +12,11 @@ from nokkhum import config
 #logger = logging.getLogger(__name__)
 
 
-class Camera:
+class ImageProcessor:
     def __init__(self, id):
         self.id = id
         self.programe_path = config.Configurator.settings.get('nokkhum.processor.path')
-        args = [self.programe_path, "--camera_id", str(self.id), "--log_dir", config.Configurator.settings.get('nokkhum.log_dir')+"/processors"]
+        args = [self.programe_path, "--processor_id", str(self.id), "--log_dir", config.Configurator.settings.get('nokkhum.log_dir')+"/processors"]
         self.process = subprocess.Popen(args, shell=False, \
                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         

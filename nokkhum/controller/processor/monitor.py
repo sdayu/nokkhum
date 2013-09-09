@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 from nokkhum import models
 
-class CameraMonitoring(threading.Thread):
+class ImageProcessorMonitoring(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.name = "Camera Monitoring"
+        self.name = "ImageProcessor Monitoring"
         self.daemon = True
         self.maximum_wait_time = 60 # in second
         

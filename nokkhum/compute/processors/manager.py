@@ -59,7 +59,7 @@ class ProcessorManager:
     def get_pool(self):
         return self.pool
         
-    def list_camera(self):
+    def list_processors(self):
         return self.pool.keys()
     
     def available(self):
