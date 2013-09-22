@@ -137,17 +137,17 @@ class ComputeNodeResource:
                 processor.operating.compute_node = compute_node
                 processor.save()
                 
-                cps = models.ProcessorStatus()
-                cps.processor  = processor
-                cps.report_date = report_date
-                cps.cpu     = processor_process['cpu']
-                cps.memory  = processor_process['memory']
-                cps.threads = processor_process['num_threads']
-                cps.messages = processor_process['messages']
-                cps.compute_node_report = report
-                cps.save()
+                ps = models.ProcessorStatus()
+                ps.processor  = processor
+                ps.report_date = report_date
+                ps.cpu     = processor_process['cpu']
+                ps.memory  = processor_process['memory']
+                ps.threads = processor_process['num_threads']
+                ps.messages = processor_process['messages']
+                ps.compute_node_report = report
+                ps.save()
                 
-                report.camera_process_status.append(cps)
+                report.processor_status.append(ps)
                 
                 for message in processor_process['messages']:
                     try:
