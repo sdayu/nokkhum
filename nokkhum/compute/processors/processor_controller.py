@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ProcessorController():
-    def list_processor(self):
+    def list_processors(self):
         '''
         List working processor
         '''
@@ -29,7 +29,7 @@ class ProcessorController():
         return respons
     
 
-    def get_processors_attributes(self, processor_id):
+    def get_processor_attributes(self, processor_id):
         '''
         List working processor resource
         '''
@@ -70,15 +70,15 @@ class ProcessorController():
             
             default_path = "%s/%s" % (config.Configurator.settings.get('nokkhum.processor.record_path'), processor_id)
         
-            def change_default_record(processors):
-                for processor in processors:
-                    if 'Recorder' in processor["name"]:
-                        processor["directory"] = default_path
+            def change_default_record(image_processors):
+                for image_processor in image_processors:
+                    if 'Recorder' in image_processor["name"]:
+                        image_processor["directory"] = default_path
                         
-                    if "processors" in processor and len(processor["processors"]) > 0:
-                        change_default_record(processor["processors"])
+                    if "image_processors" in image_processor and len(image_processor["image_processors"]) > 0:
+                        change_default_record(image_processor["image_processors"])
                     
-            change_default_record(surveillance_attibutes["processors"])
+            change_default_record(surveillance_attibutes["image_processors"])
             
             logger.debug( "surveillance_attibutes: %s"%surveillance_attibutes)
             

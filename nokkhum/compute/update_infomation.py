@@ -60,15 +60,18 @@ class UpdateInfomation:
         
         mem = psutil.phymem_usage()
         cpu_frequency = 0
-        for line in fileinput.input(files='/proc/cpuinfo'):
-            if 'cpu MHz' in line:
-                str_token = line.split(':')
-                try:
+        
+        try:
+            cpuinfo = fileinput.input(files='/proc/cpuinfo')
+            for line in cpuinfo:
+                if 'cpu MHz' in line:
+                    str_token = line.split(':')
                     cpu_frequency = float(str_token[1].strip())
-                except Exception as e:
-                    logger.exception(e)
-                    
-                break
+                        
+                    break
+            cpuinfo.close()
+        except Exception as e:
+                logger.exception(e)
             
         system_information = {
                      'name'     : platform.node(),
@@ -121,27 +124,27 @@ class UpdateInfomation:
                      }
         
         processor_manager = compute.processor_manager
-        camera_list = []
+        processor_list = []
 
-        for pid, camera_id in processor_manager.get_pids():
+        for pid, processor_id in processor_manager.get_pids():
             process = psutil.Process(pid)
             process_status = {
              'pid'          : pid,
-             'camera_id'    : camera_id,
+             'processor_id' : processor_id,
              'num_threads'  : process.get_num_threads(),
              'cpu'          : process.get_cpu_percent(interval=0.1),
              'memory'       : process.get_memory_info().rss,
-             'messages'     : compute.processor_manager.read_process_output(camera_id)
+             'messages'     : compute.processor_manager.read_process_output(processor_id)
             }
             
-            camera_list.append(process_status)
+            processor_list.append(process_status)
 
         resource = {
                      'name'     : platform.node(),
                      'cpu'      : cpu_prop,
                      'memory'   : mem_prop,
                      'disk'     : disk_prop,
-                     'cameras'  : camera_list,
+                     'processors'  : processor_list,
                      'ip'       : self.ip,
                      'date'     : datetime.datetime.now().isoformat()
                      }
@@ -156,13 +159,13 @@ class UpdateInfomation:
         messages = {"method": "update_resource", "args": arguments}
         return self.send_message(messages)
     
-    def get_camera_running_fail(self):
+    def get_processor_running_fail(self):
         processor_manager = compute.processor_manager
         dead_process = processor_manager.remove_dead_process()
         if len(dead_process) == 0:
             return 
         
-        fail_cameras = {
+        fail_processors = {
                      'name'         : platform.node(),
                      'ip'           : self.ip,
                      'dead_process' :dead_process,
@@ -170,13 +173,13 @@ class UpdateInfomation:
                      }
         
 #        logging.debug("camera_running_fail_report: %s" % messages)
-        return fail_cameras
+        return fail_processors
     
-    def camera_running_fail_report(self):
-        arguments = self.get_camera_running_fail()
+    def processor_running_fail_report(self):
+        arguments = self.get_processor_running_fail()
         if arguments == None:
             return
-        messages = {"method": "camera_running_fail_report", "args":arguments}
+        messages = {"method": "processor_running_fail_report", "args":arguments}
         return self.send_message(messages)
         
 class UpdateStatus(threading.Thread):
@@ -219,7 +222,7 @@ class UpdateStatus(threading.Thread):
                 start_time = datetime.datetime.now()
                 
                 try: 
-                    uinfo.camera_running_fail_report()
+                    uinfo.processor_running_fail_report()
                 except Exception as e:
                     logger.exception(e)
                     

@@ -10,7 +10,39 @@ logger = logging.getLogger(__name__)
 from nokkhum.messaging import connection
 import netifaces
 from nokkhum import config
-from nokkhum.controller.camera import CameraAttributesBuilder
+
+class ProcessorAttributesBuilder:
+    def __init__(self, processor):
+        self.processor=processor
+        
+    def get_camera_attribute(self):
+        result = []
+        for camera in self.processor.cameras:
+            size = camera.image_size.split("x")
+            camera_att = dict(
+                      id = str(camera.id),
+                      name = camera.name,
+                      model = camera.camera_model.name,
+                      username = camera.username,
+                      password = camera.password,
+                      fps = camera.fps,
+                      width = int(size[0]),
+                      height = int(size[1]),
+                      video_uri = camera.video_uri,
+                      audio_uri = camera.audio_uri,
+                      image_uri = camera.image_uri
+                    )
+            result.append(camera_att)
+        return result
+    
+    def get_attribute(self):
+
+        attributes = dict()
+        attributes["cameras"] = self.get_camera_attribute()
+        attributes["image_processors"] = self.processor.image_processors
+        
+        return attributes
+
 
 class ProcessorManager:
     def __init__(self):
@@ -32,13 +64,13 @@ class ProcessorManager:
         logger.debug("send request routing key: %s \nmessage: %s"%(routing_key, request))
         return self.rpc.call(request, routing_key)
     
-    def start_processor(self, compute_node, camera):
+    def start_processor(self, compute_node, processor):
 
-        camera_attribute = CameraAttributesBuilder(camera).get_attribute()        
+        processor_attribute = ProcessorAttributesBuilder(processor).get_attribute()        
         
         args = {
-                'processor_id': str(camera.id),
-                'attributes': camera_attribute,
+                'processor_id': str(processor.id),
+                'attributes': processor_attribute,
                 }
         request = {
                    'method': 'start_processor',
@@ -47,10 +79,10 @@ class ProcessorManager:
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
         
-    def stop_processor(self, compute_node, camera):
+    def stop_processor(self, compute_node, processor):
         request = {
                    'method': 'stop_processor',
-                   'args': {'camera_id': str(camera.id)}
+                   'args': {'processor_id': str(processor.id)}
                    }
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
@@ -62,10 +94,10 @@ class ProcessorManager:
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
         
-    def get_processor_attribute(self, compute_node, camera):
+    def get_processor_attribute(self, compute_node, processor):
         request = {
                    'method': 'get_processor_attributes',
-                   'args': {'camera_id': str(camera.id)}
+                   'args': {'processor_id': str(processor.id)}
                    }
         
         return self.__call_rpc(request, self.__get_routing_key(compute_node.host))

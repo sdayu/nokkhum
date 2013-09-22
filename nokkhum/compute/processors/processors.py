@@ -8,8 +8,8 @@ import json
 
 from nokkhum import config
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 
 class ImageProcessor:
@@ -29,6 +29,9 @@ class ImageProcessor:
         
         args = json.dumps(arguments)
         command = args+"\n"
+        
+        logger.debug("Start processor: %s"%command)
+        
         self.process.stdin.write(command.encode('utf-8'))
         self.process.stdin.flush()
 

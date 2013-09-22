@@ -12,8 +12,8 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 
-from .camera import CameraScheduling
-from ..camera.monitor import CameraMonitoring
+from .processor import ProcessorScheduling
+from ..processor.monitor import ProcessorMonitoring
 from ..storage.monitor import StorageMonitoring
 from ..vm.monitor import VMMonitoring
 
@@ -25,8 +25,8 @@ class Timer(threading.Thread):
         self.name = self.__class__.__name__
         self.daemon = True
         
-        self.camera_sheduling = None
-        self.camera_monitoring = None
+        self.processor_sheduling = None
+        self.processor_monitoring = None
         self.clear_storage = None
         self.vm_monitoring = None
         
@@ -34,25 +34,25 @@ class Timer(threading.Thread):
         
         self._running = False
         
-    def __camera_scheduling(self):
-        if self.camera_sheduling is not None:
-            if not self.camera_sheduling.is_alive():
-                self.camera_sheduling.join()
-                self.camera_sheduling = None
+    def __processor_scheduling(self):
+        if self.processor_sheduling is not None:
+            if not self.processor_sheduling.is_alive():
+                self.processor_sheduling.join()
+                self.processor_sheduling = None
                 
-        if self.camera_sheduling is None:
-            self.camera_sheduling = CameraScheduling()
-            self.camera_sheduling.start()
+        if self.processor_sheduling is None:
+            self.processor_sheduling = ProcessorScheduling()
+            self.processor_sheduling.start()
     
-    def __camera_monitoring(self):
-        if self.camera_monitoring is not None:
-            if not self.camera_monitoring.is_alive():
-                self.camera_monitoring.join()
-                self.camera_monitoring = None
+    def __processor_monitoring(self):
+        if self.processor_monitoring is not None:
+            if not self.processor_monitoring.is_alive():
+                self.processor_monitoring.join()
+                self.processor_monitoring = None
                 
-        if self.camera_monitoring is None:
-            self.camera_monitoring = CameraMonitoring()
-            self.camera_monitoring.start()
+        if self.processor_monitoring is None:
+            self.processor_monitoring = ProcessorMonitoring()
+            self.processor_monitoring.start()
     
     def __vm_monitoring(self):
         if self.vm_monitoring is not None:
@@ -86,8 +86,8 @@ class Timer(threading.Thread):
         if config.Configurator.settings.get('nokkhum.vm.enable'):
             self.__vm_monitoring()
         
-        self.__camera_scheduling()
-        self.__camera_monitoring()
+        self.__processor_scheduling()
+        self.__processor_monitoring()
         
         if config.Configurator.settings.get('nokkhum.storage.enable'):
             self.__storage_monitoring()

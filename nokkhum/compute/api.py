@@ -57,13 +57,13 @@ class ComputeApi():
                 
                 respons = None
                 if body['method'] == 'list_processors':
-                    respons = self.processor_controller.list_camera()
+                    respons = self.processor_controller.list_processors()
                 elif body['method'] == 'get_processor_attributes':
-                    respons = self.processor_controller.get_cameras_attributes(body['args']['camera_id'])
+                    respons = self.processor_controller.get_processor_attributes(body['args']['processor_id'])
                 elif body['method'] == 'start_processor':
-                    respons = self.processor_controller.start_camera(body['args']['camera_id'], body['args']['attributes'])
+                    respons = self.processor_controller.start_processor(body['args']['processor_id'], body['args']['attributes'])
                 elif body['method'] == 'stop_processor':
-                    respons = self.processor_controller.stop_camera(body['args']['camera_id'])
+                    respons = self.processor_controller.stop_processor(body['args']['processor_id'])
                 
                 respons['message_id'] = body['message_id']
                 self.rpc.reply(respons, body['reply_to'])

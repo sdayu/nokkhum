@@ -87,7 +87,7 @@ class ComputeNodeResource:
             cpu         = args['cpu']
             memory      = args['memory']
             disk        = args['disk']
-            cameras     = args['cameras']
+            processors  = args['processors']
             host        = args['ip']
             report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
@@ -130,36 +130,36 @@ class ComputeNodeResource:
             report.disk         = compute_node.disk
             report.save()
             
-            for camera_process in cameras:
-                camera = models.Camera.objects().get(id=camera_process['camera_id'])
-                camera.operating.status = "running"
-                camera.operating.update_date = current_time
-                camera.operating.compute_node = compute_node
-                camera.save()
+            for processor_process in processors:
+                processor = models.Processor.objects().with_id(processor_process['processor_id'])
+                processor.operating.status = "running"
+                processor.operating.update_date = current_time
+                processor.operating.compute_node = compute_node
+                processor.save()
                 
-                cps = models.CameraProcessStatus()
-                cps.camera  = camera
+                cps = models.ProcessorStatus()
+                cps.processor  = processor
                 cps.report_date = report_date
-                cps.cpu     = camera_process['cpu']
-                cps.memory  = camera_process['memory']
-                cps.threads = camera_process['num_threads']
-                cps.messages = camera_process['messages']
+                cps.cpu     = processor_process['cpu']
+                cps.memory  = processor_process['memory']
+                cps.threads = processor_process['num_threads']
+                cps.messages = processor_process['messages']
                 cps.compute_node_report = report
                 cps.save()
                 
                 report.camera_process_status.append(cps)
                 
-                for message in camera_process['messages']:
+                for message in processor_process['messages']:
                     try:
-                        camera_message = json.loads(message)
-                        if 'method' in camera_message:
-                            if camera_message["method"] == "notify":
+                        processor_message = json.loads(message)
+                        if 'method' in processor_message:
+                            if processor_message["method"] == "notify":
 
                                 logger.debug("get notification")
                                 from nokkhum.controller import notification
                                 try:
                                     email = notification.EmailNotification()
-                                    email.send_mail(camera.id)
+                                    email.send_mail(processor.id)
                                 except Exception as e:
                                     logger.exception(e)
                                 
