@@ -32,6 +32,7 @@ class ProcessorMonitoring(threading.Thread):
             return
       
         new_command = models.ProcessorCommand()
+        new_command.extra['last_status'] = processor.operating.status
         if processor.operating.status == "running" or processor.operating.status == "starting" \
                 or processor.operating.status == "fail":
             new_command.action = "start"
@@ -39,11 +40,13 @@ class ProcessorMonitoring(threading.Thread):
             processor.save()
         elif processor.operating.status == "stopping":
             new_command.action = "stop"
+        
         new_command.processor = processor
         new_command.message = message
         new_command.command_type = 'system'
         new_command.command_date = datetime.datetime.now()
         new_command.update_date = datetime.datetime.now()
+        new_command.message += "\n\nextra: %s"%new_command.extra
         new_command.save()
         
         this_queue = models.ProcessorCommandQueue()
@@ -61,10 +64,10 @@ class ProcessorMonitoring(threading.Thread):
                     logger.debug( "processor id: %s diff: %d s" % (processor.id, diff_time.total_seconds()))
                     if diff_time > datetime.timedelta(seconds=self.maximum_wait_time):
                         logger.debug( "processor id: %s disconnect diff: %d s" % (processor.id, diff_time.total_seconds()))
-                        message = "Processor-processor disconnect.\n Restart processor by ProcessorMonotoring: %s" % datetime.datetime.now()
+                        message = "Processor disconnect.\n Restart processor by ProcessorMonotoring: %s" % datetime.datetime.now()
                         self.__request_new_processor_command(processor, "start", message)
                 elif processor.operating.status == "fail":
                     logger.debug( "processor id: %s status fail"%processor.id)
-                    message = "Processor-processor fail.\n Restart processor by ProcessorMonotoring: %s" % datetime.datetime.now()
-                    self.__request_new_processor_commend(processor, "start", message)
+                    message = "Processor run fail.\n Restart processor by ProcessorMonotoring: %s" % datetime.datetime.now()
+                    self.__request_new_processor_command(processor, "start", message)
                     

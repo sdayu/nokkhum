@@ -173,7 +173,7 @@ class ComputeNodeResource:
         except Exception as e:
             logger.exception(e)
 
-    def camera_running_fail_report(self, args):
+    def processor_run_fail_report(self, args):
         try:
             name        = args['name']
             host        = args['ip']
@@ -184,24 +184,26 @@ class ComputeNodeResource:
             logger.exception(e)  
             return
         
-        for camera_id, message in dead_process.items():
-            camera = models.Camera.objects(id=camera_id).first()
-            if not camera:
+        logger.debug("controller get processor fail: %s" % args)
+        
+        for processor_id, message in dead_process.items():
+            processor = models.Processor.objects().with_id(processor_id)
+            if not processor:
                 return
             
-            camera_status = models.CameraRunningFail()
-            camera_status.camera = camera
-            camera_status.compute_node = compute_node
-            camera_status.message = message
-            camera_status.report_time = report_time
-            camera_status.process_time = datetime.datetime.now()
-            camera_status.save()
+            processor_status = models.ProcessorRunFail()
+            processor_status.processor = processor
+            processor_status.compute_node = compute_node
+            processor_status.message = message
+            processor_status.report_time = report_time
+            processor_status.process_time = datetime.datetime.now()
+            processor_status.save()
             
-            camera.operating.status = "fail"
-            camera.operating.update_date = datetime.datetime.now()
-            camera.save()
+            processor.operating.status = "fail"
+            processor.operating.update_date = datetime.datetime.now()
+            processor.save()
             
-            logger.debug( 'Compute node name: "%s" ip: %s got camera error id: %s msg:\n %s' % ( name, host, camera_id, message) )
+            logger.debug( 'Compute node name: "%s" ip: %s got processor error id: %s msg:\n %s' % ( name, host, processor_id, message) )
         
 
 class UpdateStatus(threading.Thread):
@@ -220,14 +222,15 @@ class UpdateStatus(threading.Thread):
             logger.debug("ignore message", body)
             message.ack()
             return
-        #logger.debug("controller get message: %s" % body)
+        
+        # logger.debug("controller get message: %s" % body)
         if body["method"] == "update_system_information":
             self._cn_resource.update_system_information(body["args"])
             self._cn_resource.initial_central_configuration(body["args"]['ip'])
         elif body["method"] == "update_resource":
             self._cn_resource.update_resource(body["args"])
-        elif body["method"] == "camera_running_fail_report":
-            self._cn_resource.camera_running_fail_report(body["args"])
+        elif body["method"] == "processor_run_fail_report":
+            self._cn_resource.processor_run_fail_report(body["args"])
         message.ack()
 
     def run(self):

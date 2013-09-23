@@ -47,7 +47,7 @@ class ImageProcessor:
         args = json.dumps(arguments)
         command = args+"\n"
         self.process.stdin.write(command.encode('utf-8'))
-        self.process.stdin.flush()
+        # self.process.stdin.flush()
         self.process.stdin.close()
         result = self.process.stdout.readline().decode('utf-8')
         self.process.wait()

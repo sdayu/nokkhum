@@ -159,7 +159,7 @@ class UpdateInfomation:
         messages = {"method": "update_resource", "args": arguments}
         return self.send_message(messages)
     
-    def get_processor_running_fail(self):
+    def get_processor_run_fail(self):
         processor_manager = compute.processor_manager
         dead_process = processor_manager.remove_dead_process()
         if len(dead_process) == 0:
@@ -176,10 +176,10 @@ class UpdateInfomation:
         return fail_processors
     
     def processor_running_fail_report(self):
-        arguments = self.get_processor_running_fail()
+        arguments = self.get_processor_run_fail()
         if arguments == None:
             return
-        messages = {"method": "processor_running_fail_report", "args":arguments}
+        messages = {"method": "processor_run_fail_report", "args":arguments}
         return self.send_message(messages)
         
 class UpdateStatus(threading.Thread):

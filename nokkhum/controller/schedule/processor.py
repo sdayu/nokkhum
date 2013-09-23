@@ -161,9 +161,9 @@ class ProcessorScheduling(threading.Thread):
                             detectable_date = current_date,
                             
                         )
-                processor_command.status = 'fail'
-                processor_command.extra=extra
-                processor_command.message = processor_command.message+"\n\n%s"%extra
+
+                processor_command.extra.update(extra)
+                processor_command.message = processor_command.message+"\n\nextra: %s"%extra
                 processor_command.save()
                 
                 this_queue = models.ProcessorCommandQueue.objects(processor_command = processor_command).first()
