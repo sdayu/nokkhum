@@ -86,9 +86,10 @@ class ComputeApi():
             connection.default_connection.drain_events()
             
     def stop(self):
-        self._running = False
-        self.update_status.stop()
-        connection.default_connection.release()
-        logger.debug("start to stop all cameras")
+        logger.debug("start to stop all processors")
         self.processor_controller.stop_all()
-        logger.debug("end to stop all cameras")
+        logger.debug("end to stop all processors")
+        
+        self.update_status.stop()
+        self._running = False
+        connection.default_connection.release()

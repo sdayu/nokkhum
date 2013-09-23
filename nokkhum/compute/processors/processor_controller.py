@@ -123,5 +123,10 @@ class ProcessorController():
         return respons
     
     def stop_all(self):
-        for processor_id in processor_manager.list_processors():
-            self.stop_processor(processor_id)
+        
+        processor_ids = list(processor_manager.list_processors())
+        for processor_id in processor_ids:
+            try: 
+                self.stop_processor(processor_id)
+            except Exception as e:
+                logger.exception(e)
