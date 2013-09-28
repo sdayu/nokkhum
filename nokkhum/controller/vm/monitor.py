@@ -29,7 +29,9 @@ class VMMonitoring(threading.Thread):
     def __monitor_VM(self):
         ''''''
         
-        if models.ProcessorCommandQueue.objects(action__iexact="start").first() is None:
+        processor_command = models.ProcessorCommand.objects(action__iexact="start", status__iexact='waiting').first()
+        
+        if models.ProcessorCommandQueue.objects(processor_command=processor_command).first() is None:
             return
         
         if self.compute_node_manager.get_compute_node_available_resource() is not None:
