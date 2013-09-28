@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
 
 
     def setUp(self):
-        config_file = "../../controller-config.ini"
+        config_file = "../../../controller-config.ini"
         config = configparser.ConfigParser()
         config.read(config_file)
         
@@ -22,6 +22,7 @@ class Test(unittest.TestCase):
         
         controller.config = config
         setting = dict()
+        print(config.items())
         for k, v in config.items("controller"):
             setting[k] = v
         

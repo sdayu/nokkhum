@@ -31,27 +31,27 @@ class S3Storage:
                     )
         self.pattern = re.compile("__.*-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)")
         
-    def __push_to_s3(self, user_id, file_list, prefix_dir):
+    def __push_to_s3(self, processor_id, file_list, prefix_dir):
         
         try:
-            user_bucket = self.connection.get_bucket(user_id)
+            processor_bucket = self.connection.get_bucket(processor_id)
         except:
             try:
-                self.connection.create_bucket(user_id)
-                user_bucket = self.connection.get_bucket(user_id)
+                self.connection.create_bucket(processor_id)
+                processor_bucket = self.connection.get_bucket(processor_id)
             except Exception as e:
                 logger.exception(e)
                 return
     
-        prefix_dir = prefix_dir+'/'+user_id+'/'
+        prefix_dir = prefix_dir+'/'+processor_id+'/'
         prefix_length = len(prefix_dir)
     
         for file_name in file_list:
-            key = boto.s3.key.Key(user_bucket)
+            key = boto.s3.key.Key(processor_bucket)
 #            print file_name[prefix_length:]
             key.key = file_name[prefix_length:]
             key.set_contents_from_filename(file_name)
-            logger.debug( "push %s to bucket %s key: %s complete"%(file_name,user_bucket, key.key))
+            logger.debug( "push %s to bucket %s key: %s complete"%(file_name,processor_bucket, key.key))
             os.remove(file_name)
             # sleep for other thread run
             time.sleep(self.sleep_time)

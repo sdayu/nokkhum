@@ -13,7 +13,7 @@ from nokkhum.cloud.vm import ec2
 class Test(unittest.TestCase):
 
     def setUp(self):
-        config_file = "../../configuration.ini"
+        config_file = "../../../controller-config.ini"
         config = ConfigParser.ConfigParser()
         config.read(config_file)
         
