@@ -29,7 +29,7 @@ class VMMonitoring(threading.Thread):
     def __monitor_VM(self):
         ''''''
         
-        if models.CameraCommandQueue.objects(action__iexact="start").first() is None:
+        if models.ProcessorCommandQueue.objects(action__iexact="start").first() is None:
             return
         
         if self.compute_node_manager.get_compute_node_available_resource() is not None:
