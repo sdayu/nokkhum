@@ -35,6 +35,13 @@ class ProcessorMonitoring(threading.Thread):
         new_command.extra['last_status'] = processor.operating.status
         if processor.operating.status == "running" or processor.operating.status == "starting" \
                 or processor.operating.status == "fail":
+            if processor.operating.user_command == 'stop' \
+                or processor.operating.user_command == 'suspend':
+                processor.operating.status = 'stop'
+                processor.operating.user_command = 'stop'
+                processor.save()
+                return
+                
             new_command.action = "start"
             processor.operating.status = "start"
             processor.save()
