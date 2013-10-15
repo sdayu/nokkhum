@@ -55,7 +55,7 @@ class ProcessorManager:
             logger.exception(e)
             ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
     
-        self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_client(ip)
+        self.rpc = connection.Connection.get_instance().get_rpc_factory().get_default_rpc_client(ip)
         
     def __get_routing_key(self, ip):
         return "nokkhum_compute."+ip.replace('.', ':')+".rpc_request"

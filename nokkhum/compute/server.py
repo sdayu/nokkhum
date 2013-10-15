@@ -14,27 +14,17 @@ from nokkhum import compute, config
 from nokkhum.compute.update_infomation import UpdateStatus, UpdateConfiguration
 
 
-class ComputeApi():
+class ComputeServer():
     
-    def __init__(self):
+    def __init__(self, configurator):
         
         self.daemon = True
         self._running = False
-        self.update_status = UpdateStatus() 
-        
-        ip = "127.0.0.1"
-        try:
-            ip = netifaces.ifaddresses(config.Configurator.settings.get('nokkhum.compute.interface')).setdefault(netifaces.AF_INET)[0]['addr']
-        except Exception as e:
-            logger.exception(e)
-            ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
+        self.configurator = configurator
         
 #        routing_key = "nokkhum_compute."+self.ip.replace('.', ":")+".rpc_request"
 #        self._consumer = consumer.ConsumerFactory().get_consumer(routing_key)
-
-        from nokkhum.messaging import connection
-        self.rpc = connection.default_connection.get_rpc_factory().get_default_rpc_server(ip)
-        self.rpc.register_callback(self.process_msg)
+        self.reconnect_message_connection()
         
         from .processors import processor_controller
         self.processor_controller = processor_controller.ProcessorController()
@@ -72,18 +62,48 @@ class ComputeApi():
         logger.debug("success process command")
         message.ack()
         
-
+    def reconnect_message_connection(self):
+        from nokkhum.messaging import connection
+        
+        if connection.Connection.get_instance() is None:
+            logger.debug("initial message connection")
+            connection.Connection(self.configurator.settings.get('amq.url'))
+        
+        ip = "127.0.0.1"
+        try:
+            ip = netifaces.ifaddresses(self.configurator.settings.get('nokkhum.compute.interface')).setdefault(netifaces.AF_INET)[0]['addr']
+        except Exception as e:
+            logger.exception(e)
+            ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
+        
+    
+        self.update_publisher = connection.Connection.get_instance().publisher_factory.get_publisher("nokkhum_compute.update_status")
+        self.rpc = connection.Connection.get_instance().get_rpc_factory().get_default_rpc_server(ip)
+        self.rpc.register_callback(self.process_msg)
         
     def start(self):
+        self.update_status = UpdateStatus(self.update_publisher)
         self.update_status.start()
         self._running = True
         while self._running:
             # logger.debug("drain event")
+
             if not self.update_status.is_alive():
                 self.update_status.join()
                 self.update_status = UpdateStatus() 
                 self.update_status.start()
-            connection.default_connection.drain_events()
+
+            try:
+                connection.Connection.get_instance().drain_events()
+            except Exception as e:
+                logger.exception(e)
+                logger.debug("Try to recover connection")
+                connection.Connection.get_instance().reconnect()
+                self.reconnect_message_connection()
+                self.update_status.set_publisher(self.update_publisher)
+#                 import time
+#                 print("sleep 30")
+#                 time.sleep(30)
             
     def stop(self):
         logger.debug("start to stop all processors")
@@ -92,4 +112,4 @@ class ComputeApi():
         
         self.update_status.stop()
         self._running = False
-        connection.default_connection.release()
+        connection.Connection.get_instance().release()

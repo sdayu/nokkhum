@@ -180,8 +180,16 @@ class ProcessorScheduling(threading.Thread):
         
         logger.debug(self.name+" get %d command" % models.ProcessorCommandQueue.objects().count())
         
-        # while models.ProcessorCommandQueue.objects(processor_command__status = "waiting").count() > 0:
-        for this_queue in models.ProcessorCommandQueue.objects().order_by('+id').all():
+        def get_command():
+            for this_queue in models.ProcessorCommandQueue.objects().order_by('+id').all():
+                if this_queue.processor_command.status == 'waiting':
+                    return this_queue
+                
+            return None
+
+        # for this_queue in models.ProcessorCommandQueue.objects().order_by('+id').all():
+        while get_command() is not None:
+            this_queue = get_command()    
             
             if this_queue.processor_command.status != 'waiting':
                 logger.debug("status not waiting:"+ this_queue.processor_command.status)

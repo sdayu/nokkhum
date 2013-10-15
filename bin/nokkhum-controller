@@ -36,21 +36,17 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.debug(wellcome_message)
 
-    from nokkhum.messaging import connection
-    connection.initial(configuration.settings.get('amq.url'))
+    from nokkhum.controller.server import ControllerServer
+    server = ControllerServer(configuration)
     
-    from nokkhum.controller import api
-    controller_api = api.ControllerApi()
-    
-
     try:
-        controller_api.start()
+        server.start()
     except KeyboardInterrupt:
         logger.debug("KeyboardInterrupt")
     except Exception as e:
         logger.exception(e)
     finally:
-        controller_api.stop()
+        server.stop()
         
     logger.debug("Program Terminate")
     print ("\nProgram Terminate")

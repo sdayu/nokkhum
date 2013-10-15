@@ -21,9 +21,9 @@ class ProcessorMonitoring(threading.Thread):
         
     def run(self):
         
-        logger.debug("Processor Monitoring working")
+        logger.debug("ImageProcessor Monitoring working")
         self.__monitor_processor_active()
-        logger.debug("Processor Monitoring terminate")
+        logger.debug("ImageProcessor Monitoring terminate")
         
     def __request_new_processor_command(self, processor, action, message):
         processor_command = models.ProcessorCommand.objects(processor=processor, action=action, status='waiting').first()

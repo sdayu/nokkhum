@@ -12,6 +12,9 @@ from . import queues
 import logging
 logger = logging.getLogger(__name__)
 
+import threading 
+cc = threading.Condition()
+
 class Publisher:
     def __init__(self, exchange_name, channel, routing_key=None):
 
@@ -22,20 +25,24 @@ class Publisher:
         self.channel = channel
         self.routing_key_list = []
         self.routing_key = routing_key
-        
         self.reconnect(channel)
         
-        if self.routing_key:
-            self.queue_declare(self.routing_key)
-        
-        
     def reconnect(self, channel):
+        cc.acquire()
         self.exchange = kombu.Exchange(self.exchange_name, type="direct", durable=True)
         self.channel = channel
-        
-        self._producer = kombu.Producer(exchange=self.exchange,
+        try:
+            self._producer = kombu.Producer(exchange=self.exchange,
             channel=channel, serializer="json", 
             routing_key=self.routing_key)
+            
+            if self.routing_key:
+                self.queue_declare(self.routing_key)
+        except Exception as e:
+            logger.exception(e)
+
+        cc.release()
+
     
     def queue_declare(self, routing_key):
         if routing_key is None:
@@ -48,11 +55,21 @@ class Publisher:
         
         queue = queues.QueueFactory().get_queue(self.exchange, routing_key)
         if queue:
+            
             queue(self.channel).declare()
             
     def send(self, message, routing_key=None):
-        self._producer.publish(message, routing_key=routing_key)
-        
+        result = False
+        cc.acquire()
+        try:
+            self._producer.publish(message, routing_key=routing_key)
+            result = True
+        except Exception as e:
+            logger.exception(e)
+            logger.debug("wait for connection")
+        cc.release()
+        return result
+            
     def drop_routing_key(self, routing_key):
         logger.debug("drop_routing_key: %s"% routing_key)
         if routing_key in self.routing_key_list:
@@ -80,9 +97,8 @@ class PublisherFactory:
         logger.debug("routing_key: %s"% key)
         if key == "nokkhum_compute.update_status":
             routing_key = "nokkhum_compute.update_status"
-
             publisher = Publisher("nokkunm_compute.update_status", self.channel, routing_key)
-            # logger.debug("get pub: %s"% publisher)
+
             return publisher
         
         else:

@@ -24,10 +24,6 @@ if __name__ == '__main__':
     if not os.path.exists(record_directory):
         os.makedirs(record_directory)
         
-    from nokkhum.messaging import connection
-    connection.initial(configurator.settings.get('amq.url'))
-
-
     wellcome_message = 'Starting nokkhum compute server: %s\n' % str(datetime.datetime.now())
     print (wellcome_message)
     
@@ -35,17 +31,17 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.debug(wellcome_message)
     
-    from nokkhum.compute.api import ComputeApi
-    api = ComputeApi()
+    from nokkhum.compute.server import ComputeServer
+    server = ComputeServer(configurator)
     
     try:
-        api.start()
+        server.start()
     except KeyboardInterrupt as e:
         logger.debug("KeyboardInterrupt")
     except Exception as e:
         logger.exception(e)
     finally:
-        api.stop()
+        server.stop()
     
     logger.debug("Program Terminate")
     print ("\nProgram Terminate")

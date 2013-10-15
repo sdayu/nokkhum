@@ -36,25 +36,13 @@ class UpdateInfomation:
         except:
             self.ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
             
-    
-    def send_message(self, messages):
-        try:
-            self.publisher.send(messages, "nokkhum_compute.update_status")
-
-        except Exception as e:
-            logger.exception(e)
-            try:
-                logger.debug("reconnect publisher")
-                from nokkhum.messaging import connection
-                self.publisher = connection.default_connection.publisher_factory.get_publisher("nokkhum_compute.update_status")
-                logger.debug("reconnect publisher success")
-            except Exception as e:
-                logger.exception(e)
-            
-            return False
-            
-        logging.debug("send message: %s" % messages)
-        return True
+    def set_publisher(self, publisher):
+        self.publisher = publisher
+        
+    def send_message(self, messages):        
+        result = self.publisher.send(messages, "nokkhum_compute.update_status")
+        logging.debug("result: %s send message: %s" % (result, messages))
+        return result
     
     def get_system_information(self):
         
@@ -183,7 +171,7 @@ class UpdateInfomation:
         return self.send_message(messages)
         
 class UpdateStatus(threading.Thread):
-    def __init__(self):
+    def __init__(self, publisher=None):
         threading.Thread.__init__(self)
         self.name = self.__class__.__name__
         self._running = False
@@ -191,9 +179,12 @@ class UpdateStatus(threading.Thread):
         self._request_sysinfo = False
         self.__s3thread = None
         
-        from nokkhum.messaging import connection
-        self.publisher = connection.default_connection.publisher_factory.get_publisher("nokkhum_compute.update_status")
-
+        self.publisher = publisher
+        self.uinfo = UpdateInfomation(self.publisher)
+    
+    def set_publisher(self, publisher):
+        self.publisher = publisher
+        self.uinfo.set_publisher(self.publisher)
         
     def run(self):
         time_to_sleep = 10
@@ -202,11 +193,10 @@ class UpdateStatus(threading.Thread):
         self._running = True
         
         logger.debug("start update") 
-        uinfo = UpdateInfomation(self.publisher)
         
         while(self._running):
             while not update_status:
-                update_status = uinfo.update_system_information()
+                update_status = self.uinfo.update_system_information()
                 if not update_status:
                     logger.debug("wait controller %d second"%time_to_sleep)
                     time.sleep(time_to_sleep)
@@ -222,12 +212,12 @@ class UpdateStatus(threading.Thread):
                 start_time = datetime.datetime.now()
                 
                 try: 
-                    uinfo.processor_running_fail_report()
+                    self.uinfo.processor_running_fail_report()
                 except Exception as e:
                     logger.exception(e)
                     
                 try:
-                    uinfo.update_resource()
+                    self.uinfo.update_resource()
                 except Exception as e:
                     logger.exception(e)
 
@@ -238,7 +228,7 @@ class UpdateStatus(threading.Thread):
                     else:
                         self.push_s3 = False
                 else:
-                    uinfo.update_system_information()
+                    self.uinfo.update_system_information()
                     self.push_s3 = False
                 
                 if self.push_s3:
@@ -257,7 +247,9 @@ class UpdateStatus(threading.Thread):
 
                 if sleep_time > 0:
                     time.sleep(sleep_time)
-                    
+
+        logger.debug(self.name + " terminate")
+        
     def stop(self):
         self._running = False
         

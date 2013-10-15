@@ -6,12 +6,12 @@ Created on Dec 23, 2011
 
 import threading, datetime, time, json
 
-from nokkhum.messaging import consumer, connection
+from nokkhum.messaging import connection
 import logging
 
 from nokkhum import models
 from nokkhum import config
-from nokkhum import messaging
+
 
 
 logger = logging.getLogger(__name__)
@@ -31,10 +31,8 @@ class ComputeNodeResource:
         message['args'] = dict(settings=storage_settings)
         
         logger.debug('update storage to : "%s" message: %s routing_key: %s' % (host, message, routing_key))
-        rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+        rpc_client = connection.Connection.get_instance().get_rpc_factory().get_default_rpc_client()
         rpc_client.send(message, routing_key)
-        
-            
 
     def update_system_information(self, args):
         try:
@@ -74,7 +72,7 @@ class ComputeNodeResource:
         
             logger.debug( 'Compute node name: "%s" update system info complete' % ( name ) )
             
-            rpc_client = messaging.connection.default_connection.get_rpc_factory().default_rpc_client
+            rpc_client = connection.Connection.get_instance().get_rpc_factory().default_rpc_client
             if rpc_client is not None:
                 routing_key = "nokkhum_compute.%s.rpc_request"%compute_node.host.replace(".", ":")
                 rpc_client._publisher.drop_routing_key(routing_key)
@@ -99,7 +97,7 @@ class ComputeNodeResource:
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_information"}
                 
-                rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client()
+                rpc_client = connection.Connection.get_instance().get_rpc_factory().get_default_rpc_client()
                 rpc_client.send(message, routing_key)
                 logger.debug('compute node: "%s" unavailable. push %s by routing key: %s' % (name, message, routing_key))
                 
@@ -208,14 +206,18 @@ class ComputeNodeResource:
 
 class UpdateStatus(threading.Thread):
     
-    def __init__(self):
+    def __init__(self, consumer=None):
         threading.Thread.__init__(self)
         self.name = self.__class__.__name__
-        self._consumer = connection.default_connection.consumer_factory.get_consumer("nokkhum_compute.update_status")
-        self._consumer.register_callback(self.process_msg)
         self.daemon = True
         self._running = False
+        self._consumer = consumer
         self._cn_resource = ComputeNodeResource()
+    
+    def set_consumer(self, consumer):
+        self._consumer = consumer
+        self._consumer.register_callback(self.process_msg)
+        
         
     def process_msg(self, body, message):
         if "method" not in body:

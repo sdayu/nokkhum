@@ -15,15 +15,22 @@ import netifaces
 import logging
 logger = logging.getLogger(__name__)
 
-class ControllerApi():
+class ControllerServer:
     
-    def __init__(self):
+    def __init__(self, configuration):
         self._running = False
-        
+
+        self.configuration = configuration
         self.update_status = update.UpdateStatus()
+        self.reconnect_message_connection()
         self.timer = schedule.timer.Timer()
         
         
+    def  reconnect_message_connection(self):
+        from nokkhum.messaging import connection
+        if connection.Connection.get_instance() is None:
+            connection.Connection(self.configuration.settings.get('amq.url'))
+    
         ip = "127.0.0.1"
         try:
             ip = netifaces.ifaddresses(config.Configurator.settings.get('nokkhum.controller.interface')).setdefault(netifaces.AF_INET)[0]['addr']
@@ -31,8 +38,10 @@ class ControllerApi():
             logger.exception(e)
             ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
     
-        self.rpc_client = connection.default_connection.get_rpc_factory().get_default_rpc_client(ip)
-        
+        self.rpc_client = connection.Connection.get_instance().get_rpc_factory().get_default_rpc_client(ip)
+        self.update_consumer = connection.Connection.get_instance().consumer_factory.get_consumer("nokkhum_compute.update_status")
+        self.update_status.set_consumer(self.update_consumer)
+    
         
     def start(self):
         self._running = True
@@ -40,7 +49,11 @@ class ControllerApi():
         self.timer.start()
         while self._running:
             logger.debug("drain_event")
-            connection.default_connection.drain_events()
+            try:
+                connection.Connection.get_instance().drain_events()
+            except:
+                connection.Connection.get_instance().reconnect()
+                self.reconnect_message_connection()
 
         
     def stop(self):
@@ -52,7 +65,7 @@ class ControllerApi():
         self.update_status.join()
         self.timer.join()
         
-        connection.default_connection.release()
+        connection.Connection.get_instance().release()
         
         
         
