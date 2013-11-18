@@ -76,7 +76,7 @@ class ComputeNodeManager(object):
                                                                   ram[-1], ram_predict,
                                                                   disk[-1], disk_predict))
         
-        if cpu_predict < 80\
+        if cpu_predict < 70\
             and ram_predict%1000000 > 200\
             and disk_predict%1000000 > 1000:
             return True
