@@ -43,8 +43,9 @@ class VMMonitoring(threading.Thread):
         
         for compute_node in compute_nodes:
             if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=20):
-                logger.debug("VM --> in wait list")
-                return 
+                if compute_node.vm.status == 'pending':
+                    logger.debug("VM --> in wait list")
+                    return 
         
         logger.debug("VM --> get vm")
         self.vm_manager.acquire()

@@ -146,14 +146,17 @@ class ProcessorScheduling(threading.Thread):
         self.daemon = True
         
     def __remove_command_unavailable(self):
-        td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
         
         # check processing status expired
-                
-        fail_commands = models.ProcessorCommand.objects(status__in=["processing", "error"], update_date__lt=td).all()
-        for processor_command in fail_commands:
+        queue = models.ProcessorCommandQueue.objects().all()        
+        
+        for command in queue:
+            processor_command = command.processor_command
+            if processor_command.status in ["processing", "error"]:
+                td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
+                if processor_command.update_date > td:
+                    continue
             try:
-                
                 current_date =  datetime.datetime.now()
                 extra = dict(
                             last_status = processor_command.status,
