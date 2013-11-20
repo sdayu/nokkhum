@@ -43,7 +43,7 @@ class VMManager(object):
                 if compute_node.vm.status == 'pending':
                     logger.debug("VM id: %s ip: %s is in wait time"%(compute_node.vm.instance_id, compute_node.vm.ip_address))
                     time.sleep(10)
-            return
+                    return
         else:
             logger.debug("There are no VM in wait time")
         

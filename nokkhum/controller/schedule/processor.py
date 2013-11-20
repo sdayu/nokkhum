@@ -30,7 +30,7 @@ class ProcessorCommandProcessing:
         
         processor = command.processor
         try:
-            if processor.operating.status == "running":
+            if processor.operating.status == "running" :
                 raise Exception('processor id %s already running'%str(processor.id))
             
             processor.operating.user_command = "run"
