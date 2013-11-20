@@ -156,6 +156,8 @@ class ProcessorScheduling(threading.Thread):
                 td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
                 if processor_command.update_date > td:
                     continue
+            else:
+                continue
             try:
                 current_date =  datetime.datetime.now()
                 extra = dict(
