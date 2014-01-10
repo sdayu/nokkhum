@@ -5,22 +5,28 @@ Created on Jul 9, 2012
 '''
 import unittest
 from nokkhum import controller, models
-import ConfigParser
+from nokkhum import config
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
-        config_file = "../../configuration.ini"
-        config = ConfigParser.ConfigParser()
-        config.read(config_file)
+        config_file = "../../../controller-config.ini"
         
-        controller.config = config
+        configuration = config.Configurator(config_file)
+        
+        controller.config = configuration
         setting = dict()
-        for k, v in config.items("controller"):
+        
+        for k, v in configuration.items():
             setting[k] = v
         
         models.initial(setting)   
+        
+        import os
+        if not os.path.exists(setting.get("nokkhum.log_dir")):
+            
+            os.makedirs(setting.get("nokkhum.log_dir"))
         
         import logging.config
         logging.config.fileConfig(config_file)
@@ -31,8 +37,8 @@ class Test(unittest.TestCase):
 
 
     def testName(self):
-        from nokkhum.controller.manager import storage
-        storage_thread = storage.Storage()
+        from nokkhum.controller.storage import monitor
+        storage_thread = monitor.StorageMonitoring()
         storage_thread.start()
         storage_thread.join()
 

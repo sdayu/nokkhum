@@ -34,11 +34,11 @@ class StorageMonitoring(threading.Thread):
         buckets = self.s3_storage.get_all_buckets()
         
         for bucket in buckets:
-#            logger.debug("bucket: "+ bucket.name)
+            logger.debug("bucket: "+ bucket.name)
             self.s3_storage.set_buckket_name(bucket.name)
             
-            camera = models.Camera.objects(id=int(bucket.name)).first()
-            if camera is None:
+            processor = models.Processor.objects(id=bucket.name).first()
+            if processor is None:
                 continue
             
             for key_name in self.s3_storage.list_file():
@@ -53,8 +53,8 @@ class StorageMonitoring(threading.Thread):
                 
 #                logger.debug( "diff date: %d"% diff_time.days)
                 
-                if camera.storage_periods > 0 \
-                    and diff_time.days > camera.storage_periods:
+                if processor.storage_period > 0 \
+                    and diff_time.days > processor.storage_period:
 #                        print "diff: ", diff_time.days
                     logger.debug("delete key name: %s" % key_name)
                     
