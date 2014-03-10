@@ -160,8 +160,24 @@ class ComputeNodeResource:
                                     email.send_mail(processor.id)
                                 except Exception as e:
                                     logger.exception(e)
-                                
-                                break
+                            if processor_message["method"] == "face_detected":
+                                tmp = model.Notification()
+                                tmp.method      =  processor_message["method"]
+                                tmp.camera      =  processor_message["camera_id"]
+                                tmp.description =  processor_message["description"]
+                                tmp.filename    =  processor_message["filename"]
+                                tmp.face_name   =  processor_message["face_name"]
+                                tmp.save()
+                            if processor_message["method"] == "motion_detected":
+                                tmp = model.Notification()
+                                tmp.method = processor_message["method"]
+                                tmp.camera = processor_message["camera_id"]
+                                tmp.description = processor_message["description"]
+                                tmp.face_name = processor_message["area"]
+                                tmp.filename = "";
+                                tmp.save()
+
+
                     except:
                         logger.exception("fail load json: %s"% message)
                     
