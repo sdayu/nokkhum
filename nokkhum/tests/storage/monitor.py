@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
         pass
 
 
-    def testName(self):
+    def testStorageMonitoring(self):
         from nokkhum.controller.storage import monitor
         storage_thread = monitor.StorageMonitoring()
         storage_thread.start()
