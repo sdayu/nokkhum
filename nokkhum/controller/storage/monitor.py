@@ -31,15 +31,19 @@ class StorageMonitoring(threading.Thread):
         logger.debug("start " + self.name)
         
     def run(self):
-        buckets = self.s3_storage.get_all_buckets()
+        # buckets = self.s3_storage.get_all_buckets()
+        processors = models.Processor.objects().all()
         
-        for bucket in buckets:
-            logger.debug("bucket: "+ bucket.name)
-            self.s3_storage.set_buckket_name(bucket.name)
-            
-            processor = models.Processor.objects(id=bucket.name).first()
-            if processor is None:
+#         for bucket in buckets:
+        for processor in processors:
+            self.s3_storage.set_bucket_name(str(processor.id))
+            bucket = self.s3_storage.get_bucket();
+            if bucket is None:
                 continue
+            logger.debug("bucket: "+ bucket.name)
+#             processor = models.Processor.objects(id=bucket.name).first()
+#             if processor is None:
+#                 continue
             
             for key_name in self.s3_storage.list_file():
 #                logger.debug( "date: "+ key_name)
@@ -51,8 +55,8 @@ class StorageMonitoring(threading.Thread):
                 current_time = datetime.datetime.now()
                 diff_time = current_time - dir_time
                 
-#                logger.debug( "diff date: %d"% diff_time.days)
-                
+#                 logger.debug( "diff date: %d"% diff_time.days)
+#                 logger.debug( "storage_period: %d"% processor.storage_period)
                 if processor.storage_period > 0 \
                     and diff_time.days > processor.storage_period:
 #                        print "diff: ", diff_time.days
