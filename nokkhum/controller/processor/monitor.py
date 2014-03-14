@@ -51,8 +51,8 @@ class ProcessorMonitoring(threading.Thread):
         new_command.processor = processor
         new_command.message = message
         new_command.command_type = 'system'
-        new_command.command_date = datetime.datetime.now()
-        new_command.update_date = datetime.datetime.now()
+        new_command.commanded_date = datetime.datetime.now()
+        new_command.updated_date = datetime.datetime.now()
         new_command.message += "\n\nextra: %s"%new_command.extra
         new_command.save()
         
@@ -67,7 +67,7 @@ class ProcessorMonitoring(threading.Thread):
         for processor in processors:
             if processor.operating.user_command == "run":
                 if processor.operating.status == "running" or processor.operating.status == "starting":
-                    diff_time = current_time - processor.operating.update_date
+                    diff_time = current_time - processor.operating.updated_date
                     logger.debug( "processor id: %s diff: %d s" % (processor.id, diff_time.total_seconds()))
                     if diff_time > datetime.timedelta(seconds=self.maximum_wait_time):
                         logger.debug( "processor id: %s disconnect diff: %d s" % (processor.id, diff_time.total_seconds()))

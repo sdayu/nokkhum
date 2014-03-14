@@ -22,13 +22,17 @@ class VMMonitoring(threading.Thread):
     
     def run(self):
         logger.debug("VM Monitoring working")
-        self.__monitor_VM()
+        self.__monitor()
+        self.__terminate()
         logger.debug("VM Monitoring finish")
-
-            
-    def __monitor_VM(self):
-        ''''''
         
+    def __terminate(self):
+        logger.debug("VM Monitoring check for terminate")
+        compute_nodes = models.ComputeNode.objects().all()
+            
+    def __monitor(self):
+        ''''''
+        logger.debug("VM Monitoring check for acquisition")
         processor_command = models.ProcessorCommand.objects(action__iexact="start", status__iexact='waiting').first()
         
         if models.ProcessorCommandQueue.objects(processor_command=processor_command).first() is None:

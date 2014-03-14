@@ -35,7 +35,7 @@ class ProcessorCommandProcessing:
             
             processor.operating.user_command = "run"
             processor.operating.status = "starting"
-            processor.operating.update_date = datetime.datetime.now()
+            processor.operating.updated_date = datetime.datetime.now()
             processor.save()
             
             response = self.processor_manager.start_processor(compute_node, command.processor)
@@ -49,10 +49,10 @@ class ProcessorCommandProcessing:
         except Exception as e:
             logger.exception(e)
 #            command.camera.operating.status = "Stop"
-#            command.camera.operating.update_date = datetime.datetime.now()
+#            command.camera.operating.updated_date = datetime.datetime.now()
             command.message = str(e)
             command.status = "error"
-            command.update_date = datetime.datetime.now()
+            command.updated_date = datetime.datetime.now()
         
         processor.save()
         command.save()
@@ -72,7 +72,7 @@ class ProcessorCommandProcessing:
     def stop(self, command):
         
         command.status = "processing"
-        command.update_date = datetime.datetime.now()
+        command.updated_date = datetime.datetime.now()
         command.save()
         
         compute_node = command.processor.operating.compute_node
@@ -83,7 +83,7 @@ class ProcessorCommandProcessing:
         response = None
         command.processor.operating.user_command = "stop"
         command.processor.operating.status = "stopping"
-        command.processor.operating.update_date = datetime.datetime.now()
+        command.processor.operating.updated_date = datetime.datetime.now()
         command.processor.save()
             
         try:
@@ -94,17 +94,17 @@ class ProcessorCommandProcessing:
                 raise Exception('Compute node offline')
             
             processor = command.processor
-            if datetime.datetime.now() - processor.operating.update_date < datetime.timedelta(seconds=30):
+            if datetime.datetime.now() - processor.operating.updated_date < datetime.timedelta(seconds=30):
                 response = self.processor_manager.stop_processor(compute_node, command.processor)
                 
             command.processor.operating.status = "stop"
-            command.processor.operating.update_date = datetime.datetime.now()
+            command.processor.operating.updated_date = datetime.datetime.now()
             command.processor.operating.compute_node = compute_node
             command.status = "complete"
         except Exception as e:
             logger.exception(e)
             command.processor.operating.status = "stop"
-            command.processor.operating.update_date = datetime.datetime.now()
+            command.processor.operating.updated_date = datetime.datetime.now()
             command.status = "error"
             command.update_date = datetime.datetime.now()
         
@@ -154,7 +154,7 @@ class ProcessorScheduling(threading.Thread):
             processor_command = command.processor_command
             if processor_command.status in ["processing", "error"]:
                 td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
-                if processor_command.update_date > td:
+                if processor_command.updated_date > td:
                     continue
             else:
                 continue
@@ -162,8 +162,8 @@ class ProcessorScheduling(threading.Thread):
                 current_date =  datetime.datetime.now()
                 extra = dict(
                             last_status = processor_command.status,
-                            last_update_date = processor_command.update_date,
-                            detectable_date = current_date,
+                            last_updated_date = processor_command.updated_date,
+                            detectabled_date = current_date,
                             
                         )
 
