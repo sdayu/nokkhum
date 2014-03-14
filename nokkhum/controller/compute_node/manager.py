@@ -33,7 +33,7 @@ class ComputeNodeManager(object):
         delta = datetime.timedelta(minutes=1)
         now = datetime.datetime.now()
                 
-        compute_nodes = models.ComputeNode.objects(update_date__gt=now-delta).all()
+        compute_nodes = models.ComputeNode.objects(updated_date__gt=now-delta).all()
         
         return compute_nodes;
     
@@ -52,8 +52,8 @@ class ComputeNodeManager(object):
     def is_compute_node_available(self, compute_node):
     
         records = models.ComputeNodeReport.objects(compute_node=compute_node, 
-                                                       report_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=1))\
-                                                        .order_by("-report_date").limit(20)
+                                                       reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=1))\
+                                                        .order_by("-reported_date").limit(20)
 
         cpu = [record.cpu.used for record in records]
         ram = [record.memory.free for record in records]

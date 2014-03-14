@@ -12,9 +12,9 @@ amq.url = amqp://guest:guest@localhost:5672/nokkhum
 nokkhum.storage.enable = true
 nokkhum.storage.api = s3 
 nokkhum.storage.s3.host = 172.30.235.30
-nokkhum.storage.s3.port = 8888
-nokkhum.storage.s3.access_key_id = 5628de77f55d466fb61cda17baf4f8ea
-nokkhum.storage.s3.secret_access_key = 4b21c167bfde4edfb519c27b8d03f174
+nokkhum.storage.s3.port = 8080
+nokkhum.storage.s3.access_key_id = 6bff4c6d3acc4623af7b702e350f71ad
+nokkhum.storage.s3.secret_access_key = 2a661951a1cb4dd1adb947b12b76ff79
 nokkhum.storage.s3.secure_connection = false
 
 nokkhum.temp_dir = /tmp/nokkhum-web/cache

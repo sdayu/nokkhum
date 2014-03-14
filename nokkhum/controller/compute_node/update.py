@@ -64,10 +64,10 @@ class ComputeNodeResource:
             compute_node.cpu     = cpu
             compute_node.memory  = memory
             compute_node.update_date = datetime.datetime.now()
-            if 'response_date' not in compute_node.extra:
-                compute_node.extra['response_date'] = list()
+            if 'responsed_date' not in compute_node.extra:
+                compute_node.extra['responsed_date'] = list()
 
-            compute_node.extra['response_date'].append(datetime.datetime.now())
+            compute_node.extra['responsed_date'].append(datetime.datetime.now())
             compute_node.save()
         
             logger.debug( 'Compute node name: "%s" update system info complete' % ( name ) )
@@ -87,12 +87,12 @@ class ComputeNodeResource:
             disk        = args['disk']
             processors  = args['processors']
             host        = args['ip']
-            report_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
+            reported_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
             compute_node = models.ComputeNode.objects(host=host).first()
             
             if compute_node is None \
-                or datetime.datetime.now() - compute_node.update_date > datetime.timedelta(seconds=30):
+                or datetime.datetime.now() - compute_node.updated_date > datetime.timedelta(seconds=30):
                 
                 routing_key = "nokkhum_compute."+host.replace('.', ':')+".rpc_request"
                 message={"method":"get_system_information"}
@@ -117,12 +117,12 @@ class ComputeNodeResource:
             compute_node.disk.percent = disk['percent']
             
             current_time = datetime.datetime.now()
-            compute_node.update_date = current_time
+            compute_node.updated_date = current_time
             compute_node.save()
 
             report              = models.ComputeNodeReport()
             report.compute_node = compute_node
-            report.report_date  = report_date
+            report.reported_date  = reported_date
             report.cpu          = compute_node.cpu
             report.memory       = compute_node.memory
             report.disk         = compute_node.disk
@@ -131,13 +131,13 @@ class ComputeNodeResource:
             for processor_process in processors:
                 processor = models.Processor.objects().with_id(processor_process['processor_id'])
                 processor.operating.status = "running"
-                processor.operating.update_date = current_time
+                processor.operating.updated_date = current_time
                 processor.operating.compute_node = compute_node
                 processor.save()
                 
                 ps = models.ProcessorStatus()
                 ps.processor  = processor
-                ps.report_date = report_date
+                ps.reported_date = reported_date
                 ps.cpu     = processor_process['cpu']
                 ps.memory  = processor_process['memory']
                 ps.threads = processor_process['num_threads']
@@ -217,7 +217,7 @@ class ComputeNodeResource:
             processor_status.save()
             
             processor.operating.status = "fail"
-            processor.operating.update_date = datetime.datetime.now()
+            processor.operating.updated_date = datetime.datetime.now()
             processor.save()
             
             logger.debug( 'Compute node name: "%s" ip: %s got processor error id: %s msg:\n %s' % ( name, host, processor_id, message) )
@@ -259,7 +259,7 @@ class UpdateStatus(threading.Thread):
         while self._running:
 #            now = datetime.datetime.now()
 #            if now.minute == 0 and (now.second >= 0 and now.second <= 13):
-#                compute_nodes = models.ComputeNode.objects(update_date__gt=now-datetime.timedelta(minutes=10)).all()
+#                compute_nodes = models.ComputeNode.objects(updated_date__gt=now-datetime.timedelta(minutes=10)).all()
 #                for compute_node in compute_nodes:
 #                    self._cn_resource.initial_central_configuration(compute_node.host)
                     
