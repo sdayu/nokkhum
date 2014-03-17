@@ -20,18 +20,36 @@ class VMMonitoring(threading.Thread):
         self.daemon = True
         self.compute_node_manager = ComputeNodeManager()
     
+        self.vm_manager = VMManager()
+        
     def run(self):
         logger.debug("VM Monitoring working")
         self.__monitor()
-        self.__terminate()
         logger.debug("VM Monitoring finish")
         
-    def __terminate(self):
-        logger.debug("VM Monitoring check for terminate")
-        compute_nodes = models.ComputeNode.objects().all()
-            
-    def __monitor(self):
-        ''''''
+    def __manage(self):
+#         logger.debug("VM Monitoring check for terminate or reboot")
+#         compute_nodes = models.ComputeNode.objects(vm__ne=None, vm__status__ne='terminate').all()
+#         for compute_node in compute_nodes:
+#             if compute_node.is_online():
+#                 if compute_node.cpu.used < 5:
+#                     logger.debug("VM Monitoring terminate compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+#                     self.vm_manager.terminate(compute_node.vm.instance_id)
+#                     compute_node.vm.terminated_date = datetime.datetime.now()
+#                     compute_node.save()
+#             else:
+#                 logger.debug("VM Monitoring reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+#                 ec2_instance = self.vm_manager.find_instance(compute_node.vm.instance_id)
+#                 if ec2_instance:
+#                     self.vm_manager.reboot(compute_node.vm.instance_id)
+#                 else:
+#                     logger.debug("VM Monitoring compute node id %s instance id %s already terminated"%(compute_node.id, compute_node.vm.instance_id))
+#                     compute_node.vm.status = 'terminate'
+#                     compute_node.vm.terminated_date = datetime.datetime.now()
+#                     compute_node.save()
+                    
+    
+    def __acquire(self):
         logger.debug("VM Monitoring check for acquisition")
         processor_command = models.ProcessorCommand.objects(action__iexact="start", status__iexact='waiting').first()
         
@@ -42,14 +60,19 @@ class VMMonitoring(threading.Thread):
             return
         
         logger.debug("VM There are no available resource")
-        self.vm_manager = VMManager()
         compute_nodes = self.vm_manager.list_vm_compute_node()
         
         for compute_node in compute_nodes:
-            if datetime.datetime.now() - compute_node.vm.start_instance_date < datetime.timedelta(minutes=20):
+            if datetime.datetime.now() - compute_node.vm.started_instance_date < datetime.timedelta(minutes=20):
                 if compute_node.vm.status == 'pending':
                     logger.debug("VM --> in wait list")
                     return 
         
         logger.debug("VM --> get vm")
         self.vm_manager.acquire()
+    
+    def __monitor(self):
+        ''''''
+        self.__manage()
+        self.__acquire()
+        
