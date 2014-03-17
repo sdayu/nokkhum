@@ -36,7 +36,7 @@ class VMManager(object):
     def acquire(self):
         current_time = datetime.datetime.now()
         period_running_vm = current_time - datetime.timedelta(minutes=60)
-        compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__start_instance_date__gt=period_running_vm).all();
+        compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__start_instanceed_date__gt=period_running_vm).all();
         
         if compute_nodes:
             for compute_node in compute_nodes:
@@ -101,7 +101,7 @@ class VMManager(object):
         vm_info.kernel      = instance.kernel
         vm_info.ramdisk     = instance.ramdisk
         vm_info.private_ip_address = instance.private_ip_address
-        vm_info.start_instance_date = datetime.datetime.now() #instance.launch_time
+        vm_info.started_instance_date = datetime.datetime.now() #instance.launch_time
         
         vm_info.status      = instance.update()
     
