@@ -28,6 +28,7 @@ class VMMonitoring(threading.Thread):
         logger.debug("VM Monitoring finish")
         
     def __manage(self):
+        ''''''
 #         logger.debug("VM Monitoring check for terminate or reboot")
 #         compute_nodes = models.ComputeNode.objects(vm__ne=None, vm__status__ne='terminate').all()
 #         for compute_node in compute_nodes:
