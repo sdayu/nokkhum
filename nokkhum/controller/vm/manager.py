@@ -112,14 +112,23 @@ class VMManager(object):
 
         return instance
     
+    def get(self, instance_id):
+        return self.api.find_instance(instance_id)
+    
+    def reboot(self, instance_id):
+        self.api.reboot_instance(instance_id)
+    
     def terminate(self, instance_id):
         self.api.stop_instance(instance_id)
+        self.api.terminate_instance(instance_id)
         compute_node = models.ComputeNode.objects(vm__instance_id=instance_id).first()
-        compute_node.vm.terminate_instance_date = datetime.datetime.now()
+        compute_node.vm.terminated_instance_date = datetime.datetime.now()
+        compute_node.vm.status = 'terminate'
+        compute_node.status = 'terminate'
         compute_node.save()
         
     def list_vm_compute_node(self):
-        compute_nodes = models.ComputeNode.objects(vm__ne = None).all()
+        compute_nodes = models.ComputeNode.objects(vm__ne = None, vm__status__ne='terminate').all()
         return compute_nodes
     
     def list_vm_unavailable_compute_node(self):

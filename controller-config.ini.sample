@@ -11,22 +11,22 @@ amq.url = amqp://guest:guest@localhost:5672/nokkhum
 
 nokkhum.storage.enable = true
 nokkhum.storage.api = s3 
-nokkhum.storage.s3.host = 172.30.235.30
+nokkhum.storage.s3.host = localhost
 nokkhum.storage.s3.port = 8080
-nokkhum.storage.s3.access_key_id = 6bff4c6d3acc4623af7b702e350f71ad
-nokkhum.storage.s3.secret_access_key = 2a661951a1cb4dd1adb947b12b76ff79
+nokkhum.storage.s3.access_key_id = access_key
+nokkhum.storage.s3.secret_access_key = secret_access_key
 nokkhum.storage.s3.secure_connection = false
 
 nokkhum.temp_dir = /tmp/nokkhum-web/cache
 
 nokkhum.vm.enable = false
 nokkhum.vm.api = ec2
-nokkhum.vm.ec2.host = 172.30.235.10
+nokkhum.vm.ec2.host = localhost
 nokkhum.vm.ec2.port = 8773
-nokkhum.vm.ec2.access_key_id = 5628de77f55d466fb61cda17baf4f8ea
-nokkhum.vm.ec2.secret_access_key = 4b21c167bfde4edfb519c27b8d03f174
+nokkhum.vm.ec2.access_key_id = access_key
+nokkhum.vm.ec2.secret_access_key = secret_access_key
 nokkhum.vm.ec2.secure_connection = false
-nokkhum.vm.ec2.image.name = nk-20130511
+nokkhum.vm.ec2.image.name = compute-image
 nokkhum.vm.ec2.instance_type = l1.medium, l1.large
 
 

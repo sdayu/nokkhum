@@ -64,6 +64,7 @@ class ComputeNodeResource:
             compute_node.cpu     = cpu
             compute_node.memory  = memory
             compute_node.update_date = datetime.datetime.now()
+            compute_node.updated_resource_date = datetime.datetime.now()
             if 'responsed_date' not in compute_node.extra:
                 compute_node.extra['responsed_date'] = list()
 
@@ -118,6 +119,7 @@ class ComputeNodeResource:
             
             current_time = datetime.datetime.now()
             compute_node.updated_date = current_time
+            compute_node.updated_resource_date = reported_date;
             compute_node.save()
 
             report              = models.ComputeNodeReport()

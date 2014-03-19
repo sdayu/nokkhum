@@ -29,25 +29,26 @@ class VMMonitoring(threading.Thread):
         
     def __manage(self):
         ''''''
-#         logger.debug("VM Monitoring check for terminate or reboot")
-#         compute_nodes = models.ComputeNode.objects(vm__ne=None, vm__status__ne='terminate').all()
-#         for compute_node in compute_nodes:
-#             if compute_node.is_online():
-#                 if compute_node.cpu.used < 5:
-#                     logger.debug("VM Monitoring terminate compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
-#                     self.vm_manager.terminate(compute_node.vm.instance_id)
-#                     compute_node.vm.terminated_date = datetime.datetime.now()
-#                     compute_node.save()
-#             else:
-#                 logger.debug("VM Monitoring reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
-#                 ec2_instance = self.vm_manager.find_instance(compute_node.vm.instance_id)
-#                 if ec2_instance:
-#                     self.vm_manager.reboot(compute_node.vm.instance_id)
-#                 else:
-#                     logger.debug("VM Monitoring compute node id %s instance id %s already terminated"%(compute_node.id, compute_node.vm.instance_id))
-#                     compute_node.vm.status = 'terminate'
-#                     compute_node.vm.terminated_date = datetime.datetime.now()
-#                     compute_node.save()
+        logger.debug("VM Monitoring check for terminate or reboot")
+        compute_nodes = self.vm_manager.list_vm_compute_node()
+        for compute_node in compute_nodes:
+            if compute_node.is_online():
+                if compute_node.cpu.used < 5:
+                    logger.debug("VM Monitoring terminate compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+                    self.vm_manager.terminate(compute_node.vm.instance_id)
+            else:
+                logger.debug("VM Monitoring check for reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+                ec2_instance = self.vm_manager.get(compute_node.vm.instance_id)
+                if ec2_instance:
+                    if 'responsed_date' in compute_node.extra:
+                        logger.debug("VM Monitoring reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+                        self.vm_manager.reboot(compute_node.vm.instance_id)
+                else:
+                    logger.debug("VM Monitoring compute node id %s instance id %s already terminated"%(compute_node.id, compute_node.vm.instance_id))
+                    compute_node.status = 'terminate'
+                    compute_node.vm.status = 'terminate'
+                    compute_node.updated_date = datetime.datetime.now()
+                    compute_node.save()
                     
     
     def __acquire(self):

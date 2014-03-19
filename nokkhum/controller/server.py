@@ -51,6 +51,9 @@ class ControllerServer:
             logger.debug("drain_event")
             try:
                 connection.Connection.get_instance().drain_events()
+            except KeyboardInterrupt as e:
+                self.stop()
+                raise e
             except:
                 connection.Connection.get_instance().reconnect()
                 self.reconnect_message_connection()
@@ -65,7 +68,10 @@ class ControllerServer:
         self.update_status.join()
         self.timer.join()
         
-        connection.Connection.get_instance().release()
+        try:
+            connection.Connection.get_instance().release()
+        except:
+            pass
         
         
         

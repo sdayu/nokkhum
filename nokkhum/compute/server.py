@@ -95,6 +95,9 @@ class ComputeServer():
 
             try:
                 connection.Connection.get_instance().drain_events()
+            except KeyboardInterrupt as e:
+                self.stop()
+                raise e
             except Exception as e:
                 logger.exception(e)
                 logger.debug("Try to recover connection")
@@ -112,4 +115,7 @@ class ComputeServer():
         
         self.update_status.stop()
         self._running = False
-        connection.Connection.get_instance().release()
+        try:
+            connection.Connection.get_instance().release()
+        except:
+            pass
