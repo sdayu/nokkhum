@@ -68,7 +68,9 @@ class ComputeNodeManager(object):
         
         kp = KalmanPredictor()
         cpu_predict = kp.predict(cpu)
+        kp = KalmanPredictor()
         ram_predict = kp.predict(ram)
+        kp = KalmanPredictor()
         disk_predict = kp.predict(disk)
         
         logger.debug("compute node id: %s current/predict cpu: %s/%s ram: %s/%s disk: %s/%s"%(compute_node.id, 
@@ -79,6 +81,7 @@ class ComputeNodeManager(object):
         if cpu_predict < 70\
             and ram_predict%1000000 > 200\
             and disk_predict%1000000 > 1000:
+            logger.debug("compute node id cpu: %s ram: %s disk %s"%(cpu_predict, ram_predict%1000000, disk_predict%1000000))
             return True
         
         # if compute node is not available

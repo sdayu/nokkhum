@@ -41,7 +41,7 @@ if __name__ == '__main__':
     
     try:
         server.start()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as e:
         logger.debug("KeyboardInterrupt")
     except Exception as e:
         logger.exception(e)
