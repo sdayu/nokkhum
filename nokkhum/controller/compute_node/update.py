@@ -45,7 +45,7 @@ class ComputeNodeResource:
             host        = args['ip']
             
             compute_node = models.ComputeNode.objects(host=host).first()
-            logger.debug("compute node: %s"% compute_node)
+            
             if compute_node is None:
                 compute_node = models.ComputeNode()
                 compute_node.create_date = datetime.datetime.now()
@@ -63,7 +63,7 @@ class ComputeNodeResource:
             compute_node.system  = system
             compute_node.cpu     = cpu
             compute_node.memory  = memory
-            compute_node.update_date = datetime.datetime.now()
+            compute_node.updated_date = datetime.datetime.now()
             compute_node.updated_resource_date = datetime.datetime.now()
             if 'responsed_date' not in compute_node.extra:
                 compute_node.extra['responsed_date'] = list()
@@ -91,7 +91,7 @@ class ComputeNodeResource:
             reported_date = datetime.datetime.strptime(args['date'], '%Y-%m-%dT%H:%M:%S.%f')       
             
             compute_node = models.ComputeNode.objects(host=host).first()
-            
+
             if compute_node is None \
                 or datetime.datetime.now() - compute_node.updated_date > datetime.timedelta(seconds=30):
                 
@@ -103,6 +103,7 @@ class ComputeNodeResource:
                 logger.debug('compute node: "%s" unavailable. push %s by routing key: %s' % (name, message, routing_key))
                 
                 if compute_node is None:
+                    logger.debug('compute_node: is None')
                     return 
             
             compute_node.cpu.used   = cpu["used"]
@@ -121,6 +122,7 @@ class ComputeNodeResource:
             compute_node.updated_date = current_time
             compute_node.updated_resource_date = reported_date;
             compute_node.save()
+            compute_node.reload()
 
             report              = models.ComputeNodeReport()
             report.compute_node = compute_node

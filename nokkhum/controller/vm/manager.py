@@ -57,14 +57,13 @@ class VMManager(object):
         status = instance.update()
         compute_node = models.ComputeNode.objects(vm__instance_id=instance.id).first();
         while status == 'pending':
-            logger.debug("instance pending")
-            time.sleep(10)
+            logger.debug("compute node id: %s vm instance_id: %s is pending"%(compute_node.id, instance.id))
+            time.sleep(1)
             status = instance.update()
             
         compute_node.vm.status = status
         compute_node.save()
-        logger.debug("instance status: "+status)
-                
+ 
         if status == 'running':
             compute_node.vm.extra['first_running_date'] = datetime.datetime.now()
             instance = self.api.find_instance(instance.id)
@@ -88,7 +87,7 @@ class VMManager(object):
         try:
             instance = self.api.start_instance(self.image_name, instance_type)
         except Exception as e:
-            pass
+            logger.exception(e)
         
         compute_node = models.ComputeNode()
         
@@ -109,6 +108,8 @@ class VMManager(object):
         compute_node.host = vm_info.private_ip_address
         compute_node.vm = vm_info
         compute_node.save()
+        compute_node.reload()
+        logger.debug("compute node id: %s vm instance_id: %s is starting"%(compute_node.id, instance.id))
 
         return instance
     
