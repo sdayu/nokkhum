@@ -198,7 +198,7 @@ class UpdateStatus(threading.Thread):
             while not update_status:
                 update_status = self.uinfo.update_system_information()
                 if not update_status:
-                    logger.debug("wait controller %d second"%time_to_sleep)
+                    logger.debug("wait message server %d second"%time_to_sleep)
                     time.sleep(time_to_sleep)
      
             while(self._running):

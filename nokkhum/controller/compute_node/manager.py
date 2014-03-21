@@ -79,8 +79,8 @@ class ComputeNodeManager(object):
                                                                   disk[-1], disk_predict))
         
         if cpu_predict < 70\
-            and ram_predict%1000000 > 200\
-            and disk_predict%1000000 > 1000:
+            and ram_predict/1000000 > 200\
+            and disk_predict/1000000 > 1000:
             logger.debug("compute node id cpu: %s ram: %s disk %s"%(cpu_predict, ram_predict%1000000, disk_predict%1000000))
             return True
         

@@ -35,7 +35,7 @@ class VMMonitoring(threading.Thread):
             if compute_node.is_online():
                 if compute_node.cpu.used < 5:
                     logger.debug("VM Monitoring terminate compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
-                    self.vm_manager.terminate(compute_node.vm.instance_id)
+                    # self.vm_manager.terminate(compute_node.vm.instance_id)
             else:
                 logger.debug("VM Monitoring check for reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
                 ec2_instance = self.vm_manager.get(compute_node.vm.instance_id)
@@ -67,8 +67,15 @@ class VMMonitoring(threading.Thread):
         for compute_node in compute_nodes:
             if datetime.datetime.now() - compute_node.vm.started_instance_date < datetime.timedelta(minutes=20):
                 if compute_node.vm.status == 'pending':
-                    logger.debug("VM --> in wait list")
+                    logger.debug("VM compute node id: %s instance id: %s in wait list"%(compute_node.id, compute_node.vm.instance_id))
                     return 
+                elif 'responsed_date' not in compute_node.extra:
+                    logger.debug("VM compute node id: %s instance id: %s in wait for first time response"%(compute_node.id, compute_node.vm.instance_id))
+                    return
+                elif 'responsed_date' in compute_node.extra:
+                    if compute_node.extra['responsed_date'][-1] > (datetime.datetime.now() - datetime.timedelta(seconds=10)):
+                        logger.debug("VM compute node id: %s instance id: %s in wait for stable report resource"%(compute_node.id, compute_node.vm.instance_id))
+                        return
         
         logger.debug("VM --> get vm")
         self.vm_manager.acquire()
