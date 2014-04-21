@@ -101,10 +101,14 @@ class ProcessorCommandProcessing:
             if datetime.datetime.now() - processor.operating.updated_date < datetime.timedelta(seconds=30):
                 response = self.processor_manager.stop_processor(compute_node, command.processor)
                 
-            command.processor.operating.status = "stop"
-            command.processor.operating.updated_date = datetime.datetime.now()
-            command.processor.operating.compute_node = compute_node
+            now = datetime.datetime.now()
             command.status = "complete"
+            command.completed_date = now
+            command.updated_date = now
+            
+            command.processor.operating.status = "running"
+            command.processor.operating.compute_node = compute_node
+            command.processor.operating.updated_date = now
         except Exception as e:
             logger.exception(e)
             command.processor.operating.status = "stop"
