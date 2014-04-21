@@ -40,10 +40,14 @@ class ProcessorCommandProcessing:
             
             response = self.processor_manager.start_processor(compute_node, command.processor)
             if response['success']:
+                now = datetime.datetime.now()
                 command.status = "complete"
+                command.completed_date = now
+                command.updated_date = now
+                
                 processor.operating.status = "running"
                 processor.operating.compute_node = compute_node
-                processor.operating.update_date = datetime.datetime.now()
+                processor.operating.updated_date = now
             else:
                 raise Exception('start processor fail')
         except Exception as e:
