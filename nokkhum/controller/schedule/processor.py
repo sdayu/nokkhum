@@ -81,7 +81,7 @@ class ProcessorCommandProcessing:
         
         compute_node = command.processor.operating.compute_node
         
-        if compute_node:
+        if compute_node and hasattr(compute_node, 'name'):
             logger.debug("Stopping processor id %s to host %s ip %s"%(command.processor.id, compute_node.name, compute_node.host))
         
         response = None
@@ -133,7 +133,8 @@ class ProcessorCommandProcessing:
     def end_process(self, command):
 
         command.attributes = manager.ProcessorAttributesBuilder(command.processor).get_attribute()
-        command.compute_node = command.processor.operating.compute_node
+        if hasattr(command.processor.operating.compute_node, 'name'):
+            command.compute_node = command.processor.operating.compute_node
         command.complete_date = datetime.datetime.now()
         
         command.save()
@@ -159,14 +160,16 @@ class ProcessorScheduling(threading.Thread):
         queue = models.ProcessorCommandQueue.objects().all()        
         
         for command in queue:
-            processor_command = command.processor_command
-            if processor_command.status in ["processing", "error"]:
-                td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
-                if processor_command.updated_date > td:
-                    continue
-            else:
-                continue
+            
             try:
+                processor_command = command.processor_command
+                if processor_command.status in ["processing", "error"]:
+                    td  = datetime.datetime.now() - datetime.timedelta(minutes=2)
+                    if processor_command.updated_date > td:
+                        continue
+                else:
+                    continue
+                
                 current_date =  datetime.datetime.now()
                 extra = dict(
                             last_status = processor_command.status,
@@ -185,6 +188,7 @@ class ProcessorScheduling(threading.Thread):
                 
             except Exception as e:
                 logger.exception(e)
+                
         
     def run(self):
         

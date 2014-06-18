@@ -7,6 +7,8 @@ from ..compute_node.manager import ComputeNodeManager
 from .manager import VMManager
 from nokkhum import models
 
+from nokkhum.controller.compute_node.resource_predictor import KalmanPredictor
+
 import threading
 import logging
 import datetime
@@ -33,9 +35,38 @@ class VMMonitoring(threading.Thread):
         compute_nodes = self.vm_manager.list_vm_compute_node()
         for compute_node in compute_nodes:
             if compute_node.is_online():
-                if compute_node.cpu.used < 5:
+                
+                if datetime.datetime.now() - compute_node.vm.started_instance_date < datetime.timedelta(minutes=30):
+                    logger.debug('VM Monitoring compute node id %s instance id %s begin started' % (compute_node.id, compute_node.vm.instance_id))
+                    continue
+                
+                if compute_node.cpu.used > 5:
+                    logger.debug('VM Monitoring compute node id %s instance id %s got CPU usage more than 5%%' % (compute_node.id, compute_node.vm.instance_id))
+                    continue
+                
+                logger.debug("VM Monitoring check compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+                records = models.ComputeNodeReport.objects(compute_node=compute_node, 
+                                                       reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=2))\
+                                                        .order_by("-reported_date").limit(20)
+                
+                has_processor = False
+                for record in records:
+                    if len(record.processor_status) > 0:
+                        has_processor = True
+                        logger.debug("VM Monitoring predict compute node id %s instance id %s has processors"%(compute_node.id, compute_node.vm.instance_id))
+                        break
+                
+                if has_processor:
+                    continue
+                
+                cpu = [record.cpu.used for record in records]
+                cpu.reverse()
+                kp = KalmanPredictor()
+                cpu_predict = kp.predict(cpu)
+                
+                if cpu_predict < 5:
                     logger.debug("VM Monitoring terminate compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
-                    # self.vm_manager.terminate(compute_node.vm.instance_id)
+                    self.vm_manager.terminate(compute_node.vm.instance_id)
             else:
                 logger.debug("VM Monitoring check for reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
                 ec2_instance = self.vm_manager.get(compute_node.vm.instance_id)
