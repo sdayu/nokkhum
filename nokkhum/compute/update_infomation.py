@@ -35,7 +35,9 @@ class UpdateInfomation:
             self.ip = netifaces.ifaddresses(config.Configurator.settings.get('nokkhum.compute.interface')).setdefault(netifaces.AF_INET)[0]['addr']
         except:
             self.ip = netifaces.ifaddresses('lo').setdefault(netifaces.AF_INET)[0]['addr']
-            
+        
+        self.resource = self.get_resource()
+        
     def set_publisher(self, publisher):
         self.publisher = publisher
         
@@ -85,7 +87,7 @@ class UpdateInfomation:
         
     def get_resource(self):
         
-        cpus = psutil.cpu_percent(interval=.5, percpu=True)
+        cpus = psutil.cpu_percent(interval=.2, percpu=True)
         
         sum = 0.0
         for usage in cpus:
@@ -144,6 +146,7 @@ class UpdateInfomation:
         
     def update_resource(self):
         arguments = self.get_resource()
+        self.resource = arguments
         messages = {"method": "update_resource", "args": arguments}
         return self.send_message(messages)
     
@@ -169,6 +172,20 @@ class UpdateInfomation:
             return
         messages = {"method": "processor_run_fail_report", "args":arguments}
         return self.send_message(messages)
+    
+    def check_resources(self):
+        resource = self.get_resource()
+        
+        old_cpu = self.resource['cpu']['used']
+        current_cpu = resource['cpu']['used']
+        
+        if abs(old_cpu-current_cpu) > 20:
+            messages = {"method": "update_resource", "args": resource}
+            return self.send_message(messages)
+        
+        self.processor_running_fail_report()
+        self.resource = resource
+        
         
 class UpdateStatus(threading.Thread):
     def __init__(self, publisher=None):
@@ -187,7 +204,9 @@ class UpdateStatus(threading.Thread):
         self.uinfo.set_publisher(self.publisher)
         
     def run(self):
-        time_to_sleep = 10
+        time_to_sleep = 2
+        time_to_sent = 10
+        
         update_status = False
  
         self._running = True
@@ -211,34 +230,43 @@ class UpdateStatus(threading.Thread):
                 
                 start_time = datetime.datetime.now()
                 
-                try: 
-                    self.uinfo.processor_running_fail_report()
-                except Exception as e:
-                    logger.exception(e)
-                    
-                try:
-                    self.uinfo.update_resource()
-                except Exception as e:
-                    logger.exception(e)
-
-                # sync to s3 storage
-                if config.Configurator.settings.get('nokkhum.storage.enable'):
-                    if config.Configurator.settings.get('nokkhum.storage.api') == "s3":
-                        self.push_s3 = True
-                    else:
-                        self.push_s3 = False
-                else:
-                    self.uinfo.update_system_information()
-                    self.push_s3 = False
                 
-                if self.push_s3:
-                    if self.__s3thread is not None and not self.__s3thread.is_alive():
-                        self.__s3thread.join()
-                        self.__s3thread = None
+                
+                if start_time.minute % time_to_sent == 0:
+            
+                    try: 
+                        self.uinfo.processor_running_fail_report()
+                    except Exception as e:
+                        logger.exception(e)
+                        
+                    try:
+                        self.uinfo.update_resource()
+                    except Exception as e:
+                        logger.exception(e)
+
+                    # sync to s3 storage
+                    if config.Configurator.settings.get('nokkhum.storage.enable'):
+                        if config.Configurator.settings.get('nokkhum.storage.api') == "s3":
+                            self.push_s3 = True
+                        else:
+                            self.push_s3 = False
+                    else:
+                        self.uinfo.update_system_information()
+                        self.push_s3 = False
                     
-                    if self.__s3thread is None:
-                        self.__s3thread = s3.S3Thread()
-                        self.__s3thread.start()
+                    if self.push_s3:
+                        if self.__s3thread is not None and not self.__s3thread.is_alive():
+                            self.__s3thread.join()
+                            self.__s3thread = None
+                        
+                        if self.__s3thread is None:
+                            self.__s3thread = s3.S3Thread()
+                            self.__s3thread.start()
+                else:
+                    try: 
+                        self.uinfo.check_resources()
+                    except Exception as e:
+                        logger.exception(e)
                         
                 end_time = datetime.datetime.now()
                 
