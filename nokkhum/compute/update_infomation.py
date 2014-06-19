@@ -180,11 +180,12 @@ class UpdateInfomation:
         current_cpu = resource['cpu']['used']
         
         if abs(old_cpu-current_cpu) > 20:
+            self.resource = resource
             messages = {"method": "update_resource", "args": resource}
             return self.send_message(messages)
         
         self.processor_running_fail_report()
-        self.resource = resource
+        
         
         
 class UpdateStatus(threading.Thread):
