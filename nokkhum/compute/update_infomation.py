@@ -87,7 +87,7 @@ class UpdateInfomation:
         
     def get_resource(self):
         
-        cpus = psutil.cpu_percent(interval=.2, percpu=True)
+        cpus = psutil.cpu_percent(interval=.3, percpu=True)
         
         sum = 0.0
         for usage in cpus:
@@ -208,6 +208,9 @@ class UpdateStatus(threading.Thread):
         time_to_sleep = 2
         time_to_sent = 10
         
+        counter = 0
+        counter_sent = time_to_sent // time_to_sleep
+        
         update_status = False
  
         self._running = True
@@ -230,11 +233,8 @@ class UpdateStatus(threading.Thread):
                     break
                 
                 start_time = datetime.datetime.now()
-                
-                
-                
-                if start_time.minute % time_to_sent == 0:
-            
+                if counter == counter_sent:
+                    counter = 0
                     try: 
                         self.uinfo.processor_running_fail_report()
                     except Exception as e:
@@ -273,7 +273,7 @@ class UpdateStatus(threading.Thread):
                 
                 delta = end_time - start_time
                 sleep_time = time_to_sleep - delta.total_seconds()
-
+                counter += 1
                 if sleep_time > 0:
                     time.sleep(sleep_time)
 
