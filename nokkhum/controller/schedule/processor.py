@@ -21,7 +21,7 @@ class ProcessorCommandProcessing:
     def start(self, command, compute_node):
 
         command.status = "processing"
-        command.update_date = datetime.datetime.now()
+        command.updated_date = datetime.datetime.now()
         command.save()
         
         logger.debug("Starting processor id %s to host %s IP %s"%(command.processor.id, compute_node.name, compute_node.host))

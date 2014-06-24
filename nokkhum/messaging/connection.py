@@ -25,8 +25,6 @@ class Connection:
         
     @staticmethod
     def get_instance():
-        if Connection.connection is None:
-            Connection.connection = Connection()
         return Connection.connection
         
     def __connect(self):
