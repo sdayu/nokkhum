@@ -63,6 +63,7 @@ class VMManager(object):
             
         compute_node.vm.status = status
         compute_node.save()
+        compute_node.reload()
  
         if status == 'running':
             compute_node.vm.extra['first_running_date'] = datetime.datetime.now()
