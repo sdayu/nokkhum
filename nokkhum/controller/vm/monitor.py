@@ -72,7 +72,14 @@ class VMMonitoring(threading.Thread):
                 ec2_instance = self.vm_manager.get(compute_node.vm.instance_id)
                 if ec2_instance:
                     if 'responsed_date' in compute_node.extra:
+                        if ec2_instance.update() == 'running' \
+                            and compute_node.updated_date < datetime.datetime.now() - datetime.timedelta(minutes=15):
+                            continue
+                            
+                        
                         logger.debug("VM Monitoring reboot compute node id %s instance id %s"%(compute_node.id, compute_node.vm.instance_id))
+                        compute_node.updated_date = datetime.datetime.now()
+                        compute_node.save()
                         self.vm_manager.reboot(compute_node.vm.instance_id)
                 else:
                     logger.debug("VM Monitoring compute node id %s instance id %s already terminated"%(compute_node.id, compute_node.vm.instance_id))

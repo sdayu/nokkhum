@@ -56,6 +56,10 @@ class VMManager(object):
         
         status = instance.update()
         compute_node = models.ComputeNode.objects(vm__instance_id=instance.id).first();
+        compute_node.vm.status = status
+        compute_node.save()
+        compute_node.reload()
+        
         while status == 'pending':
             logger.debug("compute node id: %s vm instance_id: %s is pending"%(compute_node.id, instance.id))
             time.sleep(1)
