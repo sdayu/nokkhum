@@ -15,6 +15,7 @@ requires = [
     'kombu',
     'psutil',
     'amqp',
+    'boto'
     ]
 
 
