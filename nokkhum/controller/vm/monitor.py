@@ -116,7 +116,7 @@ class VMMonitoring(threading.Thread):
                     compute_node.vm.extra['messages'].append(message)
                     compute_node.save()
 
-    def acquire(self):
+    def __acquire(self):
         logger.debug('VM Monitoring check for acquisition')
         processor_command = models.ProcessorCommand.objects(action__iexact='start', status__iexact='waiting').first()
 
