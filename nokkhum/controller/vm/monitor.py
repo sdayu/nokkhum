@@ -76,7 +76,7 @@ class VMMonitoring(threading.Thread):
                     message = dict(created_date=datetime.datetime.now(),
                                    message='VM Monitoring terminate compute node free')
 
-                    if 'message' in compute_node.vm.extra:
+                    if 'message' not in compute_node.vm.extra:
                         compute_node.vm.extra['messages'] = []
                     compute_node.vm.extra['messages'].append(message)
                     compute_node.save()
@@ -96,7 +96,7 @@ class VMMonitoring(threading.Thread):
                         message = dict(created_date=datetime.datetime.now(),
                                        message='VM Monitoring reboot',
                                        status=ec2_instance.update())
-                        if 'message' in compute_node.vm.extra:
+                        if 'message' not in compute_node.vm.extra:
                             compute_node.vm.extra['messages'] = []
                         compute_node.vm.extra['messages'].append(message)
                         compute_node.save()
@@ -111,7 +111,7 @@ class VMMonitoring(threading.Thread):
                     if ec2_instance:
                         message['status'] = ec2_instance.update()
 
-                    if 'message' in compute_node.vm.extra:
+                    if 'message' not in compute_node.vm.extra:
                         compute_node.vm.extra['messages'] = []
                     compute_node.vm.extra['messages'].append(message)
                     compute_node.save()
