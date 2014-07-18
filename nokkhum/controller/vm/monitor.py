@@ -35,10 +35,6 @@ class VMMonitoring(threading.Thread):
         compute_nodes = self.vm_manager.list_vm_compute_node()
         for compute_node in compute_nodes:
             if compute_node.is_online():
-                if compute_node.vm.status != 'running':
-                    compute_node.vm.status = 'running'
-                    compute_node.save()
-                    compute_node.reload()
 
                 if datetime.datetime.now() - compute_node.vm.started_instance_date \
                         < datetime.timedelta(minutes=30):
@@ -49,7 +45,8 @@ class VMMonitoring(threading.Thread):
                     logger.debug('VM Monitoring compute node id %s instance id %s got CPU usage more than 5%%' % (compute_node.id, compute_node.vm.instance_id))
                     continue
 
-                logger.debug('VM Monitoring check compute node id %s instance id %s'%(compute_node.id, compute_node.vm.instance_id))
+                logger.debug('VM Monitoring check compute node id %s instance id %s'
+                             % (compute_node.id, compute_node.vm.instance_id))
                 records = models.ComputeNodeReport.objects(compute_node=compute_node,
                                                            reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=2))\
                                                            .order_by('-reported_date').limit(20)
@@ -73,19 +70,22 @@ class VMMonitoring(threading.Thread):
                     logger.debug('VM Monitoring terminate compute node id %s instance id %s'%(compute_node.id, compute_node.vm.instance_id))
                     self.vm_manager.terminate(compute_node.vm.instance_id)
 
-                    message = dict(created_date=datetime.datetime.now(),
-                                   message='VM Monitoring terminate compute node free')
+                    message = dict(
+                        created_date=datetime.datetime.now(),
+                        message='VM Monitoring terminate compute node free')
 
                     if 'message' not in compute_node.vm.extra:
                         compute_node.vm.extra['messages'] = []
                     compute_node.vm.extra['messages'].append(message)
                     compute_node.save()
             else:
-                logger.debug('VM Monitoring check for reboot compute node id %s instance id %s'%(compute_node.id, compute_node.vm.instance_id))
+                logger.debug(
+                    'VM Monitoring check for reboot compute node id %s instance id %s'
+                    % (compute_node.id, compute_node.vm.instance_id))
                 ec2_instance = self.vm_manager.get(compute_node.vm.instance_id)
-                if ec2_instance and ec2_instance != 'terminate':
+                if ec2_instance and ec2_instance.state != 'terminate':
                     if 'responsed_date' in compute_node.extra:
-                        if ec2_instance.update() == 'running' \
+                        if ec2_instance.state == 'running' \
                                 and compute_node.updated_date > datetime.datetime.now() - datetime.timedelta(minutes=15):
                             continue
 
@@ -102,7 +102,9 @@ class VMMonitoring(threading.Thread):
                         compute_node.save()
                         self.vm_manager.reboot(compute_node.vm.instance_id)
                 else:
-                    logger.debug('VM Monitoring compute node id %s instance id %s already terminated'%(compute_node.id, compute_node.vm.instance_id))
+                    logger.debug(
+                        'VM Monitoring compute node id %s instance id %s already terminated'
+                        % (compute_node.id, compute_node.vm.instance_id))
                     compute_node.status = 'terminate'
                     compute_node.vm.status = 'terminate'
                     compute_node.updated_date = datetime.datetime.now()
