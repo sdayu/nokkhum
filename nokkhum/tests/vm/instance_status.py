@@ -48,7 +48,7 @@ class Test(unittest.TestCase):
 
     def test_find_instance(self):
         instance = self.ec2.find_instance('i-00000029')
-        print('instance==>:', instance)
+        print('instance status:', instance.state)
 
 
 if __name__ == "__main__":
