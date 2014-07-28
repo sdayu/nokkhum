@@ -13,25 +13,29 @@ logger = logging.getLogger(__name__)
 
 
 class ImageProcessor:
+
     def __init__(self, id):
         self.id = id
-        self.programe_path = config.Configurator.settings.get('nokkhum.processor.path')
-        args = [self.programe_path, "--processor_id", str(self.id), "--log_dir", config.Configurator.settings.get('nokkhum.log_dir')+"/processors"]
-        self.process = subprocess.Popen(args, shell=False, \
+        self.programe_path = config.Configurator.settings.get(
+            'nokkhum.processor.path')
+        args = [self.programe_path, "--processor_id",
+                str(self.id), "--log_dir", config.Configurator.settings.get('nokkhum.log_dir') + "/processors"]
+        self.process = subprocess.Popen(args, shell=False,
                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
+
     def start(self, surveillance_attibutes):
-            
+
         arguments = {
-                     'action':'start', 
-                     'attributes':surveillance_attibutes, # the configuration of processor need to config
-                     }
-        
+            'action': 'start',
+            # the configuration of processor need to config
+            'attributes': surveillance_attibutes,
+        }
+
         args = json.dumps(arguments)
-        command = args+"\n"
-        
-        logger.debug("Start processor: %s"%command)
-        
+        command = args + "\n"
+
+        logger.debug("Start processor: %s" % command)
+
         self.process.stdin.write(command.encode('utf-8'))
         self.process.stdin.flush()
 
@@ -43,29 +47,29 @@ class ImageProcessor:
 
     def stop(self):
 
-        arguments = {'action':'stop'}
+        arguments = {'action': 'stop'}
         args = json.dumps(arguments)
-        command = args+"\n"
+        command = args + "\n"
         self.process.stdin.write(command.encode('utf-8'))
         self.process.stdin.flush()
         self.process.stdin.close()
         result = self.process.stdout.readline().decode('utf-8')
         self.process.wait()
         return result
-    
+
     def get_attributes(self):
 
-        arguments = {'action':'get_attributes'}
+        arguments = {'action': 'get_attributes'}
         args = json.dumps(arguments)
 
-        command = args+"\n"
+        command = args + "\n"
         self.process.stdin.write(command.encode('utf-8'))
         self.process.stdin.flush()
 
         result = self.process.stdout.readline().decode('utf-8')
-            
+
         return result
-    
+
     def is_running(self):
         if self.process.poll() is None:
             return True

@@ -5,9 +5,12 @@ Created on Dec 23, 2011
 '''
 from kombu import Queue
 
+
 class QueueFactory:
+
     def get_queue(self, exchange, routing_key):
-        import fnmatch, re
+        import fnmatch
+        import re
         regex = fnmatch.translate('nokkhum_compute.*.rpc_request')
         reobj_rpc_request = re.compile(regex)
         regex = fnmatch.translate('nokkhum_compute.*.rpc_response')
@@ -20,7 +23,8 @@ class QueueFactory:
         elif reobj_rpc_request.match(routing_key):
             return Queue(routing_key, exchange, routing_key=routing_key, auto_delete=True)
         elif reobj_rpc_response.match(routing_key):
-            #return Queue("nokkunm_compute.rpc_response", exchange, routing_key=routing_key, auto_delete=True)
+            # return Queue("nokkunm_compute.rpc_response", exchange,
+            # routing_key=routing_key, auto_delete=True)
             return Queue(routing_key, exchange, routing_key=routing_key, auto_delete=True)
         else:
             return None

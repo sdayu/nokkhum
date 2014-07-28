@@ -25,7 +25,7 @@ class Test(unittest.TestCase):
         for k, v in config.items("controller"):
             setting[k] = v
 
-        models.initial(setting) 
+        models.initial(setting)
 
         log_path = setting["nokkhum.log_dir"]
         if not os.path.exists(log_path):
@@ -33,18 +33,22 @@ class Test(unittest.TestCase):
 
         import logging.config
         logging.config.fileConfig(config_file)
-        access_key_id = config.get('controller', "nokkhum.vm.ec2.access_key_id")
-        secret_access_key = config.get('controller', "nokkhum.vm.ec2.secret_access_key")
+        access_key_id = config.get(
+            'controller', "nokkhum.vm.ec2.access_key_id")
+        secret_access_key = config.get(
+            'controller', "nokkhum.vm.ec2.secret_access_key")
         host = config.get('controller', "nokkhum.vm.ec2.host")
         port = config.getint('controller', "nokkhum.vm.ec2.port")
-        secure = config.getboolean('controller', "nokkhum.vm.ec2.secure_connection")
+        secure = config.getboolean(
+            'controller', "nokkhum.vm.ec2.secure_connection")
 #        region_name= setting["nokkhum.ec2.region_name"]
 #        path= setting["nokkhum.ec2.path"]
 
-        print ("host:", host)
-        print ("port:", port)
-        print ("secure:", secure)
-        self.ec2 = ec2.EC2Client(access_key_id, secret_access_key, host, port, secure)
+        print("host:", host)
+        print("port:", port)
+        print("secure:", secure)
+        self.ec2 = ec2.EC2Client(
+            access_key_id, secret_access_key, host, port, secure)
 
     def test_find_instance(self):
         instance = self.ec2.find_instance('i-00000029')

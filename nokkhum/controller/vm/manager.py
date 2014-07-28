@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class VMManager(object):
+
     '''
     classdocs
     '''
@@ -33,7 +34,7 @@ class VMManager(object):
         self.image_name = settings.get('nokkhum.vm.ec2.image.name')
         self.instance_type = [
             image.strip()
-            for image in settings.get('nokkhum.vm.ec2.instance_type')\
+            for image in settings.get('nokkhum.vm.ec2.instance_type')
             .split(',')]
 
         self.api = vm.ec2.EC2Client(access_key_id, secret_access_key,
@@ -65,7 +66,8 @@ class VMManager(object):
             return
 
         status = instance.update()
-        compute_node = models.ComputeNode.objects(vm__instance_id=instance.id).first();
+        compute_node = models.ComputeNode.objects(
+            vm__instance_id=instance.id).first()
         compute_node.vm.status = status
         compute_node.save()
         compute_node.reload()
