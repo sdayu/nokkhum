@@ -69,13 +69,17 @@ class UpdateInfomation:
         except Exception as e:
             logger.exception(e)
 
+        disk = psutil.disk_usage(
+            config.Configurator.settings["nokkhum.processor.record_path"])
+
         system_information = {
             'name': platform.node(),
             'system': platform.system(),
             'machine': platform.machine(),
             'cpu_count': multiprocessing.cpu_count(),
             'cpu_frequency': cpu_frequency,
-            'total_ram': mem.total,
+            'total_memory': mem.total,
+            'total_disk': disk.total,
             'ip': self.ip,
         }
 

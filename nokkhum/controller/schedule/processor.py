@@ -260,23 +260,25 @@ class ProcessorScheduling(threading.Thread):
                     logger.debug("There are no available resource")
                     break
                 else:
-                    logger.debug("Compute node ip: %s cpu %s ram %s "
+                    resource = compute_node.get_current_resources()
+                    logger.debug("Compute node ip: %s cpu %s ram %s disk: %s"
                                  % (compute_node.host,
-                                    compute_node.cpu.used,
-                                    compute_node.memory.free)
+                                    resource.cpu.used,
+                                    resource.memory.free,
+                                    resource.disk.free
+                                    )
                                  )
 
-
-#             try:
-#                 ccp = ProcessorCommandProcessing()
-#                 if this_queue.processor_command.action == "start":
-#                     ccp.start(this_queue.processor_command, compute_node)
-#                 elif this_queue.processor_command.action == "stop":
-#                     ccp.stop(this_queue.processor_command)
-#                 elif this_queue.processor_command.action == "restart":
-#                     ccp.stop(this_queue.processor_command)
-#                     ccp.start(this_queue, compute_node)
-#             except Exception as e:
-#                 logger.exception(e)
+            try:
+                ccp = ProcessorCommandProcessing()
+                if this_queue.processor_command.action == "start":
+                    ccp.start(this_queue.processor_command, compute_node)
+                elif this_queue.processor_command.action == "stop":
+                    ccp.stop(this_queue.processor_command)
+                elif this_queue.processor_command.action == "restart":
+                    ccp.stop(this_queue.processor_command)
+                    ccp.start(this_queue, compute_node)
+            except Exception as e:
+                logger.exception(e)
 
         logger.debug(self.name + ": terminate")

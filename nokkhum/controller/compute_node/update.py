@@ -46,7 +46,8 @@ class ComputeNodeResource:
             name = args['name']
             cpu_count = args['cpu_count']
             cpu_frequency = args['cpu_frequency']
-            total_ram = args['total_ram']
+            total_memory = args['total_memory']
+            total_disk = args['total_disk']
             system = args['system']
             machine = args['machine']
             host = args['ip']
@@ -58,18 +59,17 @@ class ComputeNodeResource:
                 compute_node.create_date = datetime.datetime.now()
                 compute_node.host = host
 
-            cpu = models.CPUInformation()
-            cpu.count = cpu_count
-            cpu.frequency = cpu_frequency
+            resource_information = models.ResourceInformation()
+            resource_information.cpu_count = cpu_count
+            resource_information.cpu_frequency = cpu_frequency
 
-            memory = models.MemoryInformation()
-            memory.total = total_ram
+            resource_information.total_memory = total_memory
+            resource_information.total_disk = total_disk
 
             compute_node.name = name
             compute_node.machine = machine
             compute_node.system = system
-            compute_node.cpu = cpu
-            compute_node.memory = memory
+            compute_node.resource_information = resource_information
             compute_node.updated_date = datetime.datetime.now()
             compute_node.updated_resource_date = datetime.datetime.now()
             if 'responsed_date' not in compute_node.extra:
@@ -78,6 +78,7 @@ class ComputeNodeResource:
             compute_node.extra['responsed_date'].append(
                 datetime.datetime.now())
             compute_node.save()
+            compute_node.reload()
 
             logger.debug(
                 'Compute node name: "%s" update system info complete' % (name))
@@ -121,35 +122,35 @@ class ComputeNodeResource:
                     logger.debug('compute_node: is None')
                     return
 
-            computing_resource = models.ComputingResource()
+            resource_usage = models.ResourceUsage()
 
-            computing_resource.cpu.used = cpu["used"]
-            computing_resource.cpu.used_per_cpu = cpu["percpu"]
+            resource_usage.cpu.used = cpu["used"]
+            resource_usage.cpu.used_per_cpu = cpu["percpu"]
 
-            computing_resource.memory.total = memory["total"]
-            computing_resource.memory.used = memory["used"]
-            computing_resource.memory.free = memory["free"]
+            resource_usage.memory.total = memory["total"]
+            resource_usage.memory.used = memory["used"]
+            resource_usage.memory.free = memory["free"]
 
-            computing_resource.disk.total = disk['total']
-            computing_resource.disk.used = disk['used']
-            computing_resource.disk.free = disk['free']
-            computing_resource.disk.percent = disk['percent']
-            computing_resource.reported_date = reported_date
+            resource_usage.disk.total = disk['total']
+            resource_usage.disk.used = disk['used']
+            resource_usage.disk.free = disk['free']
+            resource_usage.disk.percent = disk['percent']
+            resource_usage.reported_date = reported_date
 
             report = models.ComputeNodeReport()
             report.compute_node = compute_node
             report.reported_date = reported_date
-            report.cpu = computing_resource.cpu
-            report.memory = computing_resource.memory
-            report.disk = computing_resource.disk
+            report.cpu = resource_usage.cpu
+            report.memory = resource_usage.memory
+            report.disk = resource_usage.disk
             report.save()
 
             current_time = datetime.datetime.now()
-            compute_node.push_resource(computing_resource)
+            compute_node.push_resource(resource_usage)
             compute_node.updated_date = current_time
             compute_node.updated_resource_date = reported_date
 
-            computing_resource.report = report
+            resource_usage.report = report
             compute_node.save()
             compute_node.reload()
 
@@ -214,7 +215,8 @@ class ComputeNodeResource:
             report.save()
 
             logger.debug(
-                'Compute node name: "%s" ip: %s update resource complete' % (name, host))
+                'Compute node name: "%s" ip: %s update resource complete' 
+                % (name, host))
         except Exception as e:
             logger.exception(e)
 
