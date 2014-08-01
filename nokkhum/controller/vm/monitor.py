@@ -50,10 +50,13 @@ class VMMonitoring(threading.Thread):
 
                 logger.debug('VM Monitoring check compute node id %s instance id %s'
                              % (compute_node.id, compute_node.vm.instance_id))
-                records = models.ComputeNodeReport.objects(
-                    compute_node=compute_node,
-                                                           reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=2))\
-                    .order_by('-reported_date').limit(20)
+#                 records = models.ComputeNodeReport.objects(
+#                     compute_node=compute_node,
+#                     reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=2))\
+#                         .order_by('-reported_date').limit(20)
+
+                compute_node.reload()
+                records = compute_node.resource_records[-20:]
 
                 has_processor = False
                 for record in records:
@@ -112,12 +115,17 @@ class VMMonitoring(threading.Thread):
                         'VM Monitoring compute node id %s instance id %s already terminated'
                         % (compute_node.id, compute_node.vm.instance_id))
                     compute_node.status = 'terminate'
-                    compute_node.vm.status = 'terminate'
+
                     compute_node.updated_date = datetime.datetime.now()
                     message = dict(created_date=datetime.datetime.now(),
                                    message='VM Monitoring terminate')
+
                     if ec2_instance:
-                        message['status'] = ec2_instance.update()
+                        compute_node.vm.status = ec2_instance.update()
+                        message['status'] = compute_node.vm.status
+                    else:
+                        compute_node.vm.status = 'terminate'
+                        message['status'] = 'terminate with ec2 instance is None'
 
                     if 'message' not in compute_node.vm.extra:
                         compute_node.vm.extra['messages'] = []
@@ -129,7 +137,8 @@ class VMMonitoring(threading.Thread):
         processor_command = models.ProcessorCommand.objects(
             action__iexact='start', status__iexact='waiting').first()
 
-        if models.ProcessorCommandQueue.objects(processor_command=processor_command).first() is None:
+        if models.ProcessorCommandQueue.objects(
+                processor_command=processor_command).first() is None:
             return
 
         if self.compute_node_manager.get_compute_node_available_resource() is not None:
@@ -144,7 +153,8 @@ class VMMonitoring(threading.Thread):
                     logger.debug('VM compute node id: %s instance id: %s in wait list' % (
                         compute_node.id, compute_node.vm.instance_id))
                     return
-                elif 'responsed_date' not in compute_node.extra:
+                elif 'responsed_date' not in compute_node.extra \
+                        and compute_node.wm.started_instance_date < datetime.datetime.now() - datetime.timedelta.min(30):
                     logger.debug('VM compute node id: %s instance id: %s in wait for first time response' % (
                         compute_node.id, compute_node.vm.instance_id))
                     return

@@ -55,20 +55,20 @@ class ComputeNodeManager(object):
 
     def is_compute_node_available(self, compute_node):
 
-        records = models.ComputeNodeReport.objects(compute_node=compute_node,
-                                                   reported_date__gt=datetime.datetime.now() - datetime.timedelta(minutes=1))\
-            .order_by("-reported_date").limit(20)
+        records = compute_node.resource_records
 
-        cpu = [record.cpu.used for record in records]
-        ram = [record.memory.free for record in records]
-        disk = [record.disk.free for record in records]
+        cpu = []
+        ram = []
+        disk = []
+        last = datetime.datetime.now()-datetime.timedelta(minutes=2)
+        for record in records:
+            if record.reported_date > last:
+                cpu.append(record.cpu.used)
+                ram.append(record.memory.free)
+                disk.append(record.disk.free)
 
         if len(cpu) <= 0:
             return False
-
-        cpu.reverse()
-        ram.reverse()
-        disk.reverse()
 
         kp = KalmanPredictor()
         cpu_predict = kp.predict(cpu)
@@ -78,12 +78,12 @@ class ComputeNodeManager(object):
         disk_predict = kp.predict(disk)
 
         logger.debug(
-            "compute node id: %s current/predict cpu: %s/%s ram: %s/%s disk: %s/%s" % (compute_node.id,
-                                                                                       cpu[-
-                                                                                           1], cpu_predict,
-                                                                                       ram[-
-                                                                                           1], ram_predict,
-                                                                                       disk[-1], disk_predict))
+            "compute node id: %s current/predict cpu: %s/%s ram: %s/%s disk: %s/%s"
+            % (compute_node.id,
+               cpu[-1], cpu_predict,
+               ram[-1], ram_predict,
+               disk[-1], disk_predict)
+            )
 
         if cpu_predict < 70\
                 and ram_predict / 1000000 > 200\

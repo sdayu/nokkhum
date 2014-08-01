@@ -106,6 +106,9 @@ class VMManager(object):
         except Exception as e:
             logger.exception(e)
 
+        if instance is None:
+            return
+
         compute_node = models.ComputeNode()
 
         vm_info = models.VMInstance()
