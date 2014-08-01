@@ -111,8 +111,8 @@ class ComputeNodeResource:
                     host.replace('.', ':') + ".rpc_request"
                 message = {"method": "get_system_information"}
 
-                rpc_client = connection.Connection.get_instance(
-                ).get_rpc_factory().get_default_rpc_client()
+                rpc_client = connection.Connection.get_instance()\
+                    .get_rpc_factory().get_default_rpc_client()
                 rpc_client.send(message, routing_key)
                 logger.debug('compute node: "%s" unavailable. push %s by routing key: %s' % (
                     name, message, routing_key))
@@ -121,31 +121,37 @@ class ComputeNodeResource:
                     logger.debug('compute_node: is None')
                     return
 
-            compute_node.cpu.used = cpu["used"]
-            compute_node.cpu.used_per_cpu = cpu["percpu"]
+            computing_resource = models.ComputingResource()
 
-            compute_node.memory.total = memory["total"]
-            compute_node.memory.used = memory["used"]
-            compute_node.memory.free = memory["free"]
+            computing_resource.cpu.used = cpu["used"]
+            computing_resource.cpu.used_per_cpu = cpu["percpu"]
 
-            compute_node.disk.total = disk['total']
-            compute_node.disk.used = disk['used']
-            compute_node.disk.free = disk['free']
-            compute_node.disk.percent = disk['percent']
+            computing_resource.memory.total = memory["total"]
+            computing_resource.memory.used = memory["used"]
+            computing_resource.memory.free = memory["free"]
 
-            current_time = datetime.datetime.now()
-            compute_node.updated_date = current_time
-            compute_node.updated_resource_date = reported_date
-            compute_node.save()
-            compute_node.reload()
+            computing_resource.disk.total = disk['total']
+            computing_resource.disk.used = disk['used']
+            computing_resource.disk.free = disk['free']
+            computing_resource.disk.percent = disk['percent']
+            computing_resource.reported_date = reported_date
 
             report = models.ComputeNodeReport()
             report.compute_node = compute_node
             report.reported_date = reported_date
-            report.cpu = compute_node.cpu
-            report.memory = compute_node.memory
-            report.disk = compute_node.disk
+            report.cpu = computing_resource.cpu
+            report.memory = computing_resource.memory
+            report.disk = computing_resource.disk
             report.save()
+
+            current_time = datetime.datetime.now()
+            compute_node.push_resource(computing_resource)
+            compute_node.updated_date = current_time
+            compute_node.updated_resource_date = reported_date
+
+            computing_resource.report = report
+            compute_node.save()
+            compute_node.reload()
 
             for processor_process in processors:
                 processor = models.Processor.objects().with_id(
@@ -267,7 +273,14 @@ class UpdateStatus(threading.Thread):
             logger.debug("ignore message", body)
             message.ack()
             return
+        try:
+            self.process_data(body)
+        except Exception as e:
+            logger.exception(e)
 
+        message.ack()
+
+    def process_data(self, body):
         # logger.debug("controller get message: %s" % body)
         if body["method"] == "update_system_information":
             self._cn_resource.update_system_information(body["args"])
@@ -276,7 +289,6 @@ class UpdateStatus(threading.Thread):
             self._cn_resource.update_resource(body["args"])
         elif body["method"] == "processor_run_fail_report":
             self._cn_resource.processor_run_fail_report(body["args"])
-        message.ack()
 
     def run(self):
         self._running = True

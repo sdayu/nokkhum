@@ -223,8 +223,11 @@ class ProcessorScheduling(threading.Thread):
 
         # for this_queue in
         # models.ProcessorCommandQueue.objects().order_by('+id').all():
+
         while get_command() is not None:
             this_queue = get_command()
+            logger.debug("get command queue id %s command id %s"
+                         % (this_queue.id, this_queue.processor_command.id))
 
             if this_queue.processor_command.status != 'waiting':
                 logger.debug(
@@ -239,7 +242,7 @@ class ProcessorScheduling(threading.Thread):
             # models.ProcessorCommandQueue.objects(processor_command__status =
             # "waiting").order_by('+id').first()
 
-            this_queue.processor_command.process_date = datetime.datetime.now()
+            this_queue.processor_command.processed_date = datetime.datetime.now()
             if 'process_count' not in this_queue.processor_command.extra:
                 this_queue.processor_command.extra['process_count'] = 0
 
@@ -252,6 +255,7 @@ class ProcessorScheduling(threading.Thread):
 
                 compute_node = self.compute_node_manager.get_compute_node_available_resource(
                 )
+
                 if compute_node is None:
                     logger.debug("There are no available resource")
                     break
@@ -262,16 +266,17 @@ class ProcessorScheduling(threading.Thread):
                                     compute_node.memory.free)
                                  )
 
-            try:
-                ccp = ProcessorCommandProcessing()
-                if this_queue.processor_command.action == "start":
-                    ccp.start(this_queue.processor_command, compute_node)
-                elif this_queue.processor_command.action == "stop":
-                    ccp.stop(this_queue.processor_command)
-                elif this_queue.processor_command.action == "restart":
-                    ccp.stop(this_queue.processor_command)
-                    ccp.start(this_queue, compute_node)
-            except Exception as e:
-                logger.exception(e)
+
+#             try:
+#                 ccp = ProcessorCommandProcessing()
+#                 if this_queue.processor_command.action == "start":
+#                     ccp.start(this_queue.processor_command, compute_node)
+#                 elif this_queue.processor_command.action == "stop":
+#                     ccp.stop(this_queue.processor_command)
+#                 elif this_queue.processor_command.action == "restart":
+#                     ccp.stop(this_queue.processor_command)
+#                     ccp.start(this_queue, compute_node)
+#             except Exception as e:
+#                 logger.exception(e)
 
         logger.debug(self.name + ": terminate")

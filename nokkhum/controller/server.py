@@ -39,10 +39,10 @@ class ControllerServer:
             ip = netifaces.ifaddresses('lo').setdefault(
                 netifaces.AF_INET)[0]['addr']
 
-        self.rpc_client = connection.Connection.get_instance(
-        ).get_rpc_factory().get_default_rpc_client(ip)
-        self.update_consumer = connection.Connection.get_instance(
-        ).consumer_factory.get_consumer("nokkhum_compute.update_status")
+        self.rpc_client = connection.Connection.get_instance()\
+            .get_rpc_factory().get_default_rpc_client(ip)
+        self.update_consumer = connection.Connection.get_instance()\
+            .consumer_factory.get_consumer("nokkhum_compute.update_status")
         self.update_status.set_consumer(self.update_consumer)
 
     def start(self):

@@ -158,7 +158,7 @@ class UpdateInfomation:
         processor_manager = compute.processor_manager
         dead_process = processor_manager.remove_dead_process()
         if len(dead_process) == 0:
-            return
+            return None
 
         fail_processors = {
             'name': platform.node(),
@@ -172,7 +172,7 @@ class UpdateInfomation:
 
     def processor_running_fail_report(self):
         arguments = self.get_processor_run_fail()
-        if arguments == None:
+        if arguments is None:
             return
         messages = {"method": "processor_run_fail_report", "args": arguments}
         return self.send_message(messages)

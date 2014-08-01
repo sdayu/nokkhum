@@ -1,0 +1,6 @@
+*.ini
+*.pyc
+*.egg-*
+__pycache__
+.*project
+
