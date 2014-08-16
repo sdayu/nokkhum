@@ -61,7 +61,7 @@ class VMMonitoring(threading.Thread):
 
                 has_processor = False
                 for record in records:
-                    if len(record.processor_status) > 0:
+                    if len(record.report.processor_status) > 0:
                         has_processor = True
                         logger.debug('VM Monitoring predict compute node id %s instance id %s has processors' % (
                             compute_node.id, compute_node.vm.instance_id))
