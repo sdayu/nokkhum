@@ -42,6 +42,7 @@ class ComputeNodeResource:
         rpc_client.send(message, routing_key)
 
     def update_system_information(self, args):
+
         try:
             name = args['name']
             cpu_count = args['cpu_count']
