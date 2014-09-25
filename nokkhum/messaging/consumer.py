@@ -4,6 +4,7 @@ Created on Dec 23, 2011
 @author: boatkrap
 '''
 import kombu
+import time
 
 from . import queues
 
@@ -18,22 +19,47 @@ class Consumer:
         self.callback = callback
         self.routing_key = routing_key
         self._consumer = None
+        self.routing_key_list = []
+        self.exchange = None
+        self.channel = None
         self.reconnect(channel)
 
     def reconnect(self, channel):
-        exchange = kombu.Exchange(
+        self.channel = channel
+        self.exchange = kombu.Exchange(
             self.exchange_name, type="direct", durable=True)
-        queue = queues.QueueFactory().get_queue(exchange, self.routing_key)
-        queue(channel).declare()
-        self._consumer = kombu.Consumer(
-            channel, queue, callbacks=self.callback)
-        self.consume()
+
+        try:
+            self.queue = self.queue_declare(self.routing_key)
+            self._consumer = kombu.Consumer(
+                channel, self.queue, callbacks=self.callback)
+            self.consume()
+
+        except Exception as e:
+            logger.exception(e)
+
+    def queue_declare(self, routing_key):
+        if routing_key is None:
+            return
+
+        if routing_key in self.routing_key_list:
+            return
+
+        self.routing_key_list.append(routing_key)
+
+        queue = queues.QueueFactory().get_queue(self.exchange, routing_key)
+        if queue:
+            queue(self.channel).declare()
+
+        return queue
 
     def register_callback(self, callback):
+        while self._consumer is None:
+            logger.debug("wait consumer")
+            time.sleep(1)
+
         self._consumer.register_callback(callback)
         self.callback = callback
-        import logging
-        logger = logging.getLogger(__name__)
 
     def consume(self):
         self._consumer.consume()
