@@ -40,7 +40,9 @@ class S3Storage:
 
         try:
             processor_bucket = self.connection.get_bucket(processor_id)
-        except:
+        except Exception as e:
+            logger.exception(e)
+            
             try:
                 self.connection.create_bucket(processor_id)
                 processor_bucket = self.connection.get_bucket(processor_id)

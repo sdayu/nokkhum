@@ -15,7 +15,9 @@ requires = [
     'kombu',
     'psutil',
     'amqp',
-    'boto'
+    'boto',
+    'netifaces',
+    'numpy'
 ]
 
 
