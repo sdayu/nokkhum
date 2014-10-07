@@ -40,7 +40,7 @@ class ProcessorManager:
         self.output = dict()
 
     def add(self, processor_id, processor):
-        if not processor_id in self.pool.keys():
+        if processor_id not in self.pool.keys():
             self.pool[processor_id] = processor
             self.output[processor_id] = []
             self.thread_pool[processor_id] = ProcessPolling(
