@@ -69,7 +69,10 @@ class RPC:
         import sys
 
         if routing_key not in self._publisher.routing_key_list:
-            self._publisher.queue_declare(routing_key)
+            try:
+                self._publisher.queue_declare(routing_key)
+            except Exception as e:
+                logger.debug('Exception as queue declare', e)
 
         self._publisher.send(message, routing_key)
 
