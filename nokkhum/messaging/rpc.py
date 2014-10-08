@@ -62,7 +62,9 @@ class RPC:
             response = self.message_pool[message_id]
             del self.message_pool[message_id]
         else:
-            raise Exception('RPC Time out: %d s' % time_out)
+            logger.debug('RPC Time out: %d s' % time_out)
+            return None
+            # raise Exception('RPC Time out: %d s' % time_out)
         return response
 
     def send(self, message, routing_key):
