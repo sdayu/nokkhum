@@ -8,7 +8,7 @@ import kombu.utils
 
 from . import publisher
 from . import consumer
-from . import connection
+
 import datetime
 
 import logging
@@ -77,6 +77,7 @@ class RPC:
             except Exception as e:
                 logger.exception('Exception as queue declare', e)
                 if isinstance(e, amqp.exceptions.UnexpectedFrame):
+                    from . import connection
                     cnt = connection.Connection.get_instance()
                     cnt.reconnect()
                 return
