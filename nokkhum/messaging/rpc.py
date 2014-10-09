@@ -8,12 +8,14 @@ import kombu.utils
 
 from . import publisher
 from . import consumer
+from . import connection
 import datetime
 
 import logging
 logger = logging.getLogger(__name__)
 
 import time
+import amqp
 
 
 class RPC:
@@ -63,8 +65,8 @@ class RPC:
             del self.message_pool[message_id]
         else:
             logger.debug('RPC Time out: %d s' % time_out)
-            return None
-            # raise Exception('RPC Time out: %d s' % time_out)
+            raise Exception('RPC Time out: %d s' % time_out)
+
         return response
 
     def send(self, message, routing_key):
@@ -74,6 +76,9 @@ class RPC:
                 self._publisher.queue_declare(routing_key)
             except Exception as e:
                 logger.exception('Exception as queue declare', e)
+                if isinstance(e, amqp.exceptions.UnexpectedFrame):
+                    cnt = connection.Connection.get_instance()
+                    cnt.reconnect()
                 return
 
         self._publisher.send(message, routing_key)
