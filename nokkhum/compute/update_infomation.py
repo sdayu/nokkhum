@@ -131,7 +131,7 @@ class UpdateInfomation:
                 'pid': pid,
                 'processor_id': processor_id,
                 'num_threads': process.get_num_threads(),
-                'cpu': process.get_cpu_percent(interval=0.1),
+                'cpu': process.get_cpu_percent(interval=0.2),
                 'memory': process.get_memory_info().rss,
                 'messages': compute.processor_manager.read_process_output(processor_id)
             }
