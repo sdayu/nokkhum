@@ -77,3 +77,9 @@ class ImageProcessor:
             return True
         else:
             return False
+    
+    def get_pid(self):
+        if self.process:
+            return self.process.pid
+        
+        return None
