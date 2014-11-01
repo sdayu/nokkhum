@@ -56,7 +56,9 @@ class ControllerServer:
             except KeyboardInterrupt as e:
                 self.stop()
                 raise e
-            except:
+            except Exception as e:
+                logger.exception(e)
+                logger.debug("reconnect message server")
                 # connection.Connection.get_instance().reconnect()
                 self.reconnect_message_connection()
 
