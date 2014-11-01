@@ -57,7 +57,7 @@ class ControllerServer:
                 self.stop()
                 raise e
             except:
-                connection.Connection.get_instance().reconnect()
+                # connection.Connection.get_instance().reconnect()
                 self.reconnect_message_connection()
 
     def stop(self):
