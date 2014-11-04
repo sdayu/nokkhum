@@ -27,8 +27,11 @@ class ControllerServer:
 
     def reconnect_message_connection(self):
         from nokkhum.messaging import connection
+
         if connection.Connection.get_instance() is None:
             connection.Connection(self.configuration.settings.get('amq.url'))
+        else:
+            connection.Connection.get_instance().reconnect()
 
         ip = "127.0.0.1"
         try:

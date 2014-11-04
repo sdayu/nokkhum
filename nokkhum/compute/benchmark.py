@@ -29,7 +29,7 @@ class BenchmarkResult:
         self.process_period = process_period
         self.attributes = attributes
     
-    def to_json(self):
+    def to_dict(self):
         benchmark_result = dict(started_date=self.started_date.isoformat(),
                                 ended_date=self.ended_date.isoformat(),
                                 results=self.results,
