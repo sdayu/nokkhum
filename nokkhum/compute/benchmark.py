@@ -21,7 +21,7 @@ class BenchmarkResult:
                  attributes=None,
                  stdout=[],
                  stderr=[]):
-        self.results = []
+        self.results = results
         self.started_date = datetime.datetime.now()
         self.ended_date = datetime.datetime.now()
         self.stdout = stdout
@@ -89,7 +89,7 @@ class Benchmark:
 
         for line  in self.processor.process.stderr:
             stderr.append(line.decode('utf-8'))
-            
+    
         b_result = BenchmarkResult(started_date=self.started_date,
                                    endded_date=self.ended_date,
                                    results=results,
