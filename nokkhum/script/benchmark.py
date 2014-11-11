@@ -282,7 +282,7 @@ if __name__ == '__main__':
         sys.exit(errno.EINVAL)
 
     if sys.argv[1] == 'analyze':
-        configurator = config.Configurator(sys.argv[1])
+        configurator = config.Configurator(sys.argv[2])
 
         directory = configurator.settings.get('nokkhum.log_dir')
         if not os.path.exists(directory):
@@ -301,5 +301,4 @@ if __name__ == '__main__':
         with open(sys.argv[3], "r") as f:
             results = json.load(f)
             br = BenchmarkReport()
-            print("xxx: ", results)
             br.graph(results, show)
