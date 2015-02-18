@@ -49,7 +49,15 @@ class GraphBuilder:
         print("self.data['320x240']['Acquisition']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['320x240']['Acquisition']['results']][50:150]))
         print("self.data['640x480']['Acquisition']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['640x480']['Acquisition']['results']][50:150]))
         print("self.data['960x720 ']['Acquisition']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['960x720']['Acquisition']['results']][50:150]))
-        
+
+        print("self.data['320x240']['Acquisition']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['320x240']['Acquisition']['results']][50:150]))
+        print("self.data['640x480']['Acquisition']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['640x480']['Acquisition']['results']][50:150]))
+        print("self.data['960x720']['Acquisition']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['960x720']['Acquisition']['results']][50:150]))
+
+        print("self.data['320x240']['Acquisition']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['320x240']['Acquisition']['results']][50:150]))
+        print("self.data['640x480']['Acquisition']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['640x480']['Acquisition']['results']][50:150]))
+        print("self.data['960x720']['Acquisition']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['960x720']['Acquisition']['results']][50:150]))
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("CPU used (%)")
         ax.set_title('Image Acquisition CPU Usage')
@@ -69,10 +77,21 @@ class GraphBuilder:
 
         print("self.data['320x240']['Acquisition']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['320x240']['Acquisition']['results']][50:150]))
         print("self.data['640x480']['Acquisition']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['640x480']['Acquisition']['results']][50:150]))
-        print("self.data['960x720 ']['Acquisition']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
+        print("self.data['960x720']['Acquisition']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
 
+        print("self.data['320x240']['Acquisition']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['320x240']['Acquisition']['results']][50:150]))
         print("self.data['640x480']['Acquisition']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['640x480']['Acquisition']['results']][50:150]))
-        print("self.data['960x720 ']['Acquisition']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
+        print("self.data['960x720']['Acquisition']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
+
+
+        print("self.data['320x240']['Acquisition']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['320x240']['Acquisition']['results']][50:150]))
+        print("self.data['640x480']['Acquisition']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['640x480']['Acquisition']['results']][50:150]))
+        print("self.data['960x720 ']['Acquisition']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
+
+        print("self.data['320x240']['Acquisition']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['320x240']['Acquisition']['results']][50:150]))
+        print("self.data['640x480']['Acquisition']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['640x480']['Acquisition']['results']][50:150]))
+        print("self.data['960x720']['Acquisition']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['960x720']['Acquisition']['results']][50:150]))
+
 
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Memory used (MB)")
@@ -94,11 +113,19 @@ class GraphBuilder:
 
         print("self.data['320x240']['Motion Detector']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['320x240']['Motion Detector']['results']][50:150]))
         print("self.data['640x480']['Motion Detector']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['640x480']['Motion Detector']['results']][50:150]))
-        print("self.data['960x720 ']['Motion Detector']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
 
         print("self.data['320x240']['Motion Detector']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['320x240']['Motion Detector']['results']][50:150]))
         print("self.data['640x480']['Motion Detector']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['640x480']['Motion Detector']['results']][50:150]))
-        print("self.data['960x720 ']['Motion Detector']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Detector']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['320x240']['Motion Detector']['results']][50:150]))
+        print("self.data['640x480']['Motion Detector']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['640x480']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Detector']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['320x240']['Motion Detector']['results']][50:150]))
+        print("self.data['640x480']['Motion Detector']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['640x480']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['960x720']['Motion Detector']['results']][50:150]))
 
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("CPU used (%)")
@@ -124,6 +151,15 @@ class GraphBuilder:
         print("self.data['320x240']['Motion Detector']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Detector']['results']][50:150]))
         print("self.data['640x480']['Motion Detector']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Detector']['results']][50:150]))
         print("self.data['960x720']['Motion Detector']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Detector']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Detector']['results']][50:150]))
+        print("self.data['640x480']['Motion Detector']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Detector']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Detector']['results']][50:150]))
+        print("self.data['640x480']['Motion Detector']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Detector']['results']][50:150]))
+        print("self.data['960x720']['Motion Detector']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Detector']['results']][50:150]))
+
 
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Memory used (MB)")
@@ -151,6 +187,15 @@ class GraphBuilder:
         print("self.data['640x480']['Video Recorder']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['640x480']['Video Recorder']['results']][50:150]))
         print("self.data['960x720']['Video Recorder']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['960x720']['Video Recorder']['results']][50:150]))
 
+        print("self.data['320x240']['Video Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['320x240']['Video Recorder']['results']][50:150]))
+        print("self.data['640x480']['Video Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['640x480']['Video Recorder']['results']][50:150]))
+        print("self.data['960x720']['Video Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['960x720']['Video Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Video Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['320x240']['Video Recorder']['results']][50:150]))
+        print("self.data['640x480']['Video Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['640x480']['Video Recorder']['results']][50:150]))
+        print("self.data['960x720']['Video Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['960x720']['Video Recorder']['results']][50:150]))
+
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("CPU used (%)")
         ax.set_title('VDO Recorder CPU Usage')
@@ -164,9 +209,9 @@ class GraphBuilder:
 
         ax = fig_rd_mem.add_subplot(111)
 
-        ax.plot([a['memory_used']/(10**6) for a in self.data['320x240']['Video Recorder']['results']], '-o', label="320x240 pixels")
-        ax.plot([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']], '-^', label="640x480 pixels")
-        ax.plot([a['memory_used']/(10**6) for a in self.data['960x720']['Video Recorder']['results']], '-x', label="960x720 pixels")
+        ax.plot([a['memory_used']/(10**6) for a in self.data['320x240']['Video Recorder']['results']][50:150], '-o', label="320x240 pixels")
+        ax.plot([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']][50:150], '-^', label="640x480 pixels")
+        ax.plot([a['memory_used']/(10**6) for a in self.data['960x720']['Video Recorder']['results']][50:150], '-x', label="960x720 pixels")
 
         print("self.data['320x240']['Video Recorder']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['320x240']['Video Recorder']['results']][50:150]))
         print("self.data['640x480']['Video Recorder']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']][50:150]))
@@ -176,9 +221,88 @@ class GraphBuilder:
         print("self.data['640x480']['Video Recorder']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']][50:150]))
         print("self.data['960x720']['Video Recorder']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['960x720']['Video Recorder']['results']][50:150]))
 
+        print("self.data['320x240']['Video Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['320x240']['Video Recorder']['results']][50:150]))
+        print("self.data['640x480']['Video Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']][50:150]))
+        print("self.data['960x720']['Video Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['960x720']['Video Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Video Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['320x240']['Video Recorder']['results']][50:150]))
+        print("self.data['640x480']['Video Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['640x480']['Video Recorder']['results']][50:150]))
+        print("self.data['960x720']['Video Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['960x720']['Video Recorder']['results']][50:150]))
+
+
         ax.set_xlabel("Time (s)")
         ax.set_ylabel("Memory used (MB)")
         ax.set_title('VDO Recorder Memory Usage')
+        plt.legend()
+        ax.grid(True)
+        fig_rd_mem.savefig('/tmp/fig_rd_mem.png')
+        
+        
+        ### Motion Recorder
+        fig_rd_cpu = plt.figure()
+        fig_rd_cpu.set_size_inches(18.5, 10.5)
+
+        ax = fig_rd_cpu.add_subplot(111)
+
+        ax.plot([a['cpu_used'] for a in self.data['320x240']['Motion Recorder']['results']][50:150], '-o', label="320x240 pixels")
+        ax.plot([a['cpu_used'] for a in self.data['640x480']['Motion Recorder']['results']][50:150], '-^', label="640x480 pixels")
+        ax.plot([a['cpu_used'] for a in self.data['960x720']['Motion Recorder']['results']][50:150], '-x', label="960x720 pixels")
+
+        print("self.data['320x240']['Motion Recorder']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("mself.data['960x720']['Motion Recorder']['results'] cpu mean:", numpy.mean([a['cpu_used'] for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] cpu std:", numpy.std([a['cpu_used'] for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] cpu max:", numpy.max([a['cpu_used'] for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] cpu min:", numpy.min([a['cpu_used'] for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("CPU used (%)")
+        ax.set_title('Motion Recorder CPU Usage')
+        plt.legend()
+        ax.grid(True)
+        fig_rd_cpu.savefig('/tmp/fig_rd_cpu.png')
+        fig_rd_cpu.show()
+        
+        # RAM
+        fig_rd_mem = plt.figure()
+        fig_rd_mem.set_size_inches(18.5,10.5)
+
+        ax = fig_rd_mem.add_subplot(111)
+
+        ax.plot([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Recorder']['results']][50:150], '-o', label="320x240 pixels")
+        ax.plot([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Recorder']['results']][50:150], '-^', label="640x480 pixels")
+        ax.plot([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Recorder']['results']][50:150], '-x', label="960x720 pixels")
+
+        print("self.data['320x240']['Motion Recorder']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] memory mean:", numpy.mean([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] memory std:", numpy.std([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] memory max:", numpy.max([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+        print("self.data['320x240']['Motion Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['320x240']['Motion Recorder']['results']][50:150]))
+        print("self.data['640x480']['Motion Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['640x480']['Motion Recorder']['results']][50:150]))
+        print("self.data['960x720']['Motion Recorder']['results'] memory min:", numpy.min([a['memory_used']/(10**6) for a in self.data['960x720']['Motion Recorder']['results']][50:150]))
+
+
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Memory used (MB)")
+        ax.set_title('Moti Recorder Memory Usage')
         plt.legend()
         ax.grid(True)
         fig_rd_mem.savefig('/tmp/fig_rd_mem.png')
@@ -226,6 +350,27 @@ class BenchmarkReport():
         bm.start(attributes)
         result = bm.wait()
         results['Video Recorder'] = result.to_dict()
+        
+        attributes = {"image_processors": [{"name": "Motion Detector",
+                                            "wait_motion_time": 5,
+                                            "interval": 3,
+                                            "sensitive": 95,
+                                            "image_processors":[
+                                                {"name": "Video Recorder",
+                                                    "fps": 10,
+                                                    "record_motion": True,
+                                                    "height": cameras[0]['height'],
+                                                    "width": cameras[0]['width'],
+                                                    "directory": "/tmp/nokkhum-records/test_benchmark"
+                                                    }
+                                                ]}],
+                      "cameras": cameras
+                      }
+
+        bm = benchmark.Benchmark('test_benchmark_motion_recorder')
+        bm.start(attributes)
+        result = bm.wait()
+        results['Motion Recorder'] = result.to_dict()
 
         return results
 
@@ -277,8 +422,8 @@ class BenchmarkReport():
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         sys.stderr.write( "Use: " + sys.argv[0] + "cmd")
-        sys.stderr.write("cmd: analyze config_file")
-        sys.stderr.write("cmd: graph show=true results.json")
+        sys.stderr.write("cmd: analyze config_file\n")
+        sys.stderr.write("cmd: graph show=true results.json\n")
         sys.exit(errno.EINVAL)
 
     if sys.argv[1] == 'analyze':
