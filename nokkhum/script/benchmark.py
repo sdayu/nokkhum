@@ -228,8 +228,8 @@ class BenchmarkReport():
             for image_size in IMAGE_SIZES:
                 print("fps %s image size: %sx%s " % (fps, image_size[0],
                                                      image_size[1]))
-                cameras[0]["height"] = image_size[0]
-                cameras[0]["width"] = image_size[1]
+                cameras[0]["height"] = image_size[1]
+                cameras[0]["width"] = image_size[0]
                 cameras[0]["fps"] = fps
                 cameras[0]["video_uri"] = "%s/%s-%sx%s-%sfps.%s"\
                     % (self.video_path, self.video_prefix, image_size[0],
