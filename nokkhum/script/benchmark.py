@@ -36,7 +36,7 @@ class GraphBuilder:
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
 
-        self.start = 0
+        self.start = 5
         self.end = 150
 
         self.graph_pattern = ['-o', '-H', '-^', '-s', '-D', '-*', '-p',
@@ -49,29 +49,35 @@ class GraphBuilder:
         ax = fig.add_subplot(111)
         maker = 0
 
-        for image_size, results in image_size_results.items():
-            print("image size %s:" % image_size)
+        
+#         for image_size, results in image_size_results.items():
+        for image_size in IMAGE_SIZES:
+            results = image_size_results['%sx%s'%image_size]
+
+            print("image size %sx%s:" % image_size)
 
             ax.plot([r['cpu_used'] for r in results[key]['results']][self.start: self.end],
-                    self.graph_pattern[maker], label="%s pixels" % image_size)
+                    self.graph_pattern[maker], label="%sx%s pixels" % image_size)
             maker += 1
 
-            print("CPU mean %s pixels:" % image_size,
+            print("CPU mean %sx%s pixels:" % image_size,
                   numpy.mean([r['cpu_used'] for r in results[key]['results']][self.start: self.end]))
-            print("CPU std %s pixels:" % image_size,
+            print("CPU std %sx%s pixels:" % image_size,
                   numpy.std([r['cpu_used'] for r in results[key]['results']][self.start: self.end]))
-            print("CPU max %s pixels:" % image_size,
+            print("CPU max %sx%s pixels:" % image_size,
                   numpy.max([r['cpu_used'] for r in results[key]['results']][self.start: self.end]))
-            print("CPU min %s pixels:" % image_size,
+            print("CPU min %sx%s pixels:" % image_size,
                   numpy.min([r['cpu_used'] for r in results[key]['results']][self.start: self.end]))
 
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("CPU used (%)")
-        ax.set_title(title + ' CPU Usage')
-        plt.legend()
+        fontsize = 25
+        ax.set_xlabel("Time (s)",  fontsize=fontsize)
+        ax.set_ylabel("CPU used (%)", fontsize=fontsize)
+        ax.set_title(title + ' CPU Usage', fontsize=fontsize)
+        plt.legend(prop={'size': fontsize})
+        plt.tick_params(labelsize=fontsize)
         ax.grid(True)
         fig.savefig(self.output_path +
-                    '/fig-%sfps-%s-cpu.png' % (fps, key))
+                    '/fig-%sfps-%s-cpu.png' % (fps, key.replace(" ", "-")))
         fig.show()
 
     def build_memory_graph(self, image_size_results, key='Acquisition',
@@ -81,26 +87,30 @@ class GraphBuilder:
         ax = fig.add_subplot(111)
         maker = 0
 
-        for image_size, results in image_size_results.items():
+        for image_size in IMAGE_SIZES:
+            results = image_size_results['%sx%s'%image_size]
+
             ax.plot([a['memory_used']/(10**6) for a in results[key]['results']][self.start: self.end],
-                    self.graph_pattern[maker], label="%s pixels" % image_size)
+                    self.graph_pattern[maker], label="%sx%s pixels" % image_size)
             maker += 1
-            print("Memory mean %s pixels:" % image_size,
+            print("Memory mean %sx%s pixels:" % image_size,
                   numpy.mean([r['memory_used']/(10**6) for r in results[key]['results']][self.start: self.end]))
-            print("Memory std %s pixels:" % image_size,
+            print("Memory std %sx%s pixels:" % image_size,
                   numpy.std([r['memory_used']/(10**6) for r in results[key]['results']][self.start: self.end]))
-            print("Memory max %s pixels:" % image_size,
+            print("Memory max %sx%s pixels:" % image_size,
                   numpy.max([r['memory_used']/(10**6) for r in results[key]['results']][self.start: self.end]))
-            print("Memory min %s pixels:" % image_size,
+            print("Memory min %sx%s pixels:" % image_size,
                   numpy.min([r['memory_used']/(10**6) for r in results[key]['results']][self.start: self.end]))
 
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Memory used (MB)")
-        ax.set_title(title + ' Memory Usage')
-        plt.legend()
+        fontsize = 25
+        ax.set_xlabel("Time (s)", fontsize=fontsize)
+        ax.set_ylabel("Memory used (MB)", fontsize=fontsize)
+        ax.set_title(title + ' Memory Usage', fontsize=fontsize)
+        plt.legend(prop={'size': fontsize})
+        plt.tick_params(labelsize=fontsize)
         ax.grid(True)
         fig.savefig(self.output_path +
-                    '/fig-%sfps-%s-memory.png' % (fps, key))
+                    '/fig-%sfps-%s-memory.png' % (fps, key.replace(" ", "-")))
         fig.show()
 
     def build(self, show):
@@ -151,7 +161,9 @@ class BenchmarkReport():
                       "cameras": cameras
                       }
 
-        bm = benchmark.Benchmark('test_benchmark_aquisition', process_period)
+        camera = cameras[0]
+
+        bm = benchmark.Benchmark('test_benchmark_aquisition_%sfps_%sx%s'%(camera['fps'], camera['width'], camera['height']), process_period)
         bm.start(attributes)
         result = bm.wait()
         results['Acquisition'] = result.to_dict()
@@ -164,7 +176,7 @@ class BenchmarkReport():
                       "cameras": cameras
                       }
 
-        bm = benchmark.Benchmark('test_benchmark_motion_detector')
+        bm = benchmark.Benchmark('test_benchmark_motion_detector_%sfps_%sx%s'%(camera['fps'], camera['width'], camera['height']), process_period)
         bm.start(attributes)
         result = bm.wait()
         results['Motion Detector'] = result.to_dict()
@@ -178,7 +190,7 @@ class BenchmarkReport():
                       "cameras": cameras
                       }
 
-        bm = benchmark.Benchmark('test_benchmark_video_recorder', 10)
+        bm = benchmark.Benchmark('test_benchmark_video_recorder_%sfps_%sx%s'%(camera['fps'], camera['width'], camera['height']), process_period)
         bm.start(attributes)
         result = bm.wait()
         results['Video Recorder'] = result.to_dict()
@@ -199,7 +211,7 @@ class BenchmarkReport():
                       "cameras": cameras
                       }
 
-        bm = benchmark.Benchmark('test_benchmark_motion_recorder')
+        bm = benchmark.Benchmark('test_benchmark_motion_recorder_%sfps_%sx%s'%(camera['fps'], camera['width'], camera['height']), process_period)
         bm.start(attributes)
         result = bm.wait()
         results['Motion Recorder'] = result.to_dict()

@@ -28,7 +28,7 @@ class BenchmarkResult:
         self.stderr = stderr
         self.process_period = process_period
         self.attributes = attributes
-    
+
     def to_dict(self):
         benchmark_result = dict(started_date=self.started_date.isoformat(),
                                 ended_date=self.ended_date.isoformat(),
@@ -58,38 +58,35 @@ class Benchmark:
         print("start: ", self.started_date)
 
         print("get pid:", self.processor.get_pid())
-        
+
     def wait(self):
-        
+
         process = psutil.Process(self.processor.get_pid())
-        
-        
         results = []
-        
         while self.processor.is_running():
             time.sleep(1)
-            
+
             result = dict(reported_date=datetime.datetime.now(),
                           cpu_used=process.get_cpu_percent(),
-                          memory_used=process.get_memory_info().rss,                          
+                          memory_used=process.get_memory_info().rss,
                           )
-            
+
             results.append(result)
 
             if datetime.datetime.now() - self.started_date > datetime.timedelta(minutes=self.process_period):
                 self.processor.stop()
-                break;
+                break
 
         self.ended_date = datetime.datetime.now()
-        
+
         stdout = []
         stderr = []
-        for line  in self.processor.process.stdout:
+        for line in self.processor.process.stdout:
             stdout.append(line.decode('utf-8'))
 
-        for line  in self.processor.process.stderr:
+        for line in self.processor.process.stderr:
             stderr.append(line.decode('utf-8'))
-    
+
         b_result = BenchmarkResult(started_date=self.started_date,
                                    endded_date=self.ended_date,
                                    results=results,
@@ -97,5 +94,5 @@ class Benchmark:
                                    process_period=self.process_period,
                                    stdout=stdout,
                                    stderr=stderr)
-        
+
         return b_result
