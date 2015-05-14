@@ -34,7 +34,7 @@ class S3Storage:
             is_secure=secure,
             calling_format=boto.s3.connection.OrdinaryCallingFormat()
         )
-        self.pattern = re.compile("__.*-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)")
+        self.pattern = re.compile("__.*-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)-(.*)")
 
     def __push_to_s3(self, processor_id, file_list, prefix_dir):
 
@@ -42,7 +42,7 @@ class S3Storage:
             processor_bucket = self.connection.get_bucket(processor_id)
         except Exception as e:
             logger.exception(e)
-            
+
             try:
                 self.connection.create_bucket(processor_id)
                 processor_bucket = self.connection.get_bucket(processor_id)
