@@ -12,6 +12,7 @@ import datetime
 import argparse
 
 from nokkhum.compute import benchmark
+from nokkhum.compute import machine_specification
 
 from matplotlib import pyplot as plt
 import numpy
@@ -32,6 +33,7 @@ class DateTimeJSONEncoder(json.JSONEncoder):
 class GraphBuilder:
     def __init__(self, data, output_path):
         self.data = data
+        self.results = data['results']
         self.output_path = output_path
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
@@ -49,7 +51,7 @@ class GraphBuilder:
         ax = fig.add_subplot(111)
         maker = 0
 
-        
+
 #         for image_size, results in image_size_results.items():
         for image_size in IMAGE_SIZES:
             results = image_size_results['%sx%s'%image_size]
@@ -116,7 +118,7 @@ class GraphBuilder:
     def build(self, show):
         # aquisition
 
-        for fps, image_size_results in self.data.items():
+        for fps, image_size_results in self.results.items():
 
             # for processing motion acquisition
             print("process acquisition")
@@ -219,7 +221,6 @@ class BenchmarkReport():
         return results
 
     def benchmark(self):
-
         cameras = [{"width": 0,
                     "name": "camera-02",
                     "height": 0,
@@ -234,6 +235,7 @@ class BenchmarkReport():
                     }]
 
         results = dict()
+
         for fps in FPSS:
             print("Test fps:", fps)
             result_dict = dict()
@@ -251,9 +253,16 @@ class BenchmarkReport():
 
             results[fps] = result_dict
 
+        ms = machine_specification.MachineSpecification("/home")
+        report = dict(
+            results=results,
+            reported_date=datetime.datetime.now(),
+            machine_specification=ms.get_specification()
+        )
+
         with open(self.output_file, 'w') as f:
             print("dump to json")
-            json.dump(results, f, cls=DateTimeJSONEncoder)
+            json.dump(report, f, cls=DateTimeJSONEncoder)
 
         print('finish benchmark')
 
