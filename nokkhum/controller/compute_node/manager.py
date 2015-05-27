@@ -6,11 +6,11 @@ Created on Nov 7, 2011
 import datetime
 
 from nokkhum import models
+from .resource_predictor import KalmanPredictor
+
 
 import logging
 logger = logging.getLogger(__name__)
-
-from .resource_predictor import KalmanPredictor
 
 
 class ComputeNodeManager(object):
@@ -84,6 +84,8 @@ class ComputeNodeManager(object):
                ram[-1], ram_predict,
                disk[-1], disk_predict)
             )
+
+        # decision cpu prediction 70% CPU usage
 
         if cpu_predict < 70\
                 and ram_predict / 1000000 > 200\

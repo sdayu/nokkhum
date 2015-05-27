@@ -108,7 +108,8 @@ class ProcessorCommandProcessing:
                 raise Exception('Compute node offline')
 
             processor = command.processor
-            if datetime.datetime.now() - processor.operating.updated_date < datetime.timedelta(seconds=30):
+            if datetime.datetime.now() - processor.operating.updated_date\
+                    < datetime.timedelta(seconds=30):
                 response = self.processor_manager.stop_processor(
                     compute_node, command.processor)
 
@@ -215,7 +216,8 @@ class ProcessorScheduling(threading.Thread):
                      models.ProcessorCommandQueue.objects().count())
 
         def get_command():
-            for this_queue in models.ProcessorCommandQueue.objects().order_by('+id').all():
+            for this_queue in models.ProcessorCommandQueue\
+                    .objects().order_by('+id').all():
                 if this_queue.processor_command.status == 'waiting':
                     return this_queue
 
@@ -231,10 +233,12 @@ class ProcessorScheduling(threading.Thread):
 
             if this_queue.processor_command.status != 'waiting':
                 logger.debug(
-                    "status not waiting:" + this_queue.processor_command.status)
+                    "status not waiting:" + this_queue.processor_command.status
+                )
                 continue
 
-            if self.compute_node_manager.get_available_compute_node().count() == 0:
+            if self.compute_node_manager.get_available_compute_node()\
+                    .count() == 0:
                 logger.debug("There are no available compute node")
                 break
 
@@ -242,19 +246,28 @@ class ProcessorScheduling(threading.Thread):
             # models.ProcessorCommandQueue.objects(processor_command__status =
             # "waiting").order_by('+id').first()
 
-            this_queue.processor_command.processed_date = datetime.datetime.now()
+            this_queue.processor_command.processed_date =\
+                datetime.datetime.now()
+
             if 'process_count' not in this_queue.processor_command.extra:
                 this_queue.processor_command.extra['process_count'] = 0
 
             this_queue.processor_command.extra['process_count'] += 1
             this_queue.save()
 
+            processor = this_queue.processor_command.processor
+
             compute_node = None
             if this_queue.processor_command.action == "start"\
                     or this_queue.processor_command.action == "restart":
 
-                compute_node = self.compute_node_manager.get_compute_node_available_resource(
-                )
+                compute_node = processor.operating.compute_node
+
+                # get available computation node for distribute image processor
+                if not self.compute_node_manager\
+                        .is_compute_node_available(compute_node):
+                    compute_node = self.compute_node_manager\
+                        .get_compute_node_available_resource()
 
                 if compute_node is None:
                     logger.debug("There are no available resource")
