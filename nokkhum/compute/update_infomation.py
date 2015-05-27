@@ -13,7 +13,7 @@ import datetime
 import time
 import psutil
 import netifaces
-import fileinput
+import machine_specification
 
 from . import s3
 
@@ -35,14 +35,12 @@ class UpdateInfomation:
 
     def __init__(self, publisher):
         self.publisher = publisher
-        try:
-            self.ip = netifaces.ifaddresses(config.Configurator.settings.get(
-                'nokkhum.compute.interface')).setdefault(netifaces.AF_INET)[0]['addr']
-        except:
-            self.ip = netifaces.ifaddresses('lo').setdefault(
-                netifaces.AF_INET)[0]['addr']
-
         self.resource = self.get_resource()
+
+        self.machine_specification = machine_specification.MachineSpecification(
+            config.Configurator.settings.get('nokkhum.processor.record_path'),
+            config.Configurator.settings.get('nokkhum.compute.interface')
+        )
 
     def set_publisher(self, publisher):
         self.publisher = publisher
@@ -52,7 +50,7 @@ class UpdateInfomation:
         logging.debug("result: %s send message: %s" % (result, messages))
         return result
 
-    def get_system_information(self):
+    def get_machine_specification(self):
 
         mem = psutil.phymem_usage()
         cpu_frequency = 0
@@ -63,32 +61,19 @@ class UpdateInfomation:
                 if 'cpu MHz' in line:
                     str_token = line.split(':')
                     cpu_frequency = float(str_token[1].strip())
-
                     break
+
             cpuinfo.close()
         except Exception as e:
             logger.exception(e)
 
-        disk = psutil.disk_usage(
-            config.Configurator.settings["nokkhum.processor.record_path"])
+        machine_specification = self.machine_specification.get_specification()
+        return machine_specification
 
-        system_information = {
-            'name': platform.node(),
-            'system': platform.system(),
-            'machine': platform.machine(),
-            'cpu_count': multiprocessing.cpu_count(),
-            'cpu_frequency': cpu_frequency,
-            'total_memory': mem.total,
-            'total_disk': disk.total,
-            'ip': self.ip,
-        }
+    def update_machine_specification(self):
 
-        return system_information
-
-    def update_system_information(self):
-
-        arguments = self.get_system_information()
-        messages = {"method": "update_system_information", "args": arguments}
+        arguments = self.get_machine_specification()
+        messages = {"method": "update_machine_specification", "args": arguments}
         logging.debug("update information: %s" % messages)
 
         return self.send_message(messages)
@@ -227,7 +212,7 @@ class UpdateStatus(threading.Thread):
 
         while(self._running):
             while not update_status:
-                update_status = self.uinfo.update_system_information()
+                update_status = self.uinfo.update_machine_specification()
                 if not update_status:
                     logger.debug("wait message server %d second" %
                                  time_to_sleep)
@@ -261,7 +246,7 @@ class UpdateStatus(threading.Thread):
                         else:
                             self.push_s3 = False
                     else:
-                        self.uinfo.update_system_information()
+                        self.uinfo.update_machine_specification()
                         self.push_s3 = False
 
                     if self.push_s3:
@@ -291,6 +276,6 @@ class UpdateStatus(threading.Thread):
     def stop(self):
         self._running = False
 
-    def get_system_information(self):
+    def get_machine_specification(self):
         self._request_sysinfo = True
         logger.debug("request_sysinfo: %s\n" % self._request_sysinfo)

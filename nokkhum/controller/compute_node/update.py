@@ -216,7 +216,7 @@ class ComputeNodeResource:
             report.save()
 
             logger.debug(
-                'Compute node name: "%s" ip: %s update resource complete' 
+                'Compute node name: "%s" ip: %s update resource complete'
                 % (name, host))
         except Exception as e:
             logger.exception(e)

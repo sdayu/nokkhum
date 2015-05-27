@@ -3,13 +3,22 @@
 import platform
 import psutil
 import fileinput
+import netifaces
 
 import logging
 logger = logging.getLogger(__name__)
 
 class MachineSpecification:
-    def __init__(self, path):
+    def __init__(self, path, interface='lo'):
         self.path = path
+        self.ip = '124.0.0.1'
+
+        try:
+            self.ip = netifaces.ifaddresses(interface).setdefault(
+                netifaces.AF_INET)[0]['addr']
+        except:
+            self.ip = netifaces.ifaddresses('lo').setdefault(
+                netifaces.AF_INET)[0]['addr']
 
     def get_specification(self):
 
@@ -45,8 +54,9 @@ class MachineSpecification:
             'cpu_model': cpu_model,
             'cpu_count': psutil.cpu_count(),
             'cpu_frequency': cpu_frequency,
-            'memory': mem.total,
-            'disk': disk.total,
+            'total_memory': mem.total,
+            'total_disk': disk.total,
+            'ip': self.ip
         }
 
         return specification
