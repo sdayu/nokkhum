@@ -165,7 +165,11 @@ class ProcessorScheduling(threading.Thread):
         from .. import compute_node
 
         threading.Thread.__init__(self)
-        self.compute_node_manager = compute_node.manager.ComputeNodeManager()
+
+        self.compute_node_manager\
+            = compute_node.manager.ResourceUsageComputeNodeManager()
+        # self.compute_node_manager = compute_node.manager.ComputeNodeManager()
+
         self.name = "Processor Scheduling"
         self.daemon = True
 
@@ -267,7 +271,7 @@ class ProcessorScheduling(threading.Thread):
                 if not self.compute_node_manager\
                         .is_compute_node_available(compute_node):
                     compute_node = self.compute_node_manager\
-                        .get_compute_node_available_resource()
+                        .get_compute_node_available_resource(processor)
 
                 if compute_node is None:
                     logger.debug("There are no available resource")

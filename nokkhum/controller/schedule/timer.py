@@ -83,6 +83,23 @@ class Timer(threading.Thread):
             except Exception as e:
                 logger.exception("storage error: %s" % e)
 
+    def __remove_information(self):
+        current_time = datetime.datetime.now()
+        if current_time.hour == 1 \
+                and (current_time.minute >= 30 or current_time.minute < 40):
+
+            delta = datetime.timedelta(
+                days=config.Configurator.settings.get(
+                        'nokkhum.information.removal'))
+
+            time_point = datetime.datetime.now() - delta
+
+            models.ProcessorCommand.objects(updated_date__lt=time_point).remove()
+            models.ProcessorRunFail.objects(updated_date__lt=time_point).remove()
+
+            models.ComputeNodeReport.objects(reported_date__lt=time_point).remove()
+            models.ProcessorStatus.objects(reported_date__lt=time_point).remove()
+
     def __start_scheduling(self):
 
         if config.Configurator.settings.get('nokkhum.vm.enable'):
@@ -93,6 +110,9 @@ class Timer(threading.Thread):
 
         if config.Configurator.settings.get('nokkhum.storage.enable'):
             self.__storage_monitoring()
+
+        if config.Configurator.settings.get('nokkhum.information.removal') > 0:
+            self.__remove_information()
 
     def run(self):
         self._running = True

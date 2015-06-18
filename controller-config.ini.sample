@@ -29,6 +29,7 @@ nokkhum.vm.ec2.secure_connection = false
 nokkhum.vm.ec2.image.name = compute-image
 nokkhum.vm.ec2.instance_type = l1.medium, l1.large
 
+nokkhum.information.removal = 30
 
 nokkhum.smtp.username 	= xxx@gmail.com
 nokkhum.smtp.password 	= xxx
