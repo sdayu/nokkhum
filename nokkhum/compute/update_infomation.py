@@ -13,7 +13,7 @@ import datetime
 import time
 import psutil
 import netifaces
-import machine_specification
+import fileinput
 
 from . import s3
 
@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from nokkhum import config, compute
+from . import machine_specification
 
 
 class UpdateConfiguration:
@@ -34,13 +35,16 @@ class UpdateConfiguration:
 class UpdateInfomation:
 
     def __init__(self, publisher):
+
         self.publisher = publisher
-        self.resource = self.get_resource()
 
         self.machine_specification = machine_specification.MachineSpecification(
             config.Configurator.settings.get('nokkhum.processor.record_path'),
             config.Configurator.settings.get('nokkhum.compute.interface')
         )
+
+        self.resource = self.get_resource()
+        time.sleep(10)
 
     def set_publisher(self, publisher):
         self.publisher = publisher
@@ -51,22 +55,6 @@ class UpdateInfomation:
         return result
 
     def get_machine_specification(self):
-
-        mem = psutil.phymem_usage()
-        cpu_frequency = 0
-
-        try:
-            cpuinfo = fileinput.input(files='/proc/cpuinfo')
-            for line in cpuinfo:
-                if 'cpu MHz' in line:
-                    str_token = line.split(':')
-                    cpu_frequency = float(str_token[1].strip())
-                    break
-
-            cpuinfo.close()
-        except Exception as e:
-            logger.exception(e)
-
         machine_specification = self.machine_specification.get_specification()
         return machine_specification
 
@@ -82,12 +70,15 @@ class UpdateInfomation:
 
         cpus = psutil.cpu_percent(interval=.3, percpu=True)
 
-        sum = 0.0
+        ms = self.machine_specification.get_specification()
+        ip = ms['ip']
+
+        sum_ = 0.0
         for usage in cpus:
-            sum += usage
+            sum_ += usage
 
         cpu_prop = {
-            "used": round(sum / len(cpus)),
+            "used": round(sum_ / len(cpus)),
             "percpu": cpus,
         }
 
@@ -129,7 +120,7 @@ class UpdateInfomation:
             'memory': mem_prop,
             'disk': disk_prop,
             'processors': processor_list,
-            'ip': self.ip,
+            'ip': ip,
             'date': datetime.datetime.now().isoformat()
         }
 
@@ -137,10 +128,10 @@ class UpdateInfomation:
 
         return resource
 
-    def update_resource(self):
+    def update_machine_resources(self):
         arguments = self.get_resource()
         self.resource = arguments
-        messages = {"method": "update_resource", "args": arguments}
+        messages = {"method": "update_machine_resources", "args": arguments}
         return self.send_message(messages)
 
     def get_processor_run_fail(self):
@@ -174,7 +165,7 @@ class UpdateInfomation:
 
         if abs(old_cpu - current_cpu) > 20:
             self.resource = resource
-            messages = {"method": "update_resource", "args": resource}
+            messages = {"method": "update_machine_resources", "args": resource}
             return self.send_message(messages)
 
         self.processor_running_fail_report()
@@ -235,7 +226,7 @@ class UpdateStatus(threading.Thread):
                         logger.exception(e)
 
                     try:
-                        self.uinfo.update_resource()
+                        self.uinfo.update_machine_resources()
                     except Exception as e:
                         logger.exception(e)
 

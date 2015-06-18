@@ -8,11 +8,10 @@ import unittest
 from nokkhum import models
 
 
-class TestManager(unittest.TestCase):
-
+class TestResourceUsageComputeNodeManager(unittest.TestCase):
     def setUp(self):
         settings = {
-            'mongodb.host': '172.30.235.254',
+            'mongodb.host': 'localhost',
             'mongodb.db_name': 'nokkhum'
         }
 
@@ -23,11 +22,9 @@ class TestManager(unittest.TestCase):
 
     def test_get_available_compute_node(self):
         from nokkhum.controller.compute_node import manager
-        cnm = manager.ComputeNodeManager()
-        compute_nodes = models.ComputeNode.objects().all()
-        for compute_node in compute_nodes:
-            cnm.is_compute_node_available(compute_node)
-
+        cnm = manager.ResourceUsageComputeNodeManager()
+        processor = models.Processor.objects().first()
+        cnm.get_compute_node_available_resource(processor)
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

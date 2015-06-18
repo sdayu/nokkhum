@@ -120,7 +120,8 @@ class ComputeServer():
         self.processor_controller.stop_all()
         logger.debug("end to stop all processors")
 
-        self.update_status.stop()
+        if self.update_status:
+            self.update_status.stop()
         self._running = False
         try:
             connection.Connection.get_instance().release()

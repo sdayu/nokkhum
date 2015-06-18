@@ -41,7 +41,7 @@ class ComputeNodeResource:
         ).get_rpc_factory().get_default_rpc_client()
         rpc_client.send(message, routing_key)
 
-    def update_system_information(self, args):
+    def update_machine_specification(self, args):
 
         try:
             name = args['name']
@@ -93,7 +93,7 @@ class ComputeNodeResource:
         except Exception as e:
             logger.exception(e)
 
-    def update_resource(self, args):
+    def update_machine_resources(self, args):
         try:
             name = args['name']
             cpu = args['cpu']
@@ -285,11 +285,11 @@ class UpdateStatus(threading.Thread):
 
     def process_data(self, body):
         # logger.debug("controller get message: %s" % body)
-        if body["method"] == "update_system_information":
-            self._cn_resource.update_system_information(body["args"])
+        if body["method"] == "update_machine_specification":
+            self._cn_resource.update_machine_specification(body["args"])
             self._cn_resource.initial_central_configuration(body["args"]['ip'])
-        elif body["method"] == "update_resource":
-            self._cn_resource.update_resource(body["args"])
+        elif body["method"] == "update_machine_resources":
+            self._cn_resource.update_machine_resources(body["args"])
         elif body["method"] == "processor_run_fail_report":
             self._cn_resource.processor_run_fail_report(body["args"])
 

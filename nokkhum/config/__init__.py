@@ -6,6 +6,11 @@ class Configurator:
 
     def __init__(self, config_file):
         self.config_file = config_file
+
+        self.settings['nokkhum.information.removal'] = 0
+        self.settings['nokkhum.vm.enable'] = False
+        self.settings['nokkhum.storage.enable'] = False
+
         self.__parse()
 
     def __parse(self):
@@ -21,7 +26,8 @@ class Configurator:
                         'nokkhum.smtp.tls']
         integer_conf = ['nokkhum.storage.s3.port',
                         'nokkhum.vm.ec2.port',
-                        'nokkhum.smtp.port']
+                        'nokkhum.smtp.port',
+                        'nokkhum.information.removal']
 
         for key in boolean_conf:
             self.settings[key] = False
