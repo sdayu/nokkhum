@@ -22,7 +22,7 @@ class MachineSpecification:
 
     def get_specification(self):
 
-        mem = psutil.phymem_usage()
+        mem = psutil.virtual_memory()
         cpu_frequency = 0
         cpu_model = ''
 

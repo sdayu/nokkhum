@@ -82,7 +82,7 @@ class UpdateInfomation:
             "percpu": cpus,
         }
 
-        mem = psutil.phymem_usage()
+        mem = psutil.virtual_memory()
         mem_prop = {
             "total": mem.total,
             "used": mem.used,
