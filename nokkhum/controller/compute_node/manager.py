@@ -154,7 +154,8 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
         print(len(list(self.get_available_compute_nodes_resource())))
         for compute_node in self.get_available_compute_nodes_resource():
-            print("compute_node:", compute_node.name)
+#             print("compute_node:", compute_node.name)
+            return compute_node
 
     def get_available_compute_nodes_resource(self):
         compute_nodes = self.get_available_compute_nodes()
@@ -171,6 +172,5 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
             return super().get_compute_node_available_resource(processor)
 
         else:
-            self.find_suitable_compute_node(processor)
-            print("processor name:", processor.name)
-            print("cpu, memory:", self.predict_resource(processor))
+            return self.find_suitable_compute_node(processor)
+

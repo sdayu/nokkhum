@@ -241,7 +241,7 @@ class ProcessorScheduling(threading.Thread):
                 )
                 continue
 
-            if self.compute_node_manager.get_available_compute_node()\
+            if self.compute_node_manager.get_available_compute_nodes()\
                     .count() == 0:
                 logger.debug("There are no available compute node")
                 break
