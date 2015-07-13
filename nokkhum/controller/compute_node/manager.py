@@ -65,7 +65,7 @@ class ComputeNodeManager(object):
             = self.resource_prediction(compute_node)
 
         # decision cpu prediction 70% CPU usage
-        if cpu_predict < 90\
+        if cpu_predict and cpu_predict < 90\
                 and memory_predict / 1000000 > 200\
                 and disk_predict / 1000000 > 1000:
             logger.debug("compute node id cpu: %s ram: %s disk %s" % (
@@ -91,7 +91,7 @@ class ComputeNodeManager(object):
                 disk.append(record.disk.free)
 
         if len(cpu) <= 0:
-            return False
+            return None, None, None
 
         kp = KalmanPredictor()
         cpu_predict = kp.predict(cpu)
