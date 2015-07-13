@@ -270,3 +270,4 @@ class UpdateStatus(threading.Thread):
     def get_machine_specification(self):
         self._request_sysinfo = True
         logger.debug("request_sysinfo: %s\n" % self._request_sysinfo)
+

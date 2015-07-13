@@ -34,8 +34,8 @@ class ComputeServer():
         # message.ack()
         if 'method' not in body:
             logger.debug("ignore message: %s" % body)
-        elif body['method'] == 'get_system_information':
-            self.update_status.get_system_information()
+        elif body['method'] == 'get_machine_specification':
+            self.update_status.get_machine_specification()
             logger.debug(" self.rpc._publisher.routing_key_list %s" %
                          self.rpc._publisher.routing_key_list)
             self.rpc._publisher.routing_key_list.clear()

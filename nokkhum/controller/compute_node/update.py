@@ -73,11 +73,7 @@ class ComputeNodeResource:
             compute_node.resource_information = resource_information
             compute_node.updated_date = datetime.datetime.now()
             compute_node.updated_resource_date = datetime.datetime.now()
-            if 'responsed_date' not in compute_node.extra:
-                compute_node.extra['responsed_date'] = list()
-
-            compute_node.extra['responsed_date'].append(
-                datetime.datetime.now())
+            compute_node.push_responsed_date()
             compute_node.save()
             compute_node.reload()
 
@@ -111,7 +107,7 @@ class ComputeNodeResource:
 
                 routing_key = "nokkhum_compute." + \
                     host.replace('.', ':') + ".rpc_request"
-                message = {"method": "get_system_information"}
+                message = {"method": "get_machine_specification"}
 
                 rpc_client = connection.Connection.get_instance()\
                     .get_rpc_factory().get_default_rpc_client()

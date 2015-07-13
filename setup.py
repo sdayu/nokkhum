@@ -17,7 +17,8 @@ requires = [
     'amqp',
     'boto',
     'netifaces',
-    'numpy'
+    'numpy',
+    'scipy'
 ]
 
 
