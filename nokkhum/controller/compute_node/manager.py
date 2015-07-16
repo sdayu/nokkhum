@@ -25,15 +25,11 @@ class ComputeNodeManager(object):
         Constructor
         '''
 
-    def describe_compute_node(self):
+    def get_compute_nodes(self):
         compute_nodes = models.ComputeNode.objects().all()
         return compute_nodes
 
-    def describe_available_compute_node(self):
-        compute_nodes = models.ComputeNode.objects().all()
-        return compute_nodes
-
-    def get_available_compute_nodes(self):
+    def get_online_compute_nodes(self):
         # delta = datetime.timedelta(minutes=1)
         delta = datetime.timedelta(days=1)
         now = datetime.datetime.now()
@@ -43,29 +39,31 @@ class ComputeNodeManager(object):
 
         return compute_nodes
 
-    def get_compute_node_available_resource(self, processor=None):
+    def find_suitable_compute_node(self, processor=None):
         '''
         need appropriate scheduling about CPU and RAM
         '''
-        compute_nodes = self.get_available_compute_nodes()
+        compute_nodes = self.get_online_compute_nodes()
 
         for compute_node in compute_nodes:
-            if self.is_compute_node_available(compute_node):
+            if self.is_available_compute_node(compute_node):
                 return compute_node
 
         return None
 
-    def is_compute_node_available(self, compute_node):
+    def is_available_compute_node(self, compute_node):
 
         if not hasattr(compute_node, "resource_records")\
                 or len(compute_node.resource_records) == 0:
             return False
 
         cpu_predict, memory_predict, disk_predict\
-            = self.resource_prediction(compute_node)
+            = self.predict_resource(compute_node)
 
         # decision cpu prediction 70% CPU usage
-        if cpu_predict and cpu_predict < 90\
+        CPU_UPPER_BOUND = 95
+
+        if cpu_predict and cpu_predict < compute_node.resource_information.cpu_count * CPU_UPPER_BOUND\
                 and memory_predict / 1000000 > 200\
                 and disk_predict / 1000000 > 1000:
             logger.debug("compute node id cpu: %s ram: %s disk %s" % (
@@ -75,8 +73,8 @@ class ComputeNodeManager(object):
         # if compute node is not available
         return False
 
-    def resource_prediction(self, compute_node):
-        print("compute_node:", compute_node.__dict__)
+    def predict_resource(self, compute_node):
+
         records = compute_node.resource_records
 
         cpu = []
@@ -86,7 +84,8 @@ class ComputeNodeManager(object):
         # last = datetime.datetime.now()-datetime.timedelta(days=1)
         for record in records:
             if record.reported_date > last:
-                cpu.append(record.cpu.used)
+                # cpu.append(record.cpu.used)
+                cpu.append(sum(record.cpu.used_per_cpu))
                 memory.append(record.memory.free)
                 disk.append(record.disk.free)
 
@@ -107,14 +106,14 @@ class ComputeNodeManager(object):
                 memory[-1], memory_predict,
                 disk[-1], disk_predict)
             )
-        print("pre:", cpu_predict, memory_predict, disk_predict)
+        # print("pre:", cpu_predict, memory_predict, disk_predict)
 
         return cpu_predict, memory_predict, disk_predict
 
 
 class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
-    def predict_resource(self, processor, image_processors=None):
+    def predict_processor_resource(self, processor, image_processors=None):
 
         camera = processor.cameras[0]
 
@@ -143,34 +142,41 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 #                 print("cpu:", cpu_usage, "memory:", memory_usage)
 
             if 'image_processors' in ip:
-                cpu_r, memory_r = self.predict_resource(processor,
+                cpu_r, memory_r = self.predict_processor_resource(processor,
                                                         ip['image_processors'])
                 cpu_usage += cpu_r
                 memory_usage += memory_r
 
         return cpu_usage, memory_usage
 
-    def find_suitable_compute_node(self, processor):
-
+    def find_suitable_compute_node(self, processor=None):
+        print("check find_suitable_compute_node")
+        suitable_compute_nodes = super().find_suitable_compute_node()
+        print("test:", processor)
+        if processor is None:
+            print("suitable:", suitable_compute_nodes)
+            return suitable_compute_nodes
+        print("xxxx:")
         print(len(list(self.get_available_compute_nodes_resource())))
         for compute_node in self.get_available_compute_nodes_resource():
 #             print("compute_node:", compute_node.name)
             return compute_node
 
-    def get_available_compute_nodes_resource(self):
-        compute_nodes = self.get_available_compute_nodes()
-        for compute_node in compute_nodes:
-            if self.is_compute_node_available(compute_node):
-                yield compute_node
+    def is_suitable_running(self, compute_node, processor):
+        print("check suitable running")
+        processor_cpu_usage, processor_memory_usage \
+                = self.predict_processor_resource(processor)
+        cn_cpu_usage, cn_memory_usage, cn_disk_usage \
+                = self.predict_resource(compute_node)
+        if processor_cpu_usage <= 100-cn_cpu_usage\
+                and processor_memory_usage <= compute_node.resource_information.total_memory-cn_memory_usage:
+            return True
+        return False
 
-    def get_compute_node_available_resource(self, processor=None):
-        '''
-        need appropriate scheduling about CPU and RAM
-        '''
-
+    def is_available_compute_node(self, compute_node, processor=None):
         if processor is None:
-            return super().get_compute_node_available_resource(processor)
-
+            return super().is_available_compute_node(compute_node)
         else:
-            return self.find_suitable_compute_node(processor)
+            # TODO: check this compute node is suitable compute node
+            return self.is_suitable_running(compute_node, processor)
 

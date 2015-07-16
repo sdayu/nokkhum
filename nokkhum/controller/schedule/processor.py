@@ -241,8 +241,8 @@ class ProcessorScheduling(threading.Thread):
                 )
                 continue
 
-            if self.compute_node_manager.get_available_compute_nodes()\
-                    .count() == 0:
+            # TODO: add processor to this method
+            if self.compute_node_manager.find_suitable_compute_node() is None:
                 logger.debug("There are no available compute node")
                 break
 
@@ -269,9 +269,9 @@ class ProcessorScheduling(threading.Thread):
 
                 # get available computation node for distribute image processor
                 if not self.compute_node_manager\
-                        .is_compute_node_available(compute_node):
+                        .is_available_compute_node(compute_node, processor):
                     compute_node = self.compute_node_manager\
-                        .get_compute_node_available_resource(processor)
+                        .find_suitable_compute_node(processor)
 
                 if compute_node is None:
                     logger.debug("There are no available resource")
