@@ -44,8 +44,10 @@ class DatabaseImporter:
         #                       '-v', '-8', '-<', '->']
 
     def process(self):
-
-        ms = models.MachineSpecification(**self.data['machine_specification'])
+        print("xxx:", self.data['machine_specification'])
+        machine_specification = self.data['machine_specification']
+        del machine_specification['ip']
+        ms = models.MachineSpecification(**machine_specification)
 
         for fps, image_size_results in self.results.items():
             for image_size, image_analysis_results in image_size_results.items():
