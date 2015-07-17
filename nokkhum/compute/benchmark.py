@@ -67,8 +67,8 @@ class Benchmark:
             time.sleep(1)
 
             result = dict(reported_date=datetime.datetime.now(),
-                          cpu_used=process.get_cpu_percent(),
-                          memory_used=process.get_memory_info().rss,
+                          cpu_used=process.cpu_percent(),
+                          memory_used=process.memory_info().rss,
                           )
 
             results.append(result)
