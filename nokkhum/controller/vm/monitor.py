@@ -155,7 +155,7 @@ class VMMonitoring(threading.Thread):
                         compute_node.id, compute_node.vm.instance_id))
                     return
                 elif 'responsed_date' not in compute_node.extra \
-                        and compute_node.vm.started_instance_date < datetime.datetime.now() - datetime.timedelta.min(30):
+                        and compute_node.vm.started_instance_date < datetime.datetime.now() - datetime.timedelta(minutes=30):
                     logger.debug('VM compute node id: %s instance id: %s in wait for first time response' % (
                         compute_node.id, compute_node.vm.instance_id))
                     return
