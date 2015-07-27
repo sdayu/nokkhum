@@ -142,7 +142,7 @@ class VMMonitoring(threading.Thread):
                 processor_command=processor_command).first() is None:
             return
 
-        if self.compute_node_manager.get_compute_node_available_resource() is not None:
+        if self.compute_node_manager.find_suitable_compute_node() is not None:
             return
 
         logger.debug('VM There are no available resource')
