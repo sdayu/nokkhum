@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
             access_key_id, secret_access_key, host, port, secure)
 
     def test_find_instance(self):
-        instance = self.ec2.find_instance('i-00000029')
+        instance = self.ec2.find_instance('i-00000088')
         print('instance status:', instance.state)
 
 
