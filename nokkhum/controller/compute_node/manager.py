@@ -30,8 +30,7 @@ class ComputeNodeManager(object):
         return compute_nodes
 
     def get_online_compute_nodes(self):
-        # delta = datetime.timedelta(minutes=1)
-        delta = datetime.timedelta(days=1)
+        delta = datetime.timedelta(minutes=1)
         now = datetime.datetime.now()
 
         compute_nodes = models.ComputeNode.objects(
@@ -74,6 +73,10 @@ class ComputeNodeManager(object):
         return False
 
     def predict_resource(self, compute_node):
+
+        if not hasattr(compute_node, "resource_records")\
+                or len(compute_node.resource_records) == 0:
+            return None, None, None
 
         records = compute_node.resource_records
 
@@ -152,7 +155,7 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
     def find_suitable_compute_node(self, processor=None):
         print("check find_suitable_compute_node")
         suitable_compute_nodes = super().find_suitable_compute_node()
-        print("test:", processor)
+        return suitable_compute_nodes
         if processor is None:
             print("suitable:", suitable_compute_nodes)
             return suitable_compute_nodes
@@ -168,7 +171,7 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                 = self.predict_processor_resource(processor)
         cn_cpu_usage, cn_memory_usage, cn_disk_usage \
                 = self.predict_resource(compute_node)
-        if processor_cpu_usage <= 100-cn_cpu_usage\
+        if cn_cpu_usage and  processor_cpu_usage <= 100-cn_cpu_usage\
                 and processor_memory_usage <= compute_node.resource_information.total_memory-cn_memory_usage:
             return True
         return False
