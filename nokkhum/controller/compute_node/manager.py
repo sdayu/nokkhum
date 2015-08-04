@@ -24,6 +24,7 @@ class ComputeNodeManager(object):
         '''
         Constructor
         '''
+        self.CPU_UPPER_BOUND = 95
 
     def get_compute_nodes(self):
         compute_nodes = models.ComputeNode.objects().all()
@@ -38,17 +39,44 @@ class ComputeNodeManager(object):
 
         return compute_nodes
 
-    def find_suitable_compute_node(self, processor=None):
-        '''
-        need appropriate scheduling about CPU and RAM
-        '''
+    def get_suitable_compute_nodes(self, processor=None):
+
         compute_nodes = self.get_online_compute_nodes()
 
         for compute_node in compute_nodes:
             if self.is_available_compute_node(compute_node):
-                return compute_node
+                yield compute_node
+
+        return []
+
+    def find_suitable_compute_node(self, processor=None):
+        '''
+        need appropriate scheduling about CPU and RAM
+        '''
+        compute_nodes = self.get_suitable_compute_nodes()
+        for compute_node in compute_nodes:
+            return compute_node
 
         return None
+
+    def is_available_cpu(self, percent_cpu_usage, cpu_count=1):
+        print(percent_cpu_usage,":", cpu_count*self.CPU_UPPER_BOUND)
+        if( percent_cpu_usage < cpu_count*self.CPU_UPPER_BOUND):
+            return True
+
+        return False
+
+    def is_available_memory(self, memory_usage, full_memory):
+        if(full_memory - (memory_usage / 1000000) > 200):
+            return True
+
+        return False
+
+    def is_available_disk(self, disk_usage, full_disk):
+        if(full_disk - (disk_usage / 1000000) > 1000):
+            return True
+
+        return False
 
     def is_available_compute_node(self, compute_node):
 
@@ -59,15 +87,21 @@ class ComputeNodeManager(object):
         cpu_predict, memory_predict, disk_predict\
             = self.predict_resource(compute_node)
 
-        # decision cpu prediction 70% CPU usage
-        CPU_UPPER_BOUND = 95
+        print("predict: cpu",cpu_predict," memory:", memory_predict, " disk:", disk_predict)
 
-        if cpu_predict and cpu_predict < compute_node.resource_information.cpu_count * CPU_UPPER_BOUND\
-                and memory_predict / 1000000 > 200\
-                and disk_predict / 1000000 > 1000:
-            logger.debug("compute node id cpu: %s ram: %s disk %s" % (
-                cpu_predict, memory_predict % 1000000, disk_predict % 1000000))
-            return True
+        if cpu_predict:
+            cpu_available = self.is_available_cpu(cpu_predict, compute_node.resource_information.cpu_count)
+            memory_available = self.is_available_memory(memory_predict, compute_node.resource_information.total_memory)
+            disk_available = self.is_available_disk(disk_predict, compute_node.resource_information.total_disk)
+
+            logger.debug("compute node id cpu: %s/%s ram: %s/%s disk %s/%s" % (
+                cpu_predict, cpu_available, memory_predict % 1000000, memory_available,
+                disk_predict % 1000000, disk_available))
+            print("compute node id cpu: %s/%s ram: %s/%s disk %s/%s" % (
+                cpu_predict, cpu_available, memory_predict % 1000000, memory_available,
+                disk_predict % 1000000, disk_available))
+            if cpu_available and memory_available and disk_available:
+                return True
 
         # if compute node is not available
         return False
@@ -152,18 +186,28 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
         return cpu_usage, memory_usage
 
-    def find_suitable_compute_node(self, processor=None):
-        print("check find_suitable_compute_node")
-        suitable_compute_nodes = super().find_suitable_compute_node()
-        return suitable_compute_nodes
+
+    def get_suitable_compute_nodes(self, processor=None):
         if processor is None:
-            print("suitable:", suitable_compute_nodes)
-            return suitable_compute_nodes
-        print("xxxx:")
-        print(len(list(self.get_available_compute_nodes_resource())))
-        for compute_node in self.get_available_compute_nodes_resource():
-#             print("compute_node:", compute_node.name)
-            return compute_node
+            return super().get_suitable_compute_nodes()
+
+        return []
+
+    def find_suitable_compute_node(self, processor=None):
+        print("check find_suitable_compute_node processor:", processor)
+
+        if processor is None:
+            suitable_compute_node = super().find_suitable_compute_node()
+            if suitable_compute_node:
+                print("find suitable compute_node:", suitable_compute_node.name)
+            return suitable_compute_node
+
+        print("check compute node with processor")
+        for compute_node in self.get_suitable_compute_nodes(processor):
+            print("compute_node:", compute_node.name)
+            if self.is_suitable_running(compute_node, processor):
+                print("Yes get compute_node:", compute_node.name)
+                return compute_node
 
     def is_suitable_running(self, compute_node, processor):
         print("check suitable running")
@@ -171,15 +215,26 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                 = self.predict_processor_resource(processor)
         cn_cpu_usage, cn_memory_usage, cn_disk_usage \
                 = self.predict_resource(compute_node)
-        if cn_cpu_usage and  processor_cpu_usage <= 100-cn_cpu_usage\
-                and processor_memory_usage <= compute_node.resource_information.total_memory-cn_memory_usage:
+        print("p cpu: %s p memory: %s" % (processor_cpu_usage, processor_memory_usage))
+        print("cn cpu: %s cn memory: %s cn disk: %s"%(cn_cpu_usage, cn_memory_usage, cn_disk_usage))
+
+        if cn_cpu_usage is None:
+            return False
+
+        # cpu_available = compute_node.resource_information.cpu_count*100 - cn_cpu_usage
+        # memory_available = compute_node.resource_information.total_memory - cn_memory_usage
+        # print("available cn cpu: %s cn memory: %s "%(cpu_available, memory_available))
+
+        cn_cpu_future = cn_cpu_usage + processor_cpu_usage
+        cn_memory_future = cn_memory_usage + processor_memory_usage
+
+        print("suitable check: %s:%s"%(self.is_available_cpu(cn_cpu_future, compute_node.resource_information.cpu_count),
+                self.is_available_memory(cn_memory_future, compute_node.resource_information.total_memory)))
+
+        if self.is_available_cpu(cn_cpu_future, compute_node.resource_information.cpu_count) \
+                and self.is_available_memory(cn_memory_future, compute_node.resource_information.total_memory):
             return True
+
         return False
 
-    def is_available_compute_node(self, compute_node, processor=None):
-        if processor is None:
-            return super().is_available_compute_node(compute_node)
-        else:
-            # TODO: check this compute node is suitable compute node
-            return self.is_suitable_running(compute_node, processor)
 
