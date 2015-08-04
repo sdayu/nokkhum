@@ -242,10 +242,11 @@ class ProcessorScheduling(threading.Thread):
                 continue
 
             # TODO: add processor to this method
+            print("check suitable resource from scheduler")
             if self.compute_node_manager.find_suitable_compute_node() is None:
                 logger.debug("There are no available compute node")
                 break
-
+            print("continue scheduler")
             # this_queue =
             # models.ProcessorCommandQueue.objects(processor_command__status =
             # "waiting").order_by('+id').first()
@@ -268,11 +269,13 @@ class ProcessorScheduling(threading.Thread):
                 compute_node = processor.operating.compute_node
 
                 # get available computation node for distribute image processor
+                print("check old compute node")
                 if not self.compute_node_manager\
-                        .is_available_compute_node(compute_node, processor):
+                        .is_suitable_running(compute_node, processor):
+                    print("find it if not suitable")
                     compute_node = self.compute_node_manager\
                         .find_suitable_compute_node(processor)
-
+                print("is get compute node: ", compute_node)
                 if compute_node is None:
                     logger.debug("There are no available resource")
                     break
