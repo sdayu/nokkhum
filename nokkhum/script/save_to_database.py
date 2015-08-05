@@ -57,9 +57,14 @@ class DatabaseImporter:
 
                     is_drop_image = False
                     if len(results['stderr']) > 0:
-                        obj = json.loads(results['stderr'][0])
-                        if obj['method'] == 'drop_image_from_queue':
-                            is_drop_image = True
+                        for stderr_re in results['stderr']:
+                            try:
+                                obj = json.loads(stderr_re)
+                                if obj['method'] == 'drop_image_from_queue':
+                                    is_drop_image = True
+                                    break
+                            except:
+                                print("load error:", stderr_re)
                     # print('results:', results['stderr'])
                     heuristic = dict(max_cpu_used=max(cpu_used),
                         max_memory_used=max(memory_used),
