@@ -21,7 +21,8 @@ class VMMonitoring(threading.Thread):
         threading.Thread.__init__(self)
         self.name = 'VM Monitoring'
         self.daemon = True
-        self.compute_node_manager = ComputeNodeManager()
+        # self.compute_node_manager = ComputeNodeManager()
+        self.compute_node_manager = ResourceUsageComputeNodeManager()
 
         self.vm_manager = VMManager()
 
@@ -142,7 +143,7 @@ class VMMonitoring(threading.Thread):
                 processor_command=processor_command).first() is None:
             return
 
-        if self.compute_node_manager.find_suitable_compute_node() is not None:
+        if self.compute_node_manager.find_suitable_compute_node(processor_command.processor) is not None:
             return
 
         logger.debug('VM There are no available resource')
