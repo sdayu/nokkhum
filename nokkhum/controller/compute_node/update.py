@@ -46,6 +46,7 @@ class ComputeNodeResource:
         try:
             name = args['name']
             cpu_count = args['cpu_count']
+            cpu_model = args['cpu_model']
             cpu_frequency = args['cpu_frequency']
             total_memory = args['total_memory']
             total_disk = args['total_disk']
@@ -60,17 +61,17 @@ class ComputeNodeResource:
                 compute_node.create_date = datetime.datetime.now()
                 compute_node.host = host
 
-            resource_information = models.ResourceInformation()
-            resource_information.cpu_count = cpu_count
-            resource_information.cpu_frequency = cpu_frequency
-
-            resource_information.total_memory = total_memory
-            resource_information.total_disk = total_disk
+            machine_specification = models.MachineSpecification()
+            machine_specification.cpu_model = cpu_model
+            machine_specification.cpu_count = cpu_count
+            machine_specification.cpu_frequency = cpu_frequency
+            machine_specification.total_memory = total_memory
+            machine_specification.total_disk = total_disk
+            machine_specification.machine = machine
+            machine_specification.system = system
 
             compute_node.name = name
-            compute_node.machine = machine
-            compute_node.system = system
-            compute_node.resource_information = resource_information
+            compute_node.machine_specification = machine_specification
             compute_node.updated_date = datetime.datetime.now()
             compute_node.updated_resource_date = datetime.datetime.now()
             compute_node.push_responsed_date()

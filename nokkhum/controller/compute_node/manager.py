@@ -92,9 +92,9 @@ class ComputeNodeManager(object):
         print("predict: cpu",cpu_predict," memory:", memory_predict, " disk:", disk_predict)
 
         if cpu_predict:
-            cpu_available = self.is_available_cpu(cpu_predict, compute_node.resource_information.cpu_count)
-            memory_available = self.is_available_memory(memory_predict, compute_node.resource_information.total_memory)
-            disk_available = self.is_available_disk(disk_predict, compute_node.resource_information.total_disk)
+            cpu_available = self.is_available_cpu(cpu_predict, compute_node.machine_specification.cpu_count)
+            memory_available = self.is_available_memory(memory_predict, compute_node.machine_specification.total_memory)
+            disk_available = self.is_available_disk(disk_predict, compute_node.machine_specification.total_disk)
 
             logger.debug("compute node id cpu: %s/%s ram: %s/%s disk %s/%s" % (
                 cpu_predict, cpu_available, memory_predict % 1000000, memory_available,
@@ -151,11 +151,12 @@ class ComputeNodeManager(object):
 
 
 class ResourceUsageComputeNodeManager(ComputeNodeManager):
+    def __init__(self):
+        super().__init__()
 
-    def predict_processor_resource(self, processor, image_processors=None):
+    def predict_processor_resource(self, compute_node, processor, image_processors=None):
 
         camera = processor.cameras[0]
-
         fps = camera.fps
         video_size = list(map(int, camera.image_size.split('x')))
 
@@ -171,18 +172,24 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
             if 'width' in ip:
                 video_size = [ip['width'], ip['height']]
             ipx = models.ImageProcessingExperiment.objects(
+                    machine_specification__cpu_model = compute_node.machine_specification.cpu_model,
+                    machine_specification__cpu_frequency = compute_node.machine_specification.cpu_frequency,
+                    machine_specification__cpu_count = compute_node.machine_specification.cpu_count,
                     image_analysis=ip['name'],
                     video_size=video_size,
                     fps=fps
                     ).first()
+
             if ipx:
+                print("found")
                 cpu_usage += ipx.heuristic['max_cpu_used']
                 memory_usage += ipx.heuristic['max_memory_used']
 #                 print("cpu:", cpu_usage, "memory:", memory_usage)
 
             if 'image_processors' in ip:
-                cpu_r, memory_r = self.predict_processor_resource(processor,
-                                                        ip['image_processors'])
+                cpu_r, memory_r = self.predict_processor_resource(compute_node,
+                                                            processor,
+                                                            ip['image_processors'])
                 cpu_usage += cpu_r
                 memory_usage += memory_r
 
@@ -213,30 +220,34 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                 return compute_node
 
     def is_suitable_running(self, compute_node, processor):
-        processor_cpu_usage, processor_memory_usage \
-                = self.predict_processor_resource(processor)
+        if not hasattr(compute_node, "resource_records"):
+            return False
+
         cn_cpu_usage, cn_memory_usage, cn_disk_usage \
                 = self.predict_resource(compute_node)
-        print("p cpu: %s p memory: %s" % (processor_cpu_usage, processor_memory_usage))
-        print("cn cpu: %s cn memory: %s cn disk: %s"%(cn_cpu_usage, cn_memory_usage, cn_disk_usage))
-
         if cn_cpu_usage is None:
             return False
 
-        # cpu_available = compute_node.resource_information.cpu_count*100 - cn_cpu_usage
-        # memory_available = compute_node.resource_information.total_memory - cn_memory_usage
+        processor_cpu_usage, processor_memory_usage \
+                = self.predict_processor_resource(compute_node, processor)
+        print("p cpu: %s p memory: %s" % (processor_cpu_usage, processor_memory_usage))
+        print("cn cpu: %s cn memory: %s cn disk: %s"%(cn_cpu_usage, cn_memory_usage, cn_disk_usage))
+
+
+        # cpu_available = compute_node.machine_specification.cpu_count*100 - cn_cpu_usage
+        # memory_available = compute_node.machine_specification.total_memory - cn_memory_usage
         # print("available cn cpu: %s cn memory: %s "%(cpu_available, memory_available))
 
         cn_cpu_future = cn_cpu_usage + processor_cpu_usage
         cn_memory_future = cn_memory_usage + processor_memory_usage
 
-        print("suitable check: %s:%s"%(self.is_available_cpu(cn_cpu_future, compute_node.resource_information.cpu_count),
-                self.is_available_memory(cn_memory_future, compute_node.resource_information.total_memory)))
+        print("suitable check: %s:%s"%(self.is_available_cpu(cn_cpu_future, compute_node.machine_specification.cpu_count),
+                self.is_available_memory(cn_memory_future, compute_node.machine_specification.total_memory)))
 
         if self.is_available_cpu(cn_cpu_future,
-                                 compute_node.resource_information.cpu_count) \
+                                 compute_node.machine_specification.cpu_count) \
                 and self.is_available_memory(cn_memory_future,
-                                            compute_node.resource_information.total_memory):
+                                            compute_node.machine_specification.total_memory):
             return True
 
         return False

@@ -71,7 +71,16 @@ class DatabaseImporter:
                         drop_image=is_drop_image
                         )
 
-                    ipe = models.ImageProcessingExperiment(machine_specification=ms,
+                    ipe = models.ImageProcessingExperiment.objects(machine_specification=ms,
+                        image_analysis=image_analysis,
+                        video_size=map(int,image_size.split('x')),
+                        fps=int(fps)).first()
+
+                    if ipe:
+                        ipe.results=results
+                        ipe.heuristic=heuristic
+                    else:
+                        ipe = models.ImageProcessingExperiment(machine_specification=ms,
                                                    results=results,
                                                    image_analysis=image_analysis,
                                                    video_size=map(int,image_size.split('x')),
