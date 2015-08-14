@@ -37,11 +37,7 @@ class UpdateInfomation:
     def __init__(self, publisher):
 
         self.publisher = publisher
-
-        self.machine_specification = machine_specification.MachineSpecification(
-            config.Configurator.settings.get('nokkhum.processor.record_path'),
-            config.Configurator.settings.get('nokkhum.compute.interface')
-        )
+        self.machine_specification = self.get_machine_specification()
 
         self.resource = self.get_resource()
         time.sleep(10)
@@ -55,8 +51,13 @@ class UpdateInfomation:
         return result
 
     def get_machine_specification(self):
-        machine_specification = self.machine_specification.get_specification()
-        return machine_specification
+        ms = machine_specification.MachineSpecification(
+            config.Configurator.settings.get('nokkhum.processor.record_path'),
+            config.Configurator.settings.get('nokkhum.compute.interface')
+        )
+
+        result = ms.get_specification()
+        return result
 
     def update_machine_specification(self):
 
@@ -70,7 +71,7 @@ class UpdateInfomation:
 
         cpus = psutil.cpu_percent(interval=.3, percpu=True)
 
-        ms = self.machine_specification.get_specification()
+        ms = self.machine_specification
         ip = ms['ip']
 
         sum_ = 0.0
@@ -142,7 +143,7 @@ class UpdateInfomation:
 
         fail_processors = {
             'name': platform.node(),
-            'ip': self.ip,
+            'ip': self.machine_specification['ip'],
             'dead_process': dead_process,
             'report_time': datetime.datetime.now().isoformat()
         }

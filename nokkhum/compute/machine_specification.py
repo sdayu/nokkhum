@@ -2,8 +2,8 @@
 
 import platform
 import psutil
-import fileinput
 import netifaces
+import subprocess
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,21 +27,31 @@ class MachineSpecification:
         cpu_model = ''
 
         try:
-            cpuinfo = fileinput.input(files='/proc/cpuinfo')
-            for line in cpuinfo:
-                if 'cpu MHz' in line:
+            cpuinfo = subprocess.check_output('lscpu')
+            cpu_model = ''
+            cpu_frequency = 0.0
+            cpu_frequency_max = 0.0
+            for line in cpuinfo.decode('utf-8').split('\n'):
+                if 'CPU MHz' in line:
                     str_token = line.split(':')
                     cpu_frequency = float(str_token[1].strip())
                     continue
 
-                if 'model name' in line:
+                if 'CPU max MHz' in line:
+                    str_token = line.split(':')
+                    cpu_frequency_max = float(str_token[1].strip())
+                    continue
+
+                if 'Model name' in line:
                     str_token = line.split(':')
                     cpu_model = str_token[1].strip()
 
                 if len(cpu_model) > 0 and cpu_frequency > 0:
                     break
 
-            cpuinfo.close()
+            if cpu_frequency_max > 0:
+                cpu_frequency = cpu_frequency_max
+
         except Exception as e:
             logger.exception(e)
 
