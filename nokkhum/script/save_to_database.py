@@ -66,8 +66,31 @@ class DatabaseImporter:
                             except:
                                 print("load error:", stderr_re)
                     # print('results:', results['stderr'])
-                    heuristic = dict(max_cpu_used=max(cpu_used),
-                        max_memory_used=max(memory_used),
+                    avg_cpu = sum(cpu_used)/len(cpu_used)
+                    avg_mem = sum(memory_used)/len(memory_used)
+
+                    max_cpu = [c for c in cpu_used if c > avg_cpu]
+                    max_mem = [m for m in memory_used if m > avg_mem]
+
+                    avg_max_cpu = avg_cpu
+                    avg_max_mem = avg_mem
+                    if len(max_cpu) > 0:
+                        avg_max_cpu = sum(max_cpu)/len(max_cpu)
+                    else:
+                        print(image_analysis, image_size, 'cpu divided by zero:', avg_cpu)
+
+                    if len(max_mem) > 0:
+                        avg_max_mem = sum(max_mem)/len(max_mem)
+                    else:
+                        print(image_analysis, image_size, 'mem divided by zero:', avg_mem)
+
+
+                    heuristic = dict(max_cpu=max(cpu_used),
+                        max_memory=max(memory_used),
+                        avg_cpu=avg_cpu,
+                        avg_memory=avg_mem,
+                        avg_max_cpu=avg_max_cpu,
+                        avg_max_memory=avg_max_mem,
                         drop_image=is_drop_image
                         )
 
