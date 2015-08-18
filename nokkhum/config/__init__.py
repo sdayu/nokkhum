@@ -10,6 +10,7 @@ class Configurator:
         self.settings['nokkhum.information.removal'] = 0
         self.settings['nokkhum.vm.enable'] = False
         self.settings['nokkhum.storage.enable'] = False
+        self.settings['nokkhum.scheduler.processor.heuristic'] = 'avg'
 
         self.__parse()
 

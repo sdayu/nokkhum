@@ -6,6 +6,7 @@ Created on Nov 7, 2011
 import datetime
 
 from nokkhum import models
+from nokkhum import config
 from .resource_predictor import KalmanPredictor
 
 
@@ -152,7 +153,19 @@ class ComputeNodeManager(object):
 
 class ResourceUsageComputeNodeManager(ComputeNodeManager):
     def __init__(self):
+
         super().__init__()
+
+    def get_heuristic_resources(self, ip_experimental):
+        ip_heuristic = {
+                'avg': {'cpu':'avg_cpu', 'memory': 'avg_memory'},
+                'avg_max': {'cpu':'avg_max_cpu', 'memory': 'avg_max_memory'},
+                'max': {'cpu':'max_cpu', 'memory': 'max_memory'}
+            }
+
+        settings = config.Configurator.settings
+        resource_key = ip_heuristic[settings['nokkhum.scheduler.processor.heuristic']]
+        return ip_experimental.heuristic[resource_key['cpu']], ip_experimental.heuristic[resource_key['memory']]
 
     def predict_processor_resource(self, compute_node, processor, image_processors=None):
 
@@ -182,8 +195,7 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
             if ipx:
                 print("found")
-                cpu_usage += ipx.heuristic['max_cpu_used']
-                memory_usage += ipx.heuristic['max_memory_used']
+                cpu_usage, memory_usage = self.get_heuristic_resources(ipx)
 #                 print("cpu:", cpu_usage, "memory:", memory_usage)
 
             if 'image_processors' in ip:
