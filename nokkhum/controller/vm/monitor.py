@@ -3,7 +3,7 @@ Created on Aug 23, 2012
 
 @author: boatkrap
 '''
-from ..compute_node.manager import ComputeNodeManager
+from ..compute_node.manager import ComputeNodeManager, ResourceUsageComputeNodeManager
 from .manager import VMManager
 from nokkhum import models
 
