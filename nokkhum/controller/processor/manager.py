@@ -86,7 +86,14 @@ class ProcessorManager:
             'args': args,
         }
 
-        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
+        response = self.__call_rpc(request, self.__get_routing_key(compute_node.host))
+
+        if processor.compute_node != compute_node:
+            processor.compute_node = compute_node
+            processor.save()
+
+        return response
+
 
     def stop_processor(self, compute_node, processor):
         request = {
@@ -94,7 +101,12 @@ class ProcessorManager:
             'args': {'processor_id': str(processor.id)}
         }
 
-        return self.__call_rpc(request, self.__get_routing_key(compute_node.host))
+        response = self.__call_rpc(request, self.__get_routing_key(compute_node.host))
+
+        processor.compute_node = None
+        processor.save()
+
+        return response
 
     def list_processor(self, compute_node):
         request = {
