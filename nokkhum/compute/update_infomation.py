@@ -74,12 +74,8 @@ class UpdateInfomation:
         ms = self.machine_specification
         ip = ms['ip']
 
-        sum_ = 0.0
-        for usage in cpus:
-            sum_ += usage
-
         cpu_prop = {
-            "used": round(sum_ / len(cpus)),
+            "used": round(sum(cpus) / len(cpus)),
             "percpu": cpus,
         }
 
@@ -102,6 +98,8 @@ class UpdateInfomation:
         processor_manager = compute.processor_manager
         processor_list = []
 
+        pcpu = 0
+        pmem = 0
         for pid, processor_id in processor_manager.get_pids():
             process = psutil.Process(pid)
             process_status = {
@@ -112,8 +110,15 @@ class UpdateInfomation:
                 'memory': process.memory_info().rss,
                 'messages': compute.processor_manager.read_process_output(processor_id)
             }
+            pcpu += process_status['cpu']
+            pmem += process_status['memory']
 
             processor_list.append(process_status)
+
+        system_load={
+            'cpu': sum(cpus)-pcpu if sum(cpus)-pcpu >= 0 else 0,
+            'memory': mem.used-pmem if mem.used-pmem >= 0 else 0
+        }
 
         resource = {
             'name': platform.node(),
@@ -121,6 +126,7 @@ class UpdateInfomation:
             'memory': mem_prop,
             'disk': disk_prop,
             'processors': processor_list,
+            'system_load': system_load,
             'ip': ip,
             'date': datetime.datetime.now().isoformat()
         }

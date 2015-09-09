@@ -96,6 +96,7 @@ class ComputeNodeResource:
             cpu = args['cpu']
             memory = args['memory']
             disk = args['disk']
+            system_load = args['system_load']
             processors = args['processors']
             host = args['ip']
             reported_date = datetime.datetime.strptime(
@@ -133,6 +134,10 @@ class ComputeNodeResource:
             resource_usage.disk.used = disk['used']
             resource_usage.disk.free = disk['free']
             resource_usage.disk.percent = disk['percent']
+
+            resource_usage.system_load.cpu = system_load['cpu']
+            resource_usage.system_load.memory = system_load['memory']
+
             resource_usage.reported_date = reported_date
 
             report = models.ComputeNodeReport()
@@ -141,6 +146,7 @@ class ComputeNodeResource:
             report.cpu = resource_usage.cpu
             report.memory = resource_usage.memory
             report.disk = resource_usage.disk
+            report.system_load = resource_usage.system_load
             report.save()
 
             current_time = datetime.datetime.now()
