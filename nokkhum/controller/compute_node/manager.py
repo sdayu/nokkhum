@@ -295,11 +295,14 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
         cn_p_cpu_usage, cn_p_memory_usage = self.get_estimate_processor_on_compute_node(compute_node, processor)
 
         # need policy
-        #cn_cpu_future = cn_cpu_usage + processor_cpu_usage
-        #cn_memory_future = cn_memory_usage + processor_memory_usage
-
-        cn_cpu_future = cn_p_cpu_usage + processor_cpu_usage
-        cn_memory_future = cn_p_memory_usage + processor_memory_usage
+        cn_cpu_future = 0
+        cn_memory_future = 0
+        if cn_cpu_usage > cn_p_cpu_usage:
+            cn_cpu_future = cn_cpu_usage + processor_cpu_usage
+            cn_memory_future = cn_memory_usage + processor_memory_usage
+        else:
+            cn_cpu_future = cn_p_cpu_usage + processor_cpu_usage
+            cn_memory_future = cn_p_memory_usage + processor_memory_usage
 
         print("last predict cn cpu: %s cn memory: %s"%(cn_cpu_future, cn_memory_future))
 
