@@ -88,7 +88,7 @@ class ProcessorManager:
 
         response = self.__call_rpc(request, self.__get_routing_key(compute_node.host))
 
-        if processor.compute_node != compute_node:
+        if hasattr(processor, 'compute_node') and processor.compute_node != compute_node:
             processor.compute_node = compute_node
             processor.save()
 

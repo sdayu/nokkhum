@@ -307,10 +307,11 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                 self.is_available_memory(cn_memory_future, compute_node.machine_specification.total_memory)))
 
         if self.is_available_cpu(cn_cpu_future,
-                                 compute_node.machine_specification.cpu_count) \
-                and self.is_available_memory(cn_memory_future,
-                                            compute_node.machine_specification.total_memory)\
-                and self.is_available_disk(cn_disk_usage, compute_node.machine_specification.total_disk):
+                    compute_node.machine_specification.cpu_count) and \
+                self.is_available_memory(cn_memory_future,
+                    compute_node.machine_specification.total_memory) and \
+                self.is_available_disk(cn_disk_usage,
+                    compute_node.machine_specification.total_disk):
             return True
 
         return False
