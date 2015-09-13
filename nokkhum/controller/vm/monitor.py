@@ -143,7 +143,8 @@ class VMMonitoring(threading.Thread):
                 processor_command=processor_command).first() is None:
             return
 
-        if self.compute_node_manager.find_suitable_compute_node(processor_command.processor) is not None:
+        if self.compute_node_manager.find_suitable_compute_node(
+                processor_command.processor) is not None:
             return
 
         logger.debug('VM There are no available resource')
@@ -157,12 +158,12 @@ class VMMonitoring(threading.Thread):
                     return
                 elif 'responsed_date' not in compute_node.extra \
                         and compute_node.vm.started_instance_date < datetime.datetime.now() - datetime.timedelta(minutes=30):
-                    logger.debug('VM compute node id: %s instance id: %s in wait for first time response' % (
+                    logger.debug('VM compute node id: %s instance id: %s in wait for first time response in 30 minutes' % (
                         compute_node.id, compute_node.vm.instance_id))
                     return
                 elif 'responsed_date' in compute_node.extra:
-                    if compute_node.extra['responsed_date'][-1] > (datetime.datetime.now() - datetime.timedelta(seconds=10)):
-                        logger.debug('VM compute node id: %s instance id: %s in wait for stable report resource' % (
+                    if compute_node.extra['responsed_date'][-1] > (datetime.datetime.now() - datetime.timedelta(seconds=60)):
+                        logger.debug('VM compute node id: %s instance id: %s in wait for stable report resource in 60 seconds' % (
                             compute_node.id, compute_node.vm.instance_id))
                         return
 
