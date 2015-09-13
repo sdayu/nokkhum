@@ -170,13 +170,42 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
         resource_key = ip_heuristic[settings['nokkhum.scheduler.processor.heuristic']]
         return ip_experimental.heuristic[resource_key['cpu']], ip_experimental.heuristic[resource_key['memory']]
 
-    def predict_processor_resource_usage(self, compute_node, processor, image_processors=None):
+    def get_image_processing_experiment(self, compute_node, processor, ip):
 
         camera = processor.cameras[0]
         fps = camera.fps
         video_size = list(map(int, camera.image_size.split('x')))
 
+        cpu_usage = 0
+        memory_usage = 0
+
         print("video size:", video_size)
+        ipx = models.ImageProcessingExperiment.objects(
+                    machine_specification__cpu_model = compute_node.machine_specification.cpu_model,
+                    machine_specification__cpu_frequency = compute_node.machine_specification.cpu_frequency,
+                    machine_specification__cpu_count = compute_node.machine_specification.cpu_count,
+                    image_analysis=ip['name'],
+                    video_size=video_size,
+                    fps=fps
+                    ).first()
+        if ipx is None:
+            ipx = models.ImageProcessingExperiment.objects(
+                    image_analysis=ip['name'],
+                    video_size=video_size,
+                    fps=fps
+                    ).first()
+
+        if ipx:
+            print("found")
+            cpu_usage, memory_usage = self.get_heuristic_resources(ipx)
+            print("cpu:", cpu_usage, "memory:", memory_usage)
+        else:
+            pass
+
+        return cpu_usage, memory_usage
+
+    def predict_processor_resource_usage(self, compute_node, processor, image_processors=None):
+
 
         cpu_usage = 0
         memory_usage = 0
@@ -187,19 +216,8 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
         for ip in image_processors:
             if 'width' in ip:
                 video_size = [ip['width'], ip['height']]
-            ipx = models.ImageProcessingExperiment.objects(
-                    machine_specification__cpu_model = compute_node.machine_specification.cpu_model,
-                    machine_specification__cpu_frequency = compute_node.machine_specification.cpu_frequency,
-                    machine_specification__cpu_count = compute_node.machine_specification.cpu_count,
-                    image_analysis=ip['name'],
-                    video_size=video_size,
-                    fps=fps
-                    ).first()
 
-            if ipx:
-                print("found")
-                cpu_usage, memory_usage = self.get_heuristic_resources(ipx)
-#                 print("cpu:", cpu_usage, "memory:", memory_usage)
+            cpu_usage, memory_usage = self.get_image_processing_experiment(compute_node, processor, ip)
 
             if 'image_processors' in ip:
                 cpu_r, memory_r = self.predict_processor_resource_usage(compute_node,
