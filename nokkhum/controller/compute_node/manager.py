@@ -197,7 +197,25 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
         if ipx:
             print("found")
+            print("name: %s video_size: %s fps: %s cpu: %s/%s"%
+                    (ipx.image_analysis,"x".join(map(str, video_size)),
+                        fps, ipx.machine_specification.cpu_frequency,
+                        compute_node.machine_specification.cpu_frequency))
+
             cpu_usage, memory_usage = self.get_heuristic_resources(ipx)
+
+            print("before cpu:", cpu_usage, "memory:", memory_usage)
+            if ipx.machine_specification.cpu_model != compute_node.machine_specification.cpu_model\
+                    and ipx.machine_specification.cpu_frequency != compute_node.machine_specification.cpu_frequency:
+                factor = 1
+                if ipx.machine_specification.cpu_frequency >=  compute_node.machine_specification.cpu_frequency:
+                    factor = compute_node.machine_specification.cpu_frequency / ipx.machine_specification.cpu_frequency
+                else:
+                    factor = ipx.machine_specification.cpu_frequency / compute_node.machine_specification.cpu_frequency
+
+                cpu_usage = cpu_usage * factor
+                memory_usage = memory_usage * factor
+            print("factor:",factor)
             print("cpu:", cpu_usage, "memory:", memory_usage)
         else:
             pass
