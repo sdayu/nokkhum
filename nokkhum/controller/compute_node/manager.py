@@ -188,6 +188,34 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                     video_size=video_size,
                     fps=fps
                     ).first()
+
+        if ipx is None:
+            f_set = set()
+            frequency_x = models.ImageProcessingExperiment.objects(
+                    image_analysis=ip['name'],
+                    video_size=video_size,
+                    fps=fps
+                    ).only("machine_specification__cpu_frequency")
+            for fx in frequency_x:
+                f_set.add(fx.machine_specification.cpu_frequency)
+
+            f_list = list(f_set)
+            f_list.append(compute_node.machine_specification.cpu_frequency)
+
+            sorted(f_list)
+            fid = f_list.index(compute_node.machine_specification.cpu_frequency)
+            select_id = fid+1
+
+            if fid == len(f_list)-1:
+                select_id = fid - 1
+
+            ipx = models.ImageProcessingExperiment.objects(
+                    machine_specification__cpu_frequency = f_list[select_id],
+                    image_analysis=ip['name'],
+                    video_size=video_size,
+                    fps=fps
+                    ).first()
+
         if ipx is None:
             ipx = models.ImageProcessingExperiment.objects(
                     image_analysis=ip['name'],
@@ -196,7 +224,7 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                     ).first()
 
         if ipx:
-            print("found")
+            print("found cpu model:", ipx.machine_specification.cpu_model)
             print("name: %s video_size: %s fps: %s cpu: %s/%s"%
                     (ipx.image_analysis,"x".join(map(str, video_size)),
                         fps, ipx.machine_specification.cpu_frequency,
