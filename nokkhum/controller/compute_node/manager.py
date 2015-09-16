@@ -224,7 +224,8 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
                     ).first()
 
         if ipx:
-            print("found cpu model:", ipx.machine_specification.cpu_model)
+            print("found cpu model:", ipx.machine_specification.cpu_model,
+                  "especpted:", compute_node.machine_specification.cpu_model)
             print("name: %s video_size: %s fps: %s cpu: %s/%s"%
                     (ipx.image_analysis,"x".join(map(str, video_size)),
                         fps, ipx.machine_specification.cpu_frequency,

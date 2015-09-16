@@ -161,8 +161,8 @@ class VMMonitoring(threading.Thread):
                     logger.debug('VM compute node id: %s instance id: %s in wait for first time response in 30 minutes' % (
                         compute_node.id, compute_node.vm.instance_id))
                     return
-                elif 'responsed_date' in compute_node.extra or not compute_node.is_online():
-                    if datetime.datetime.now() - compute_node.extra['responsed_date'][-1] < datetime.timedelta(seconds=60):
+                elif 'responsed_date' in compute_node.extra:
+                    if datetime.datetime.now() - compute_node.extra['responsed_date'][-1] < datetime.timedelta(seconds=120):
                         logger.debug('VM compute node id: %s instance id: %s in wait for stable report resource in 60 seconds' % (
                             compute_node.id, compute_node.vm.instance_id))
                         return
