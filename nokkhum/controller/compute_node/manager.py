@@ -204,10 +204,19 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
 
             sorted(f_list)
             fid = f_list.index(compute_node.machine_specification.cpu_frequency)
-            select_id = fid+1
 
-            if fid == len(f_list)-1:
-                select_id = fid - 1
+            previous_id = fid - 1
+            next_id = fid + 1
+
+            if previous_id < 0:
+                previous_id = 0
+            if next_id >= len(f_list) -1:
+                next_id = fid
+
+            select_id = previous_id
+            if abs(f_list[previous_id]-f_list[fid]) > abs(f_list[next_id]-f_list[fid]):
+                if next_id != fid:
+                    select_id = next_id
 
             ipx = models.ImageProcessingExperiment.objects(
                     machine_specification__cpu_frequency = f_list[select_id],
