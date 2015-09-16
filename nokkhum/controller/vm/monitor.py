@@ -40,7 +40,7 @@ class VMMonitoring(threading.Thread):
 
                 if datetime.datetime.now() - compute_node.vm.started_instance_date \
                         < datetime.timedelta(minutes=30):
-                    logger.debug('VM Monitoring compute node id %s instance id %s begin started' % (
+                    logger.debug('VM Monitoring compute node id %s instance id %s available in starting preriod' % (
                         compute_node.id, compute_node.vm.instance_id))
                     continue
 
@@ -163,7 +163,7 @@ class VMMonitoring(threading.Thread):
                     return
                 elif 'responsed_date' in compute_node.extra:
                     if datetime.datetime.now() - compute_node.extra['responsed_date'][-1] < datetime.timedelta(seconds=120):
-                        logger.debug('VM compute node id: %s instance id: %s in wait for stable report resource in 60 seconds' % (
+                        logger.debug('VM compute node id: %s instance id: %s in wait for stable report resource in 120 seconds' % (
                             compute_node.id, compute_node.vm.instance_id))
                         return
 
