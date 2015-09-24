@@ -44,7 +44,7 @@ class VMManager(object):
         current_time = datetime.datetime.now()
         period_running_vm = current_time - datetime.timedelta(minutes=60)
         compute_nodes = models.ComputeNode.objects(
-            vm__ne=None,
+            vm__name__exists=True,
             vm__started_instance_date__gt=period_running_vm).all()
 
         if compute_nodes:
@@ -153,7 +153,7 @@ class VMManager(object):
 
     def list_vm_compute_node(self):
         compute_nodes = models.ComputeNode.objects(
-            vm__ne=None,
+            vm__name__exists=True,
             vm__status__ne='terminate').all()
 
         return compute_nodes
