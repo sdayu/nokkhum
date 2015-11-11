@@ -73,14 +73,15 @@ class GraphBuilder:
 
         fontsize = 25
         ax.set_xlabel("Time (s)",  fontsize=fontsize)
-        ax.set_ylabel("CPU used (%)", fontsize=fontsize)
-        ax.set_title(title + ' CPU Usage', fontsize=fontsize)
+        ax.set_ylabel("CPU usage (%)", fontsize=fontsize)
+        ax.set_title('CPU Usage of ' + title, fontsize=fontsize)
         plt.legend(prop={'size': fontsize})
         plt.tick_params(labelsize=fontsize)
         ax.grid(True)
         fig.savefig(self.output_path +
                     '/fig-%sfps-%s-cpu.png' % (fps, key.replace(" ", "-")))
-        fig.show()
+        # fig.show()
+        plt.close(fig)
 
     def build_memory_graph(self, image_size_results, key='Acquisition',
                            title="", fps=0):
@@ -106,14 +107,15 @@ class GraphBuilder:
 
         fontsize = 25
         ax.set_xlabel("Time (s)", fontsize=fontsize)
-        ax.set_ylabel("Memory used (MB)", fontsize=fontsize)
-        ax.set_title(title + ' Memory Usage', fontsize=fontsize)
+        ax.set_ylabel("Memory usage (MB)", fontsize=fontsize)
+        ax.set_title('Memory Usage of ' + title, fontsize=fontsize)
         plt.legend(prop={'size': fontsize})
         plt.tick_params(labelsize=fontsize)
         ax.grid(True)
         fig.savefig(self.output_path +
                     '/fig-%sfps-%s-memory.png' % (fps, key.replace(" ", "-")))
-        fig.show()
+        # fig.show()
+        plt.close(fig)
 
     def build(self, show):
         # aquisition
