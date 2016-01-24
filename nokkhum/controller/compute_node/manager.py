@@ -163,7 +163,9 @@ class ResourceUsageComputeNodeManager(ComputeNodeManager):
         ip_heuristic = {
                 'avg': {'cpu':'avg_cpu', 'memory': 'avg_memory'},
                 'avg_max': {'cpu':'avg_max_cpu', 'memory': 'avg_max_memory'},
-                'max': {'cpu':'max_cpu', 'memory': 'max_memory'}
+                'max': {'cpu':'max_cpu', 'memory': 'max_memory'},
+                'avg_min': {'cpu':'avg_min_cpu', 'memory': 'avg_min_memory'},
+                'min': {'cpu':'min_cpu', 'memory': 'min_memory'}
             }
 
         settings = config.Configurator.settings
