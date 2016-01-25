@@ -44,7 +44,7 @@ class DatabaseImporter:
         #                       '-v', '-8', '-<', '->']
 
     def process(self):
-        print("xxx:", self.data['machine_specification'])
+        print("ms:", self.data['machine_specification'])
         machine_specification = self.data['machine_specification']
         del machine_specification['ip']
         ms = models.MachineSpecification(**machine_specification)
@@ -72,8 +72,14 @@ class DatabaseImporter:
                     max_cpu = [c for c in cpu_used if c > avg_cpu]
                     max_mem = [m for m in memory_used if m > avg_mem]
 
+                    min_cpu = [c for c in cpu_used if c < avg_cpu]
+                    min_mem = [m for m in memory_used if m < avg_mem]
+
                     avg_max_cpu = avg_cpu
                     avg_max_mem = avg_mem
+                    avg_min_cpu = avg_cpu
+                    avg_min_mem = avg_mem
+
                     if len(max_cpu) > 0:
                         avg_max_cpu = sum(max_cpu)/len(max_cpu)
                     else:
@@ -84,13 +90,29 @@ class DatabaseImporter:
                     else:
                         print(image_analysis, image_size, 'mem divided by zero:', avg_mem)
 
+                    if len(min_cpu) > 0:
+                        avg_min_cpu = sum(min_cpu)/len(min_cpu)
+                    else:
+                        print(image_analysis, image_size, 'cpu divided by zero:', avg_cpu)
 
-                    heuristic = dict(max_cpu=max(cpu_used),
+                    if len(min_mem) > 0:
+                        avg_min_mem = sum(min_mem)/len(min_mem)
+                    else:
+                        print(image_analysis, image_size, 'mem divided by zero:', avg_mem)
+
+
+
+                    heuristic = dict(
+                        max_cpu=max(cpu_used),
                         max_memory=max(memory_used),
+                        min_cpu=min(cpu_used),
+                        min_memory=min(memory_used),
                         avg_cpu=avg_cpu,
                         avg_memory=avg_mem,
                         avg_max_cpu=avg_max_cpu,
                         avg_max_memory=avg_max_mem,
+                        avg_min_cpu=avg_min_cpu,
+                        avg_min_memory=avg_min_mem,
                         drop_image=is_drop_image
                         )
 
