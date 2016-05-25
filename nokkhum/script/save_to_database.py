@@ -11,6 +11,7 @@ import os
 import json
 import datetime
 import argparse
+import csv
 
 from nokkhum.compute import benchmark
 
@@ -30,12 +31,17 @@ class DateTimeJSONEncoder(json.JSONEncoder):
 
 
 class DatabaseImporter:
-    def __init__(self, data):
+    def __init__(self, data, output_path=None):
         self.data = data
         self.results = data['results']
 
         self.start = 5
         self.end = 150
+
+        self.output_path = output_path
+        if output_path:
+            if not os.path.exists(output_path):
+                os.mkdir(output_path)
 
         settings = {'mongodb.db_name': 'nokkhum', 'mongodb.host':'localhost'}
         models.initial(settings)
@@ -48,6 +54,39 @@ class DatabaseImporter:
         machine_specification = self.data['machine_specification']
         del machine_specification['ip']
         ms = models.MachineSpecification(**machine_specification)
+
+        csvwriter = None
+
+        fieldnames = ['name', 'system', 'machine', 'cpu_model', 'cpu_frequency',
+                'cpu_count', 'total_memory', 'total_disk']
+        fieldnames.extend([
+                        'image_analysis',
+                        'image_size',
+                        'fps',
+                        'avg_cpu',
+                        'max_cpu',
+                        'min_cpu',
+                        'avg_max_cpu',
+                        'avg_min_cpu',
+                        'avg_memory',
+                        'max_memory',
+                        'min_memory',
+                        'avg_max_memory',
+                        'avg_min_memory',
+                        'drop_image'])
+
+        if self.output_path:
+            csvfile = open(self.output_path+'/%s-%s-%s-result.csv'%(
+                machine_specification['name'],
+                machine_specification['cpu_frequency'],
+                machine_specification['cpu_count']
+                ), 'w', newline='')
+            if csvfile:
+                csvwriter = csv.DictWriter(csvfile, delimiter=' ',
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL,
+                                    fieldnames=fieldnames)
+                csvwriter.writeheader()
+
 
         for fps, image_size_results in self.results.items():
             for image_size, image_analysis_results in image_size_results.items():
@@ -134,18 +173,15 @@ class DatabaseImporter:
                                                    )
                     ipe.save()
 
-                    #print("ipe:", ipe.__dict__)
-                    # print(', '.join([fps,
-                    #                     image_size,
-                    #                     image_analysis,
-                    #                     str(max(cpu_used)),
-                    #                     str(min(cpu_used)),
-                    #                     str(sum(cpu_used)/len(cpu_used)),
-                    #                     str(max(memory_used)),
-                    #                     str(min(memory_used)),
-                    #                     str(sum(memory_used)/len(memory_used)),
-                    #                 ]))
-                    # print(max([result['cpu_used'] for result in results['results']]))
+                    if csvwriter:
+                        result = machine_specification.copy()
+                        result.update(heuristic)
+                        result.update({
+                                'image_analysis': image_analysis,
+                                'image_size': image_size,
+                                'fps': fps,
+                            })
+                        csvwriter.writerow(result)
 
 
 
@@ -154,12 +190,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-i', '--input',
                         help='input result')
+    parser.add_argument('-o', '--output',
+                        help='output result')
 
     args = parser.parse_args()
     print('args:', args)
 
     with open(args.input, 'r') as f:
         results = json.load(f)
-        a = DatabaseImporter(results)
+        a = DatabaseImporter(results, args.output)
         a.process()
         print("finish")
